@@ -1,0 +1,27 @@
+;;;             +------------- MBRLoader 0.2-i386 -----------------+
+;;;             | ArnaK, Inc.                                      |
+;;;             |                                                  |
+;;;             | string.qas                                       |
+;;;             +--------------------------------------------------+
+
+;;; +-------------------------------------------------------------------------+
+;;; | strlen                                                                  |
+;;; | entree : ds:si = chaine                                                 |
+;;; | sortie cx = longueur                                                    |
+;;; +-------------------------------------------------------------------------+
+strlen:
+	push ax
+	push si
+
+	mov cx, 0
+strlen1:
+	mov al, [si]
+	cmp al, 0
+	jz $strlen2
+	inc si
+	inc cx
+	jmp $strlen1
+strlen2:
+	pop si
+	pop ax
+	ret

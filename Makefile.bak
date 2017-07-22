@@ -71,4 +71,3 @@ clean :
 
 distclean : clean
 	rm -f step1 step2 installer config.qas configure version.qas
-# DO NOT DELETE

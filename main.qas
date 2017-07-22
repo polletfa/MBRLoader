@@ -1,141 +1,235 @@
-;;;             +------------- MBRLoader 0.1-i386 -----------------+
+;;;             +------------- MBRLoader 0.2-i386 -----------------+
 ;;;             | ArnaK, Inc.                                      |
 ;;;             |                                                  |
 ;;;             | main.qas                                         |
 ;;;             +--------------------------------------------------+
 
-_main:
+main:
+	cmp [$prompt], 0
+	jnz $ask ; demander la partition a demarrer
 
-	;; ES et DS pointent deja vers le bon segment.
+	;; l'option prompt vaut 0 -> demarrage automatique sauf si ctrl est pressee
+	mov ah, 2
+	int 0x16
+	and al, 4
+	cmp al, 4
+	jz $ask     ; CTRL pressee -> demander la partition a demarrer
 
-	mov	si,$intro
-	call	$print
+	;; demarrage automatique
+	mov dl, [$disk]
+	mov dh, [$head]
+	mov cx, [$cylsect]
+	jmp $load2
 
-	call	$makelist
+ask: 
+	;; Trouver les partitions sur les disques BIOS 0x80, 0x81, 0x82 et 0x83
+	mov dl, 0x80
+	mov dh, 0
+	mov cx, 1
+	call $find_parts
+	inc dl
+	call $find_parts
+	inc dl
+	call $find_parts
+	inc dl
+	call $find_parts
 
-	mov	al,[$_prompt]
-	cmp	al,1
-	jz	$prompt
+	jmp $launch_interf     ; lancer l'interface
 
-	;; touche <CTRL> pressee ?
-	mov	ah,2
-	int	0x16
-
-	and	al,4
-	cmp	al,4		; <CTRL> pressee
-	jz	$prompt
-	
-	;; lancer sans demander
-	mov	di,$list
-	sub	di,3
-	mov	cl,[$_default]
-	mov	ch,0
-	jmp	$findgoodentry
-	
-prompt:
-	call	$printlist
-
-	mov	si,$prompt_
-	call	$print
-
-	call	$inputchar
-
-	cmp	al,49		; '1'
-	jc	$badrep
-	cmp	al,58		; ':' (apres '9')
-	jnc	$repabcdefg	; si >= '5' , a-f ?
-
-	jmp	$goodrep
-
-badrep:
-	mov	si,$invalid
-	call	$print
-
-	jmp	$prompt
-
-repabcdefg:
-	cmp	al,97		; 'a'
-	jc	$badrep
-	cmp	al,104		; 'h
-	jnc	$badrep
-	
-goodrep:
-	mov	di,$list
-	sub	di,3
-	mov	ch,0
-	mov	cl,al
-	cmp	cl,58
-	jnc	$abcdefg
-
-	sub	cl,48
-	jmp	$findgoodentry
-abcdefg:
-	sub	cl,87
-findgoodentry:
-	add	di,3
-	loop	$findgoodentry
-
-	mov	dl,[di]
-	inc	di
-	mov	al,[di]
-
-	;; on verifie maintenant si la reponse entree etait dans la liste
-	;; proposee.
-	cmp	dl,0
-	jz	$badrep		; non
-	
 load:
-	;; charger le MBR
-	call	$loadMBR
+	;; obtenir les infos sur la partition selectionnee
+	mov si, $list
+	mov al, [$selected_item]
+	dec al
+	mov bl, 5
+	mul bl
+	add si, ax
 
-	;; on lit les infos.
-	
-	;; on se deplace 0x10 octets avant l'entree correspondant a la 1e part
-	add     di,0x1ae
+	mov dl, [si]
+	mov dh, [si+1]
+	mov cx, [si+2]
+	mov al, [si+4]
 
-	;; on se deplace a la bonne entree
-	mov	ch,0
-	mov	cl,al
-nextpart:
-	add	di,0x10
-	loop	$nextpart
+	mov si, $load_msg
+	call $dialog
 
-	;; on lit maintenant les parametres de l'interruption pour chargement
-	inc	di
-	mov	dh,[es:di]
-	inc	di
-	mov	cl,[es:di]
-	inc	di
-	mov	ch,[es:di]
+	cmp al, 5 ; partition etendue DOS
+	jz $load_extended
 
-	push	ax
-	mov	ax,0x7c0
-	mov	es,ax
-	pop	ax
+	jmp $load2
 
-	mov	di,0
+load_extended:
+	mov [$nb_parts], 0
+	call $find_parts
+	call $launch_interf
 
-	call	$disk_read
+load2:
+	;; faut-il afficher des infos sur la partition avant de la demarrer ?
+	cmp [$print_param], 0
+	jz $load3
 
-	;; saut a l'adresse concerne
+	mov si, $params
+	push cx
+	call $strlen
+	add si, cx
+	pop cx
+	mov al, dl
+	call $nb2str
+	add si,3
+	mov al, dh
+	call $nb2str
+	add si, 3
+	mov al, ch
+	call $nb2str
+	add si, 2
+	mov al, cl
+	call $nb2str
 
+	mov si, $params
+	call $dialog
+	mov ah, 0
+	int 0x16
+
+load3:
+	;; charger le secteur d'amorcage
+	mov ax, 0x7c0
+	mov es, ax
+	mov bx, 0
+	mov al, 1
+	mov ah, 2
+	int 0x13
+
+	;; effacer l'ecran
+	push ax
+	push bx
+	push cx
+	push dx
+	mov ah, 6
+	mov al, 0
+	mov bh, 7
+	mov cx, 0
+	mov dx, 0x2479
+	int 0x10
+	mov ah, 2
+	mov bh, 0
+	mov dx, 0
+	int 0x10
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+
+	;; saut
 	jmpf 0x7c00000
 
-	;; FIN
+launch_interf:
+	call $init_interf
+	call $disp_main_win
 
-intro:
-	.str  "MBRLoader 0.1-i386"
-	.include "version.qas"
-	.byte   10
-	.byte	13
-	.str  "ArnaK, Inc."
-	.byte   10
-	.byte	10
-	.byte	13
-	.byte	0
+	cmp [$nb_parts], 0
+	jz $no_parts
 
-.include "config.qas"
-.include "io.qas"
+	mov cx, 0
+	mov cl, [$nb_parts]
+	mov di, $list
+	add di, 4
+launch_interf_additem:
+	mov al, [di]
+	call $findos
+	call $add_item
+	add di, 5
+	loop $launch_interf_additem
+
+	mov al,1
+	call $select_item
+	mov [$selected_item], al
+
+	jmp $main_loop
+
+no_parts:
+	mov si, $no_parts_msg
+	call $dialog
+	cli
+	hlt
+
+;;; +-------------------------------------------------------------------------+
+;;; | nb2str                                                                  |
+;;; | entree :                                                                |
+;;; |  al = nombre                                                            |
+;;; |  ds:si = buffer de 2 octets                                             |
+;;; | sortie :                                                                |
+;;; |  ds:si = nb converti en chaine de 2 octets (sans caractere de fin)      |
+;;; +-------------------------------------------------------------------------+
+nb2str:
+	push ax
+	shr al, 4
+	cmp al, 10
+	jb $nb2str1_c
+	jmp $nb2str1_l
+nb2str1_c:
+	add al, 48
+	mov [si], al
+	jmp $nb2str2
+nb2str1_l:
+	add al, 55
+	mov [si], al
+nb2str2:
+	pop ax
+	push ax
+	and al, 0xf
+	cmp al, 10
+	jb $nb2str2_c
+	jmp $nb2str2_l
+nb2str2_c:
+	add al, 48
+	mov [si+1], al
+	jmp $nb2str3
+nb2str2_l:
+	add al, 55
+	mov [si+1], al
+nb2str3:
+	pop ax
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | Inclusions                                                              |
+;;; +-------------------------------------------------------------------------+
+
+.include "interf.qas"
+.include "string.qas"
 .include "disk.qas"
 .include "os.qas"
-.include "list.qas"
+.include "config.qas"
+
+;;; +-------------------------------------------------------------------------+
+;;; | Donnees                                                                 |
+;;; +-------------------------------------------------------------------------+
+
+load_msg:
+	.strz "Chargement en cours ..."
+
+no_parts_msg:
+	.strz "Aucune partition trouv\202e"
+
+params:
+	.strz "Disque/T\210te/Cylsect = "
+	.byte 0
+	.byte '/'
+	.word 0
+	.byte '/'
+	.word 0
+	.word 0
+	.byte 0
+
+;;; buffer pour les partitions trouvees
+;;; 	16 * (disque
+;;;          +tete
+;;;          +cyl/sect
+;;;          +type)
+;;;     = 16 * 5
+;;;     = 80
+nb_parts:
+	.byte 0
+list:
+	.buffer 80
+

@@ -1,0 +1,356 @@
+;;;             +------------- MBRLoader 0.2-i386 -----------------+
+;;;             | ArnaK, Inc.                                      |
+;;;             |                                                  |
+;;;             | interf.qas                                       |
+;;;             +--------------------------------------------------+
+
+;;; +------------------------------------------------------------------------+
+;;; | disp_main_win                                                          |
+;;; +------------------------------------------------------------------------+
+disp_main_win:
+	push ax
+	push bx
+	push cx
+	push dx
+	push bp
+
+	;; ecrire le titre
+	mov ax, 0x1301
+	mov bh, 0
+	mov bl, 0x1f
+	mov cx, 80
+	mov dh, 0
+	mov dl, 0
+	mov bp, $main_win_title
+	int 0x10
+
+        ;; dessiner le haut du cadre
+	mov bl, 7
+        mov bp, $main_win_up
+	inc dh
+	int 0x10
+
+	;; dessiner les 21 lignes interieures
+	mov cx, 21
+	mov bp, $main_win_middle
+main_win_disp_middle:
+	push cx
+	mov cx, 80
+	inc dh
+	int 0x10
+	pop cx
+	loop $main_win_disp_middle
+
+	;; dessiner le bas du cadre
+	mov cx, 80
+	mov bp, $main_win_down
+	inc dh
+	int 0x10
+
+	pop bp
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | Add_item                                                                |
+;;; | entree:                                                                 |
+;;; |    DS:SI = chaine                                                       |
+;;; +-------------------------------------------------------------------------+
+add_item:
+	push ax
+	push bx
+	push cx
+	push dx
+	push bp
+	push di
+
+	;; aucune verification du numero de l'item mais il doit etre compris
+        ;; entre 1 et 21
+	;; de meme pour la taille de la chaine qui doit etre comprise entre
+	;; 1 et 76
+
+	inc [$nb_items]
+	mov dh, [$nb_items]
+	inc dh
+        mov ax, 0x1301
+	mov bh, 0
+	mov bl, 7
+	call $strlen
+	mov dl, 2
+	mov bp, si
+	int 0x10
+
+	;; placer l'adresse de la chaine dans la liste
+	mov di, $items
+	mov ax, 0
+	mov al, [$nb_items]
+	dec al
+	shl ax, 1 ; ax * 2
+	add di, ax
+	mov [di], bp
+
+	pop di
+	pop bp
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | unselect_item                                                           |
+;;; | entree : al = numero de l'item                                          |
+;;; +-------------------------------------------------------------------------+
+unselect_item:
+	push ax
+	push bx
+	push cx
+	push dx
+	push bp
+	push di
+	push si
+	
+	push ax
+	mov di, $items
+	mov ah, 0
+	dec al
+	shl ax, 1
+	add di, ax
+	mov bp, [di]
+	mov si, bp
+	pop ax
+
+	mov dh, al
+	inc dh
+        mov ax, 0x1301
+	mov bh, 0
+	mov bl, 7
+	call $strlen
+	mov dl, 2
+	int 0x10
+	
+	pop si
+	pop di
+	pop bp
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | select_item                                                             |
+;;; | entree : al = numero de l'item                                          |
+;;; | sortie : al = item selectionnee                                         |
+;;; +-------------------------------------------------------------------------+
+select_item:
+	push bx
+	push cx
+	push dx
+	push bp
+	push di
+	push si
+	push ax
+
+	cmp [$nb_items], al
+	jc $select_over
+	cmp al, 0
+	jz $select_under
+	jmp $select_ok
+select_over:
+	mov al, [$nb_items]
+	jmp $select_ok
+select_under:
+	mov al, 1
+select_ok:
+	push ax
+	mov di, $items
+	mov ah, 0
+	dec al
+	shl ax, 1
+	add di, ax
+	mov bp, [di]
+	mov si, bp
+	pop ax
+
+	mov dh, al
+	inc dh
+        mov ax, 0x1301
+	mov bh, 0
+	mov bl, 0x1f
+	call $strlen
+	mov dl, 2
+	int 0x10
+
+	pop ax
+	mov al, dh
+	dec al
+
+	pop si
+	pop di
+	pop bp
+	pop dx
+	pop cx
+	pop bx
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | main_loop                                                               |
+;;; +-------------------------------------------------------------------------+
+main_loop:
+	mov ah, 0
+	int 0x16
+
+	cmp ah, 0x50
+	jz $event_down
+	cmp ah, 0x48
+	jz $event_up
+	cmp ah, 0x4f
+	jz $event_end
+	cmp ah, 0x47
+	jz $event_origin
+	cmp al, 13
+	jz $event_select
+
+	jmp $main_loop
+
+event_down:
+	mov al, [$selected_item]
+	call $unselect_item
+	inc al
+	call $select_item
+	mov [$selected_item], al
+	jmp $main_loop
+
+event_up:
+	mov al, [$selected_item]
+	call $unselect_item
+	dec al
+	call $select_item
+	mov [$selected_item], al
+	jmp $main_loop
+
+event_end:
+	mov al, [$selected_item]
+	call $unselect_item
+	mov al, [$nb_items]
+	call $select_item
+	mov [$selected_item], al
+	jmp $main_loop
+
+event_origin:
+	mov al, [$selected_item]
+	call $unselect_item
+	mov al, 1
+	call $select_item
+	mov [$selected_item], al
+	jmp $main_loop
+
+event_select:
+	jmp $load
+
+;;; +-------------------------------------------------------------------------+
+;;; | init_interf                                                             |
+;;; +-------------------------------------------------------------------------+
+init_interf:
+	push ax
+	push cx
+
+	;; effacer le curseur
+	mov ah, 1
+	mov cx, 0x100
+	int 0x10
+
+	mov byte [$nb_items], 0
+
+	pop cx
+	pop ax
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | dialog                                                                  |
+;;; | entree : ds:si = message                                                |
+;;; +-------------------------------------------------------------------------+
+dialog:
+	push ax
+	push bx
+	push cx
+	push dx
+	push bp
+
+	;; ecrire le titre
+	mov ax, 0x1301
+	mov bh, 0
+	mov bl, 0x1f
+	mov cx, 40
+	mov dh, 10
+	mov dl, 20
+	mov bp, $dialog_title
+	int 0x10
+
+        ;; dessiner le haut du cadre
+	mov bl, 7
+        mov bp, $dialog_up
+	inc dh
+	int 0x10
+
+	;; dessiner la ligne interieure
+	mov bp, $dialog_middle
+	inc dh
+	int 0x10
+
+	;; y ecrire le message
+	add dl, 2
+	mov bp, si
+	call $strlen
+	int 0x10
+	sub dl, 2
+
+	;; dessiner le bas du cadre
+	mov cx, 40
+	mov bp, $dialog_down
+	inc dh
+	int 0x10
+
+	pop bp
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | Donnees                                                                 |
+;;; +-------------------------------------------------------------------------+
+
+main_win_title:
+	.str "  MBRLoader v0.2-i386 - mbrloader@arnak.fr.st, www.arnak.fr.st/mbrloader        "
+main_win_up:
+	.str "ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿"
+main_win_middle:
+	.str "³                                                                              ³"
+main_win_down:
+	.str "ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ"
+
+dialog_title:
+	.str "  MBRLoader v0.2-i386                   "
+dialog_up:
+	.str "ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿"
+dialog_middle:
+	.str "³                                      ³"
+dialog_down:
+	.str "ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ"
+
+;;; Gestion des items
+selected_item:
+	.byte 0
+nb_items:
+	.byte 0
+items:
+	;; 2 octets par items, avec les adresses (offsets uniquement)
+	;; max de 21 items
+	;; soit 52 octets au total
+	.buffer 52
