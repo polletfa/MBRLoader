@@ -1,4 +1,4 @@
-;;;             +------------- MBRLoader 0.5-i386 -----------------+
+;;;             +------------- MBRLoader 0.6-i386 -----------------+
 ;;;             | ArnaK, Inc.                                      |
 ;;;             |                                                  |
 ;;;             | main.qas                                         |
@@ -20,6 +20,12 @@
 main:
 	;; Enregistrer le disque actuel
 	mov [$mbrloader_disk], dl
+
+	;; Langue
+	push ax
+	mov al, [$langue]
+	call $set_lang
+	pop ax
 
 	;; Verifier si il faut demander a l'utilisateur quelle partition
 	;; demarrer
@@ -61,7 +67,7 @@ addos_in_interf:
 	add si, 25
 	loop $addos_in_interf
 addos_in_interf_end:
-	mov si, $config_str
+	mov si, [$config_str]
 	call $add_item
 
 	mov al,1
@@ -75,7 +81,7 @@ addos_in_interf_end:
 ;;; +-------------------------------------------------------------------------+
 load:
 	;; afficher un message
-	mov si, $load_msg
+	mov si, [$load_msg]
 	call $dialog
 
 	;; obtenir les informations
@@ -138,6 +144,8 @@ selected:
 	jz $selected_5
 	cmp byte [$current_menu], 6    ; Selection d'une partition par defaut
 	jz $selected_6
+	cmp byte [$current_menu], 7    ; Choix d'une langue
+	jz $selected_7
 
 ;;; Menu principal
 selected_1:
@@ -159,9 +167,11 @@ selected_2:
 	jz $selected_2_delos
 	cmp byte [$selected_item], 3   ; Option de lancement auto.
 	jz $selected_2_autostart
-	cmp byte [$selected_item], 4   ; Enregistrer et quitter
+	cmp byte [$selected_item], 4   ; Langue
+	jz $selected_2_langue
+	cmp byte [$selected_item], 5   ; Enregistrer et quitter
 	jz $selected_2_savequit
-	cmp byte [$selected_item], 5   ; Quitter sans enregistrer
+	cmp byte [$selected_item], 6   ; Quitter sans enregistrer
 	jz $selected_2_quit
 selected_2_addos:
 	jmp $configi_addos
@@ -169,6 +179,8 @@ selected_2_delos:
 	jmp $configi_delos
 selected_2_autostart:
 	jmp $configi_autostart
+selected_2_langue:
+	jmp $configi_langue
 selected_2_savequit:
 	jmp $configi_savequit
 selected_2_quit:
@@ -256,6 +268,10 @@ selected_6_cancel:
 selected_6_select:
 	jmp $configi_default_selected
 
+;;; Choix d'une langue
+selected_7:
+	jmp $configi_langue_selected
+
 ;;; +-------------------------------------------------------------------------+
 ;;; | Inclusions                                                              |
 ;;; +-------------------------------------------------------------------------+
@@ -266,15 +282,7 @@ selected_6_select:
 .inclure "disk.qas"
 .inclure "os.qas"
 .inclure "fs.qas"
-
-;;; +-------------------------------------------------------------------------+
-;;; | Donnees                                                                 |
-;;; +-------------------------------------------------------------------------+
-
-load_msg:
-	.chainez "Chargement en cours ..."
-config_str:
-	.chainez "Configuration"
+.inclure "multil.qas"
 
 current_menu:
 	.octet 0

@@ -1,0 +1,187 @@
+;;;             +------------- MBRLoader 0.6-i386 -----------------+
+;;;             | ArnaK, Inc.                                      |
+;;;             |                                                  |
+;;;             | multil.qas                                       |
+;;;             +--------------------------------------------------+
+
+;;; +-------------------------------------------------------------------------+
+;;; | set_lang                                                                |
+;;; | al=langue (1=fr, 2=eo, 3=en, 4=de)                                      |
+;;; +-------------------------------------------------------------------------+
+set_lang:
+	cmp al, 1
+	jz $set_lang_fr
+	cmp al, 2
+	jz $set_lang_eo
+	cmp al, 3
+	jz $set_lang_en
+	cmp al, 4
+	jz $set_lang_de
+	ret
+
+set_lang_fr:
+	push ax
+	mov [$load_msg], $load_msg_fr
+	mov [$config_str], $config_str_fr
+	mov [$part_str], $part_str_fr
+	mov ax, [$part_str_n_fr]
+	mov [$part_str_n], ax
+	mov [$vol_str], $vol_str_fr
+	mov ax, [$vol_str_n_fr]
+	mov [$vol_str_n], ax
+	mov [$additem_str], $additem_str_fr
+	mov [$delitem_str], $delitem_str_fr
+	mov [$autostart_str], $autostart_str_fr
+	mov [$langue_str], $langue_str_fr
+	mov [$savequit], $savequit_fr
+	mov [$quit], $quit_fr
+	mov [$annuler], $annuler_fr
+	mov [$systeme_inconnu], $systeme_inconnu_fr
+	mov [$label], $label_fr
+	mov [$liste_pleine], $liste_pleine_fr
+	mov [$empty_str], $empty_str_fr
+	mov [$autostart_oui], $autostart_oui_fr
+	mov [$autostart_non], $autostart_non_fr
+	mov [$vol_inconnu], $vol_inconnu_fr
+	mov [$vol_vide], $vol_vide_fr
+	mov [$systeme_inconnu], $systeme_inconnu_fr
+	pop ax
+	ret
+
+set_lang_eo:
+	push ax
+	mov [$load_msg], $load_msg_eo
+	mov [$config_str], $config_str_eo
+	mov [$part_str], $part_str_eo
+	mov ax, [$part_str_n_eo]
+	mov [$part_str_n], ax
+	mov [$vol_str], $vol_str_eo
+	mov ax, [$vol_str_n_eo]
+	mov [$vol_str_n], ax
+	mov [$additem_str], $additem_str_eo
+	mov [$delitem_str], $delitem_str_eo
+	mov [$autostart_str], $autostart_str_eo
+	mov [$langue_str], $langue_str_eo
+	mov [$savequit], $savequit_eo
+	mov [$quit], $quit_eo
+	mov [$annuler], $annuler_eo
+	mov [$systeme_inconnu], $systeme_inconnu_eo
+	mov [$label], $label_eo
+	mov [$liste_pleine], $liste_pleine_eo
+	mov [$empty_str], $empty_str_eo
+	mov [$autostart_oui], $autostart_oui_eo
+	mov [$autostart_non], $autostart_non_eo
+	mov [$vol_inconnu], $vol_inconnu_eo
+	mov [$vol_vide], $vol_vide_eo
+	mov [$systeme_inconnu], $systeme_inconnu_eo
+	pop ax
+	ret
+
+set_lang_en:
+	push ax
+	mov [$load_msg], $load_msg_en
+	mov [$config_str], $config_str_en
+	mov [$part_str], $part_str_en
+	mov ax, [$part_str_n_en]
+	mov [$part_str_n], ax
+	mov [$vol_str], $vol_str_en
+	mov ax, [$vol_str_n_en]
+	mov [$vol_str_n], ax
+	mov [$additem_str], $additem_str_en
+	mov [$delitem_str], $delitem_str_en
+	mov [$autostart_str], $autostart_str_en
+	mov [$langue_str], $langue_str_en
+	mov [$savequit], $savequit_en
+	mov [$quit], $quit_en
+	mov [$annuler], $annuler_en
+	mov [$systeme_inconnu], $systeme_inconnu_en
+	mov [$label], $label_en
+	mov [$liste_pleine], $liste_pleine_en
+	mov [$empty_str], $empty_str_en
+	mov [$autostart_oui], $autostart_oui_en
+	mov [$autostart_non], $autostart_non_en
+	mov [$vol_inconnu], $vol_inconnu_en
+	mov [$vol_vide], $vol_vide_en
+	mov [$systeme_inconnu], $systeme_inconnu_en
+	pop ax
+	ret
+
+set_lang_de:
+	push ax
+	mov [$load_msg], $load_msg_de
+	mov [$config_str], $config_str_de
+	mov [$part_str], $part_str_de
+	mov ax, [$part_str_n_de]
+	mov [$part_str_n], ax
+	mov [$vol_str], $vol_str_de
+	mov ax, [$vol_str_n_de]
+	mov [$vol_str_n], ax
+	mov [$additem_str], $additem_str_de
+	mov [$delitem_str], $delitem_str_de
+	mov [$autostart_str], $autostart_str_de
+	mov [$langue_str], $langue_str_de
+	mov [$savequit], $savequit_de
+	mov [$quit], $quit_de
+	mov [$annuler], $annuler_de
+	mov [$systeme_inconnu], $systeme_inconnu_de
+	mov [$label], $label_de
+	mov [$liste_pleine], $liste_pleine_de
+	mov [$empty_str], $empty_str_de
+	mov [$autostart_oui], $autostart_oui_de
+	mov [$autostart_non], $autostart_non_de
+	mov [$vol_inconnu], $vol_inconnu_de
+	mov [$vol_vide], $vol_vide_de
+	mov [$systeme_inconnu], $systeme_inconnu_de
+	pop ax
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | Pointeurs                                                               |
+;;; +-------------------------------------------------------------------------+
+load_msg:
+	.mot 0
+config_str:
+	.mot 0
+part_str:
+	.mot 0
+part_str_n:
+	.mot 0
+vol_str:
+	.mot 0
+vol_str_n:
+	.mot 0
+additem_str:
+	.mot 0
+delitem_str:
+	.mot 0
+autostart_str:
+	.mot 0
+langue_str:
+	.mot 0
+savequit:
+	.mot 0
+quit:
+	.mot 0
+annuler:
+	.mot 0
+label:
+	.mot 0
+liste_pleine:
+	.mot 0
+empty_str:
+	.mot 0
+autostart_oui:
+	.mot 0
+autostart_non:
+	.mot 0
+vol_inconnu:
+	.mot 0
+vol_vide:
+	.mot 0
+systeme_inconnu:
+	.mot 0
+
+.inclure "donnees.qas"
+.inclure "datumoj.qas"
+.inclure "data.qas"
+.include "daten.qas"

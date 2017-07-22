@@ -1,0 +1,48 @@
+;;;             +------------- MBRLoader 0.6-i386 -----------------+
+;;;             | ArnaK, Inc.                                      |
+;;;             |                                                  |
+;;;             | donnees.qas                                      |
+;;;             +--------------------------------------------------+
+
+load_msg_fr:
+	.chainez "Chargement en cours ..."
+config_str_fr:
+	.chainez "Configuration"
+part_str_fr:
+	.chainez "Partition="
+part_str_n_fr:
+	.mot 10
+vol_str_fr:
+	.chainez ", Volume="
+vol_str_n_fr:
+	.mot 9
+additem_str_fr:
+	.chainez "Ajouter un syst\212me \205 la liste"
+delitem_str_fr:
+	.chainez "Supprimer un syst\212me de la liste"
+autostart_str_fr:
+	.chainez "Configurer l'option de lancement automatique"
+langue_str_fr:
+	.chainez "Choix d'une langue"
+savequit_fr:
+	.chainez "Enregistrer et quitter"
+quit_fr:
+	.chainez "Quitter sans enregistrer"
+annuler_fr:
+	.chainez "Annuler"
+label_fr:
+	.chainez "Entrez un nom pour ce syst\212me"
+liste_pleine_fr:
+	.chainez "Maximum de 20 syst\212mes atteint"
+empty_str_fr:
+	.chainez "Ajout annul\202 : nom vide"
+autostart_oui_fr:
+	.chainez "Lancer automatiquement sauf pression de la touche CTRL"
+autostart_non_fr:
+	.chainez "Toujours demander \205 l'utilisateur avant de lancer un syst\212me"
+vol_inconnu_fr:
+	.chainez "Inconnu"
+vol_vide_fr:
+	.chainez "Aucun"
+systeme_inconnu_fr:
+	.chainez "Système inconnu"

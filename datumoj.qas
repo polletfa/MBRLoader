@@ -1,0 +1,48 @@
+;;;             +------------- MBRLoader 0.6-i386 -----------------+
+;;;             | ArnaK, Inc.                                      |
+;;;             |                                                  |
+;;;             | datumoj.qas                                      |
+;;;             +--------------------------------------------------+
+
+load_msg_eo:
+	.chainez "Sharganta ..."
+config_str_eo:
+	.chainez "Konfiguro"
+part_str_eo:
+	.chainez "Subdisko="
+part_str_n_eo:
+	.mot 9
+vol_str_eo:
+	.chainez ", Portilmarko="
+vol_str_n_eo:
+	.mot 14
+additem_str_eo:
+	.chainez "Aldonu sistemon en la listo"
+delitem_str_eo:
+	.chainez "Forigu sistemon el la listo"
+autostart_str_eo:
+	.chainez "Konfiguru la opcion de automata startigo"
+langue_str_eo:
+	.chainez "Elektu lingvon"
+savequit_eo:
+	.chainez "Konservu kaj forlasu"
+quit_eo:
+	.chainez "Forlasu sen konservi"
+annuler_eo:
+	.chainez "Rezignu"
+label_eo:
+	.chainez "Skribu nomon por tiu sistemo"
+liste_pleine_eo:
+	.chainez "Maksimumo : 20 sistemoj"
+empty_str_eo:
+	.chainez "Rezignita aldono : malplena nomo"
+autostart_oui_eo:
+	.chainez "Shargu automate se la CTRL-klavo ne estas premata"
+autostart_non_eo:
+	.chainez "Demandu chiam autau shargi sistemon"
+vol_inconnu_eo:
+	.chainez "Nekonata"
+vol_vide_eo:
+	.chainez "Neniu nomo"
+systeme_inconnu_eo:
+	.chainez "Nekonata sistemo"

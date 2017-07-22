@@ -1,4 +1,4 @@
-;;;             +------------- MBRLoader 0.5-i386 -----------------+
+;;;             +------------- MBRLoader 0.6-i386 -----------------+
 ;;;             | ArnaK, Inc.                                      |
 ;;;             |                                                  |
 ;;;             | configi.qas                                      |
@@ -27,15 +27,17 @@ config_interf:
 	call $disp_main_win
 
 	mov byte [$current_menu], 2
-	mov si, $additem_str
+	mov si, [$additem_str]
 	call $add_item
-	mov si, $delitem_str
+	mov si, [$delitem_str]
 	call $add_item
-	mov si, $autostart_str
+	mov si, [$autostart_str]
 	call $add_item
-	mov si, $savequit
+	mov si, [$langue_str]
 	call $add_item
-	mov si, $quit
+	mov si, [$savequit]
+	call $add_item
+	mov si, [$quit]
 	call $add_item
 
 	mov al, 1
@@ -43,6 +45,51 @@ config_interf:
 	mov [$selected_item], al
 
 	jmp $main_loop
+
+;;; +-------------------------------------------------------------------------+
+;;; | configi_langue                                                          |
+;;; +-------------------------------------------------------------------------+
+configi_langue:
+	call $init_interf
+	call $disp_main_win
+	mov byte [$current_menu], 7
+
+	mov si, $fr_str
+	call $add_item
+	mov si, $eo_str
+	call $add_item
+	mov si, $en_str
+	call $add_item
+	mov si, $de_str
+	call $add_item
+
+	push es
+	mov ax, 0x1000
+	mov es, ax
+	mov al, [es:$langue]
+	pop es
+	call $select_item
+	mov [$selected_item], al
+
+	jmp $main_loop
+
+configi_langue_selected:
+	;; changer la langue
+
+	mov bl, [$selected_item]
+	mov al, bl
+	call $set_lang
+
+	push ax
+	push es
+	mov ax, 0x1000
+	mov es, ax
+	mov [es:$langue], bl
+	pop es
+	pop ax
+
+	;; retour
+	jmp $config_interf
 
 ;;; +-------------------------------------------------------------------------+
 ;;; | configi_savequit                                                        |
@@ -69,6 +116,10 @@ configi_savequit:
 	int 0x13
 
 configi_quit:
+	push ax
+	mov al, [$langue]
+	call $set_lang
+	pop ax 
 	jmp $ask
 
 ;;; +-------------------------------------------------------------------------+
@@ -79,9 +130,9 @@ configi_autostart:
 	call $disp_main_win
 	mov byte [$current_menu], 5
 
-	mov si, $autostart_oui
+	mov si, [$autostart_oui]
 	call $add_item
-	mov si, $autostart_non
+	mov si, [$autostart_non]
 	call $add_item
 
 	push es
@@ -147,7 +198,7 @@ autostart_loop:
 	add si, 25
 	loop $autostart_loop
 autostart_loop_end:
-	mov si, $annuler
+	mov si, [$annuler]
 	call $add_item
 
 	mov al, [$default]
@@ -207,7 +258,7 @@ delos_loop:
 	add si, 25
 	loop $delos_loop
 delos_loop_end:
-	mov si, $annuler
+	mov si, [$annuler]
 	call $add_item
 
 	mov al, 1
@@ -267,7 +318,7 @@ configi_addos:
 	jnz $addos_ok
 	pop es
 
-	mov si, $liste_pleine
+	mov si, [$liste_pleine]
 	call $dialog
 	mov ah, 0
 	int 0x16
@@ -335,7 +386,7 @@ launch_interf_additem:
 	add di, 5
 	loop $launch_interf_additem
 
-	mov si, $annuler
+	mov si, [$annuler]
 	call $add_item
 
 	mov al,1
@@ -354,14 +405,14 @@ configi_addos_selected:
 	mul bl
 	mov di, $listos
 	add di, ax
-	mov si, $label
+	mov si, [$label]
 	mov cx, 20
 	call $inputbox
 	cmp byte [es:di], 0
 	jnz $input_ok
 
 	pop es
-	mov si, $empty_str
+	mov si, [$empty_str]
 	call $dialog
 	mov ah, 0
 	int 0x16
@@ -409,19 +460,19 @@ build_item_os:
 
 	;; "Partition="
 	push si
-	mov si, $part_str
+	mov si, [$part_str]
 	call $strcpy
 	pop si
 	;; "Partition=NomDuSysteme"
-	add di, 10
+	add di, [$part_str_n]
 	call $strcpy
 	;; "Partition=NomDuSysteme, Volume="
 	call $strlen
 	add di, cx
-	mov si, $vol_str
+	mov si, [$vol_str]
 	call $strcpy
 	;; "Partition=NomDuSysteme, Volume=NomDuVolume"
-	add di, 9
+	add di, [$vol_str_n]
 	pop dx
 	pop cx
 	push cx
@@ -438,34 +489,14 @@ build_item_os:
 ;;; | Donnees                                                                 |
 ;;; +-------------------------------------------------------------------------+
 
-part_str:
-	.chainez "Partition="
-vol_str:
-	.chainez ", Volume="
-
-additem_str:
-	.chainez "Ajouter un syst\212me \205 la liste"
-delitem_str:
-	.chainez "Supprimer un syst\212me de la liste"
-autostart_str:
-	.chainez "Configurer l'option de lancement automatique"
-savequit:
-	.chainez "Enregistrer et quitter"
-quit:
-	.chainez "Quitter sans enregistrer"
-annuler:
-	.chainez "Annuler"
-label:
-	.chainez "Entrez un nom pour ce syst\212me"
-liste_pleine:
-	.chainez "Maximum de 20 syst\212mes atteint"
-empty_str:
-	.chainez "Ajout annul\202 : nom vide"
-
-autostart_oui:
-	.chainez "Lancer automatiquement sauf pression de la touche CTRL"
-autostart_non:
-	.chainez "Toujours demander \205 l'utilisateur avant de lancer un syst\212me"
+fr_str:
+	.chainez "Fran\207ais"
+eo_str:
+	.chainez "Esperanto (h-sistemo)"
+en_str:
+	.chainez "English"
+de_str:
+	.chainez "Deutsch"
 
 ;;; buffer pour les partitions trouvees
 ;;; 	16 * (disque

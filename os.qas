@@ -1,4 +1,4 @@
-;;;             +------------- MBRLoader 0.5-i386 -----------------+
+;;;             +------------- MBRLoader 0.6-i386 -----------------+
 ;;;             | ArnaK, Inc.                                      |
 ;;;             |                                                  |
 ;;;             | os.qas                                           |
@@ -174,7 +174,6 @@ oslist:
 	.chainez	"BBT"
 	.octet		0
 endlistos:
-	.chainez	"Systeme inconnu"
 	.octet		0
 
 ;;; +-------------------------------------------------------------------------+
@@ -193,7 +192,7 @@ isthisos:
 	cmp	cl,al
 	jz	$osfound	; trouve
 	cmp	cl,0
-	jz	$osfound	; liste parcourue, syst. non trouve.
+	jz	$osnotfound	; liste parcourue, syst. non trouve.
 	;; retourne "Systeme inconnu"
 	
 	;; passer a l'OS suivant
@@ -208,10 +207,17 @@ getnextos:
 	
 
 osfound:
-
 	inc	si
 	
 	pop	cx
 	pop	ax
+
+	ret
+
+osnotfound:
+	mov si, [$systeme_inconnu]
+
+	pop cx
+	pop ax
 
 	ret

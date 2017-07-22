@@ -1,0 +1,48 @@
+;;;             +------------- MBRLoader 0.6-i386 -----------------+
+;;;             | ArnaK, Inc.                                      |
+;;;             |                                                  |
+;;;             | daten.qas                                        |
+;;;             +--------------------------------------------------+
+
+load_msg_de:
+	.chainez "Ladung ..."
+config_str_de:
+	.chainez "Konfiguration"
+part_str_de:
+	.chainez "Partition="
+part_str_n_de:
+	.mot 10
+vol_str_de:
+	.chainez ", Name="
+vol_str_n_de:
+	.mot 7
+additem_str_de:
+	.chainez "Ein Betriebssystem zu der Liste hinzuf\201gen"
+delitem_str_de:
+	.chainez "Ein Betriebssystem aus der Liste l\224schen"
+autostart_str_de:
+	.chainez "Das Option des automatischen Ladung bilden"
+langue_str_de:
+	.chainez "Eine Sprache festlegen"
+savequit_de:
+	.chainez "Regiestrieren und beenden"
+quit_de:
+	.chainez "Beenden, ohne zu regiestrieren"
+annuler_de:
+	.chainez "Abbruch"
+label_de:
+	.chainez "Geben Sie einen Name ein"
+liste_pleine_de:
+	.chainez "Maximum : 20 Betriebssysteme"
+empty_str_de:
+	.chainez "Hinzuf\201gung abbrechen : kein Name"
+autostart_oui_de:
+	.chainez "Automatische Ladung, ob der Benutzer auf die CTRL Taste nicht dr\201ckt"
+autostart_non_de:
+	.chainez "Immer an dem Benutzer fragen"
+vol_inconnu_de:
+	.chainez "Unbekannt"
+vol_vide_de:
+	.chainez "Kein Name"
+systeme_inconnu_de:
+	.chainez "Unbekannter Betriebssystem"

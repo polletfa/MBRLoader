@@ -1,0 +1,48 @@
+;;;             +------------- MBRLoader 0.6-i386 -----------------+
+;;;             | ArnaK, Inc.                                      |
+;;;             |                                                  |
+;;;             | data.qas                                         |
+;;;             +--------------------------------------------------+
+
+load_msg_en:
+	.chainez "Loading in progress ..."
+config_str_en:
+	.chainez "Configuration"
+part_str_en:
+	.chainez "Partition="
+part_str_n_en:
+	.mot 10
+vol_str_en:
+	.chainez ", Volume="
+vol_str_n_en:
+	.mot 9
+additem_str_en:
+	.chainez "Add a system in the list"
+delitem_str_en:
+	.chainez "Delete a system from the list"
+autostart_str_en:
+	.chainez "Configure the option of automatic start"
+langue_str_en:
+	.chainez "Select a language"
+savequit_en:
+	.chainez "Save and quit"
+quit_en:
+	.chainez "Quit without saving"
+annuler_en:
+	.chainez "Cancel"
+label_en:
+	.chainez "Enter a name for this system"
+liste_pleine_en:
+	.chainez "Maximum of 20 systems"
+empty_str_en:
+	.chainez "Adding canceled : empty name"
+autostart_oui_en:
+	.chainez "Start automaticly if the CTRL key is not pressed"
+autostart_non_en:
+	.chainez "Always ask the user before launching a system"
+vol_inconnu_en:
+	.chainez "Unknown"
+vol_vide_en:
+	.chainez "No name"
+systeme_inconnu_en:
+	.chainez "Unknown system"

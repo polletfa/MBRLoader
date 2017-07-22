@@ -1,4 +1,4 @@
-;;;             +------------- MBRLoader 0.5-i386 -----------------+
+;;;             +------------- MBRLoader 0.6-i386 -----------------+
 ;;;             | ArnaK, Inc.                                      |
 ;;;             |                                                  |
 ;;;             | config.qas                                       |
@@ -17,6 +17,12 @@ prompt:
 ;;; Systeme a lancer par defaut ...
 ;;; 	numero correspondant a un numero de la liste
 default:
+	.octet 1
+
+;;; [langue]
+;;; Langue des messages
+;;;     numéro correspondant à la langue choisie (1=fr, 2=eo, 3=en, 4=de)
+langue:
 	.octet 1
 
 ;;; [nb_os]
@@ -41,8 +47,9 @@ listos:
 ;;;	- 3	(jmp $main)
 ;;;	- 1	(prompt)
 ;;;	- 1	(defaut)
+;;;     - 1     (langue)
 ;;;	- 1	(nb_os)
 ;;;	- 500	(listos)
-;;; = 6
+;;; = 5
 
-.tampon 6
+.tampon 5

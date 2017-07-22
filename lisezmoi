@@ -1,44 +1,44 @@
 
 
 
-                           MBRLoader 0.5-i386
+                           MBRLoader 0.6-i386
 
 NOM
-	MBRLoader 0.5-i386 - Chargeur
+	MBRLoader 0.6-i386 - Chargeur
 
 DESCRIPTION
-	MBRLoader 0.5 est un chargeur dit 'multi-boot'. Cela signifie qu'il
+	MBRLoader 0.6 est un chargeur dit 'multi-boot'. Cela signifie qu'il
 	permet de choisir le système à charger.
  
-	MBRLoader 0.5 est constitué de 2 parties. La 1ère est le secteur
+	MBRLoader 0.6 est constitué de 2 parties. La 1ère est le secteur
 	d'amorcage. Il se place normalement sur le MBR (1er secteur d'un disque
 	dur, le MBR contient également la table des partitions) mais il peut
 	être placé sur une partition ou une disquette.
 	La 2ème partie occupe les secteurs 2 à 12 (2e...12e secteurs).
 	Il s'agit du reste du chargeur. En effet, le plus souvent, et c'est le
-	cas pour MBRLoader 0.5, un chargeur multi-boot est trop grand pour
+	cas pour MBRLoader 0.6, un chargeur multi-boot est trop grand pour
 	tenir dans un MBR et les secteurs 2 à 12 ne sont jamais occupés, 
 	sinon par d'autres chargeurs.
 
-	MBRLoader 0.5 se configure directement depuis son interface.
+	MBRLoader 0.6 se configure directement depuis son interface.
 	Vous pouvez lui indiquer une liste de systèmes qu'il vous proposera
 	ensuite à chaque démarrage. Afin de faciliter ce choix, MBRLoader
-	0.5 affiche les noms de volumes pour les systèmes de fichiers
+	0.6 affiche les noms de volumes pour les systèmes de fichiers
 	FAT (12, 16, 32) et Extended 2.
 	Grace à l'option de lancement automatique, vous pouvez sélectionner
 	un système qui sera lancé automatiquement sans vous le demander
 	sauf si vous appuyez sur la touche CTRL.
 
-	MBRLoader 0.5 supporte les partitions logiques présentes dans les
+	MBRLoader 0.6 supporte les partitions logiques présentes dans les
 	partitions étendues DOS (lorsque, dans le menu d'ajout d'une fonction,
 	vous sélectionnez une partition étendue DOS, il affiche ses partitions
 	logiques).
 
-	MBRLoader 0.5-i386 a lancé sans problème DOS/Win, BeOS, Linux,
+	MBRLoader 0.6-i386 a lancé sans problème DOS/Win, BeOS, Linux,
 	FreeBSD et AtheOS.
 	Il devrait normalement pouvoir lancer tous les systèmes. (Pour Linux,
 	il faut quand même installez LILO sur la partition, ainsi, MBRLoader
-	0.5-i386 lancera LILO, qui lancera Linux.)
+	0.6-i386 lancera LILO, qui lancera Linux.)
 
 COMPILATION
 	La compilation se realise par make ou make all depuis le répertoire
@@ -49,27 +49,27 @@ INSTALLATION
 	L'installation du programme compilé et de la documentation dans
 	l'arborescence se fait par make install :
 
-	/ ---+--- boot ---+--- mbrloader0.5-i386.step1
-	     |            +--- mbrloader0.5-i386.step2
+	/ ---+--- boot ---+--- mbrloader0.6-i386.step1
+	     |            +--- mbrloader0.6-i386.step2
              |
 	     +--- usr --- local ---+--- bin ---+--- mbrloader
-	                           |           +--- mbrloader0.5-i386
+	                           |           +--- mbrloader0.6-i386
 	                           |
-	                           +--- doc --- mbrloader0.5-i386
+	                           +--- doc --- mbrloader0.6-i386
 
 NETTOYAGE
 	make distclean effacera, a l'instar de make clean, les fichiers
 	temporaires crées pendant la compilation mais aussi les binaires.
 
 INSTALLATION SUR LE MBR
-	Pour installer ensuite MBRLoader 0.5-i386 sur le MBR, lancez le
-	programme /usr/local/bin/mbrloader0.5-i386 en super-utilisateur.
+	Pour installer ensuite MBRLoader 0.6-i386 sur le MBR, lancez le
+	programme /usr/local/bin/mbrloader0.6-i386 en super-utilisateur.
 	Le fichier mbrloader est un lien vers ce programme crée à
 	l'installation de l'éxecutable dans l'arborescence.
 
 INSTALLATION SUR UNE DISQUETTE
-	Si vous préférez installe MBRLoader 0.5 sur une disquette, ajouter
-	l'option --floppy à l'appel du programme mbrloader0.5-i386
+	Si vous préférez installer MBRLoader 0.6 sur une disquette, ajoutez
+	l'option --floppy à l'appel du programme mbrloader0.6-i386
 	évoqué ci-avant.
 
 LANCEMENT D'UN SYSTÈME - AVERTISSEMENT
@@ -95,11 +95,16 @@ LANCEMENT D'UN SYSTÈME - AVERTISSEMENT
 	Pour des systèmes tels que DOS, vous ne devriez pas rencontrer ce type
 	de problèmes.
 
+LANGUES
+	MBRLoader 0.6-i386 supporte trois langues : français, espéranto,
+	anglais. La documentation et le programme d'installation ne sont
+	disponibles qu'en français.
+
 BOGUES
 	Si vous en trouvez, n'hésitez pas à m'en avertir.
 
 LICENCE
-	MBRLoader 0.5-i386 n'est soumis à aucune licence.
+	MBRLoader 0.6-i386 n'est soumis à aucune licence.
 	L'auteur ne peut être tenu pour responsable si un problème survient
 	suite à l'utilisation du logiciel.
 

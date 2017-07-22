@@ -1,4 +1,4 @@
-;;;             +------------- MBRLoader 0.5-i386 -----------------+
+;;;             +------------- MBRLoader 0.6-i386 -----------------+
 ;;;             | ArnaK, Inc.                                      |
 ;;;             |                                                  |
 ;;;             | interf.qas                                       |
@@ -465,7 +465,7 @@ inputbox_enter:
 ;;; +-------------------------------------------------------------------------+
 
 main_win_title:
-	.chaine "  MBRLoader v0.5-i386 - mbrloader@arnak.fr.st, www.arnak.fr.st/mbrloader        "
+	.chaine "  MBRLoader v0.6-i386 - mbrloader@arnak.fr.st, www.arnak.fr.st/mbrloader        "
 main_win_up:
 	.chaine "旼컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴커"
 main_win_middle:
@@ -474,7 +474,7 @@ main_win_down:
 	.chaine "읕컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴켸"
 
 dialog_title:
-	.chaine "  MBRLoader v0.5-i386                   "
+	.chaine "  MBRLoader v0.6-i386                   "
 dialog_up:
 	.chaine "旼컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴커"
 dialog_middle:

@@ -1,4 +1,4 @@
-;;;             +------------- MBRLoader 0.5-i386 -----------------+
+;;;             +------------- MBRLoader 0.6-i386 -----------------+
 ;;;             | ArnaK, Inc.                                      |
 ;;;             |                                                  |
 ;;;             | bootsect.qas                                     |
@@ -13,7 +13,7 @@ main:
 	mov	es,ax		; programme a ete charge par le BIOS
 	mov	ds,ax		; idem pour DS
 
-	;; charger les secteurs 2-12 du disque depuis lequel ce programme
+	;; charger les secteurs 2-20 du disque depuis lequel ce programme
 	;; a été chargé
 	jmp	$load
 
@@ -39,7 +39,7 @@ load:
 	; ne pas toucher à dl
 	int	0x13
 	
-	;; on charge les secteurs 2-12 à 0x50:0
+	;; on charge les secteurs 2-20 à 0x50:0
 	; ne pas toucher à dl
 	mov	dh,0
 	mov	cx,2
@@ -47,7 +47,7 @@ load:
 	mov	es,ax
 	mov	ds,ax
 	mov	ah,2
-	mov	al,11
+	mov	al,19
 	mov	bx,0
 
 	int	0x13
@@ -94,19 +94,26 @@ print2:
 ;;; +-------------------------------------------------------------------------+
 
 demsg:
-	.chaine	"MBRLoader 0.5-i386"
+	.chaine	"MBRLoader 0.6-i386"
 	.octet	10
 	.octet  13
-	.chaine "ArnaK, Inc."
+	.chaine "ArnaK, SARL / Kompanio Fraudo / Rip-off, Inc. / Schwindel, GmbH"
 	.octet  10
 	.octet	10
 	.octet	13
-	.chaine "** ERREUR **"
+	.chaine "** ERREUR / ERARO / ERROR / FEHLER **"
 	.octet	10
 	.octet	13
-	.chaine "Erreur d'acces au disque."
+	.chaine "Impossible de lire le disque."
 	.octet	10
 	.octet	13
+	.chaine "Neebla legi la disko."
+	.octet	10
+	.octet	13
+	.chaine "Unable to read the disk."
+	.octet	10
+	.octet	13
+	.chaine "Unmoeglish, die Platte zu lesen."
 	.octet	0
 
 end:		

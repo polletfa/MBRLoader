@@ -1,9 +1,9 @@
 /*
-Installation de MBRLoader 0.5-i386
+Installation de MBRLoader 0.6-i386
 ArnaK, Inc.
 
 ATTENTION : aucune verification des tailles des parties du chargeur n'est
-faite, si les fichiers sont bien ceux de MBRLoader 0.5, il ne doit
+faite, si les fichiers sont bien ceux de MBRLoader 0.6, il ne doit
 pas y avoir de problemes, sinon...
 
 */
@@ -23,7 +23,7 @@ int main(int argc, char **argv)
 
   printf("\nATTENTION ! LISEZ BIEN LA DOCUMENTATION AVANT D'INSTALLER MBRLOADER.\nL'AUTEUR NE PEUT ÊTRE TENU POUR RESPONSABLE D'ÉVENTUELS DOMMAGES PROVOQUÉS\nPAR LE PRÉSENT PROGRAMME.\n");
 
-  printf("\nAssurez-vous que les fichiers /boot/mbrloader0.5-i386.step1 et /boot/mbrloader0.5-i386.step2 soient bien ceux de MBRLoader 0.5-i386.\n");
+  printf("\nAssurez-vous que les fichiers /boot/mbrloader0.6-i386.step1 et /boot/mbrloader0.6-i386.step2 soient bien ceux de MBRLoader 0.6-i386.\n");
 
   printf("\nMBRLoader va être installé sur %s.\n", hda?"le disque dur hda":"la disquette fd0");
 
@@ -35,14 +35,14 @@ int main(int argc, char **argv)
       perror("Ouverture de /dev/hda en lecture/écriture impossible ");
       exit(-1);
     }
-  if((l1=fopen("/boot/mbrloader0.5-i386.step1","r"))==NULL)
+  if((l1=fopen("/boot/mbrloader0.6-i386.step1","r"))==NULL)
     {
-      perror("Ouverture de /boot/mbrloader0.5-i386.step1 en lecture impossible ");
+      perror("Ouverture de /boot/mbrloader0.6-i386.step1 en lecture impossible ");
       exit(-2);
     }
-  if((l2=fopen("/boot/mbrloader0.5-i386.step2","r"))==NULL)
+  if((l2=fopen("/boot/mbrloader0.6-i386.step2","r"))==NULL)
     {
-      perror("Ouverture de /boot/mbrloader0.5-i386.step2 en lecture impossible ");
+      perror("Ouverture de /boot/mbrloader0.6-i386.step2 en lecture impossible ");
       exit(-3);
     }
 
@@ -60,7 +60,7 @@ int main(int argc, char **argv)
   while((c=fgetc(l2))!=EOF)
     fputc(c,disque);
 
-  printf("MBRLoader 0.5-i386 installé.\n"
+  printf("MBRLoader 0.6-i386 installé.\n"
 	 "Redémarrez votre ordinateur pour pouvoir le configurer.\n");
 
   return 0;

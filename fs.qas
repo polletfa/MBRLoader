@@ -1,4 +1,4 @@
-;;;             +------------- MBRLoader 0.5-i386 -----------------+
+;;;             +------------- MBRLoader 0.6-i386 -----------------+
 ;;;             | ArnaK, Inc.                                      |
 ;;;             |                                                  |
 ;;;             | fs.qas                                           |
@@ -256,7 +256,7 @@ get_volume:
 	jz $get_volume_ext2fs
 
 get_volume_inconnu:
-	mov si, $vol_inconnu
+	mov si, [$vol_inconnu]
 	call $strcpy
 	mov cx, 7
 	jmp $get_volume_end
@@ -311,7 +311,7 @@ delete_end:
 	jnz $volume_ok
 	pop ds
 	push ds
-	mov si, $vol_vide
+	mov si, [$vol_vide]
 	call $strcpy
 
 volume_ok:
@@ -320,11 +320,3 @@ volume_ok:
 	pop bx
 	pop ax
 	ret
-
-;;; +-------------------------------------------------------------------------+
-;;; | Donnees                                                                 |
-;;; +-------------------------------------------------------------------------+
-vol_inconnu:
-	.chainez "Inconnu"
-vol_vide:
-	.chainez "Aucun"
