@@ -1,8 +1,23 @@
-;;;             +------------- MBRLoader 0.6-i386 -----------------+
-;;;             | ArnaK, Inc.                                      |
-;;;             |                                                  |
-;;;             | multil.qas                                       |
-;;;             +--------------------------------------------------+
+;;; +-  Programme  -----------------------------------------------------------+
+;;; | MBRLoader 2.0-i386                                                      |
+;;; | Gestionnnaire de démarrage "multi-boot"                                 |
+;;; |                                                                         |
+;;; | Voyez la documentation ci-jointe                                        |
+;;; |                                                                         |
+;;; +-  Contacts  ------------------------------------------------------------+
+;;; | http://mbrloader.arnak.cjb.net                                          |
+;;; | mailto:mbrloader@arnak.cjb.net                                          |
+;;; |                                                                         |
+;;; +-  Auteur  --------------------------------------------------------------+
+;;; | ArnaK, SARL / Rip-off, Inc. / Kompanio Fraudo / Schwindel, GmbH         |
+;;; | Fabien Pollet                                                           |
+;;; | http://www.arnak.cjb.net                                                |
+;;; | mailto:arnak@arnak.cjb.net                                              |
+;;; |                                                                         |
+;;; +-  Fichier  -------------------------------------------------------------+
+;;; | multil.qas                                                              |
+;;; | Gestion des données multilingues                                        |
+;;; +-------------------------------------------------------------------------+
 
 ;;; +-------------------------------------------------------------------------+
 ;;; | set_lang                                                                |
@@ -33,6 +48,9 @@ set_lang_fr:
 	mov [$delitem_str], $delitem_str_fr
 	mov [$autostart_str], $autostart_str_fr
 	mov [$langue_str], $langue_str_fr
+	mov [$inserez_mbrtb_disq], $inserez_mbrtb_disq_fr
+	mov [$pas_de_toolbox], $pas_de_toolbox_fr
+	mov [$toolbox_str], $toolbox_str_fr
 	mov [$savequit], $savequit_fr
 	mov [$quit], $quit_fr
 	mov [$annuler], $annuler_fr
@@ -62,6 +80,9 @@ set_lang_eo:
 	mov [$delitem_str], $delitem_str_eo
 	mov [$autostart_str], $autostart_str_eo
 	mov [$langue_str], $langue_str_eo
+	mov [$inserez_mbrtb_disq], $inserez_mbrtb_disq_eo
+	mov [$pas_de_toolbox], $pas_de_toolbox_eo
+	mov [$toolbox_str], $toolbox_str_eo
 	mov [$savequit], $savequit_eo
 	mov [$quit], $quit_eo
 	mov [$annuler], $annuler_eo
@@ -91,6 +112,9 @@ set_lang_en:
 	mov [$delitem_str], $delitem_str_en
 	mov [$autostart_str], $autostart_str_en
 	mov [$langue_str], $langue_str_en
+	mov [$inserez_mbrtb_disq], $inserez_mbrtb_disq_en
+	mov [$pas_de_toolbox], $pas_de_toolbox_en
+	mov [$toolbox_str], $toolbox_str_en
 	mov [$savequit], $savequit_en
 	mov [$quit], $quit_en
 	mov [$annuler], $annuler_en
@@ -120,6 +144,9 @@ set_lang_de:
 	mov [$delitem_str], $delitem_str_de
 	mov [$autostart_str], $autostart_str_de
 	mov [$langue_str], $langue_str_de
+	mov [$inserez_mbrtb_disq], $inserez_mbrtb_disq_de
+	mov [$pas_de_toolbox], $pas_de_toolbox_de
+	mov [$toolbox_str], $toolbox_str_de
 	mov [$savequit], $savequit_de
 	mov [$quit], $quit_de
 	mov [$annuler], $annuler_de
@@ -157,6 +184,12 @@ delitem_str:
 autostart_str:
 	.mot 0
 langue_str:
+	.mot 0
+inserez_mbrtb_disq:
+	.mot 0
+pas_de_toolbox:
+	.mot 0
+toolbox_str:
 	.mot 0
 savequit:
 	.mot 0

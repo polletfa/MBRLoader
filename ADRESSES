@@ -1,0 +1,85 @@
++-  Programme  -----------------------------------------------------------+
+| MBRLoader 2.0-i386                                                      |
+| Gestionnnaire de démarrage "multi-boot"                                 |
+|                                                                         |
+| Voyez la documentation ci-jointe                                        |
+|                                                                         |
++-  Contacts  ------------------------------------------------------------+
+| http://mbrloader.arnak.cjb.net                                          |
+| mailto:mbrloader@arnak.cjb.net                                          |
+|                                                                         |
++-  Auteur  --------------------------------------------------------------+
+| ArnaK, SARL / Rip-off, Inc. / Kompanio Fraudo / Schwindel, GmbH         |
+| Fabien Pollet                                                           |
+| http://www.arnak.cjb.net                                                |
+| mailto:arnak@arnak.cjb.net                                              |
+|                                                                         |
++-  Fichier  -------------------------------------------------------------+
+| ADRESSES                                                                |
+| Détails de l'occupation de la mémoire par MBRLoader                     |
++-------------------------------------------------------------------------+
+
+Différentes adresses mémoire utilisées par MBRLoader :
+
+Chargement de la partie 1 (step1) : 07c0:0000-07c0:01ff (0.5 Ko)
+	Inutilisé à partir du chargement de la partie 2 jusqu'au
+	chargement d'un système d'exploitation
+	Cette emplacement peut donc être utilisé une fois MBRLoader lancé
+	=> 7C00-7DFF
+Chargement d'un système d'exploitation : 07c0:0000-07c0:01ff (0.5 Ko)
+	Terminaison de MBRLoader
+	Cette emplacement peut donc être utilisé mais pas par la partie
+	qui lance les systèmes
+	=> 7C00-7DFF
+Chargement de la partie 2 (step2) : 0x0050:0000-0050:21ff (8.5 Ko)
+	À conserver en mémoire jusqu'au chargement d'un système
+	Doit pouvoir être agrandi par la suite au besoin
+	=> 500-21FF
+Copie temporaire de la configuration : 0x1000:0000-1000:01ff (0.5 Ko)
+	A conserver pendant la configuration
+	=> 10000-101ff
+Autre copie temporaire de la configuration : 0x1000:0200-0x1000:03ff (0.5 Ko)
+	Utilisé pendant une étape de la configuration
+	=> 10200-103ff
+Emplacement pour MBRToolBox : 0x2000:0000-2000:47ff (18 Ko)
+	Doit pouvoir être agrandi par la suite
+        => 20000-247FF
+Pile : 0x9000:0000-0x9000:ffff (64 Ko)
+	=> 90000-9FFFF
+
++-----------------------------------------------------------------------------+
+|         Schéma de l'occupation du 1er Mo de mémoire par MBRLoader           |
++-----------------------------------------------------------------------------+
+
+               0 +------------------------------------+
+                 |           Vide ou BIOS             | 1280 octets  
+                 |         Ne pas utiliser            | 1.25 Ko
+             500 +------------------------------------+
+                 |         MBRLoader (step2)          | 8704 octets
+                 |               Occupé               | 8.5 Ko
+            2700 +------------------------------------+
+                 |               Vide                 | 21760 octets
+                 |                                    | 21.25 Ko
+            7C00 +------------------------------------+
+                 |        step1, boot ou vide         | 33792 octets
+                 |                                    | 33 Ko
+           10000 +------------------------------------+
+                 |       Sauvegardes MBRLoader        | 1024 octets
+                 |              Occupé                | 1 Ko
+           10400 +------------------------------------+
+                 |              Vide                  | 64512 octets
+                 |                                    | 63 Ko
+           20000 +------------------------------------+
+                 |           MBRToolBox               | 18432 octets
+                 |             Occupé                 | 18 Ko
+           24800 +------------------------------------+
+                 |              Vide                  | 440320 octets
+                 |                                    | 430 Ko
+           90000 +------------------------------------+
+                 |              Pile                  | 65536 octets
+                 |                                    | 64 Ko
+           A0000 +------------------------------------+
+                 |            Vide ou BIOS            | 393216 octets
+                 |           Ne pas utiliser          | 384 Ko
+          100000 +------------------------------------+
+

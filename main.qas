@@ -1,8 +1,23 @@
-;;;             +------------- MBRLoader 0.6-i386 -----------------+
-;;;             | ArnaK, Inc.                                      |
-;;;             |                                                  |
-;;;             | main.qas                                         |
-;;;             +--------------------------------------------------+
+;;; +-  Programme  -----------------------------------------------------------+
+;;; | MBRLoader 2.0-i386                                                      |
+;;; | Gestionnnaire de démarrage "multi-boot"                                 |
+;;; |                                                                         |
+;;; | Voyez la documentation ci-jointe                                        |
+;;; |                                                                         |
+;;; +-  Contacts  ------------------------------------------------------------+
+;;; | http://mbrloader.arnak.cjb.net                                          |
+;;; | mailto:mbrloader@arnak.cjb.net                                          |
+;;; |                                                                         |
+;;; +-  Auteur  --------------------------------------------------------------+
+;;; | ArnaK, SARL / Rip-off, Inc. / Kompanio Fraudo / Schwindel, GmbH         |
+;;; | Fabien Pollet                                                           |
+;;; | http://www.arnak.cjb.net                                                |
+;;; | mailto:arnak@arnak.cjb.net                                              |
+;;; |                                                                         |
+;;; +-  Fichier  -------------------------------------------------------------+
+;;; | main.qas                                                                |
+;;; | Fichier principal                                                       |
+;;; +-------------------------------------------------------------------------+
 
 ;;; +-------------------------------------------------------------------------+
 ;;; | Saut vers main                                                          |
@@ -169,9 +184,11 @@ selected_2:
 	jz $selected_2_autostart
 	cmp byte [$selected_item], 4   ; Langue
 	jz $selected_2_langue
-	cmp byte [$selected_item], 5   ; Enregistrer et quitter
+	cmp byte [$selected_item], 5   ; MBRToolBox
+	jz $selected_2_toolbox
+	cmp byte [$selected_item], 6   ; Enregistrer et quitter
 	jz $selected_2_savequit
-	cmp byte [$selected_item], 6   ; Quitter sans enregistrer
+	cmp byte [$selected_item], 7   ; Quitter sans enregistrer
 	jz $selected_2_quit
 selected_2_addos:
 	jmp $configi_addos
@@ -181,6 +198,8 @@ selected_2_autostart:
 	jmp $configi_autostart
 selected_2_langue:
 	jmp $configi_langue
+selected_2_toolbox:
+	jmp $configi_toolbox
 selected_2_savequit:
 	jmp $configi_savequit
 selected_2_quit:

@@ -1,9 +1,24 @@
-;;;             +------------- MBRLoader 0.6-i386 -----------------+
-;;;             | ArnaK, Inc.                                      |
-;;;             |                                                  |
-;;;             | bootsect.qas                                     |
-;;;             +--------------------------------------------------+
-			
+;;; +-  Programme  -----------------------------------------------------------+
+;;; | MBRLoader 2.0-i386                                                      |
+;;; | Gestionnnaire de démarrage "multi-boot"                                 |
+;;; |                                                                         |
+;;; | Voyez la documentation ci-jointe                                        |
+;;; |                                                                         |
+;;; +-  Contacts  ------------------------------------------------------------+
+;;; | http://mbrloader.arnak.cjb.net                                          |
+;;; | mailto:mbrloader@arnak.cjb.net                                          |
+;;; |                                                                         |
+;;; +-  Auteur  --------------------------------------------------------------+
+;;; | ArnaK, SARL / Rip-off, Inc. / Kompanio Fraudo / Schwindel, GmbH         |
+;;; | Fabien Pollet                                                           |
+;;; | http://www.arnak.cjb.net                                                |
+;;; | mailto:arnak@arnak.cjb.net                                              |
+;;; |                                                                         |
+;;; +-  Fichier  -------------------------------------------------------------+
+;;; | bootsect.qas                                                            |
+;;; | Secteur de démarrage (step1)                                            |
+;;; +-------------------------------------------------------------------------+
+
 ;;; +-----------------------------------------------------------------------+
 ;;; | Symbole main : symbole principal                                      |
 ;;; +-----------------------------------------------------------------------+
@@ -13,7 +28,11 @@ main:
 	mov	es,ax		; programme a ete charge par le BIOS
 	mov	ds,ax		; idem pour DS
 
-	;; charger les secteurs 2-20 du disque depuis lequel ce programme
+	mov	ax, 0x9000	; 
+	mov	ss, ax		; On fixe la pile à 0x9ffff
+	mov	sp, 0xffff	;
+	
+	;; charger les secteurs 2-18 du disque depuis lequel ce programme
 	;; a été chargé
 	jmp	$load
 
@@ -39,7 +58,7 @@ load:
 	; ne pas toucher à dl
 	int	0x13
 	
-	;; on charge les secteurs 2-20 à 0x50:0
+	;; on charge les secteurs 2-18 à 0x50:0
 	; ne pas toucher à dl
 	mov	dh,0
 	mov	cx,2
@@ -47,7 +66,7 @@ load:
 	mov	es,ax
 	mov	ds,ax
 	mov	ah,2
-	mov	al,19
+	mov	al,17
 	mov	bx,0
 
 	int	0x13
@@ -94,7 +113,7 @@ print2:
 ;;; +-------------------------------------------------------------------------+
 
 demsg:
-	.chaine	"MBRLoader 0.6-i386"
+	.chaine	"MBRLoader 2.0-i386"
 	.octet	10
 	.octet  13
 	.chaine "ArnaK, SARL / Kompanio Fraudo / Rip-off, Inc. / Schwindel, GmbH"

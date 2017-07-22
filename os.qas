@@ -1,8 +1,23 @@
-;;;             +------------- MBRLoader 0.6-i386 -----------------+
-;;;             | ArnaK, Inc.                                      |
-;;;             |                                                  |
-;;;             | os.qas                                           |
-;;;             +--------------------------------------------------+
+;;; +-  Programme  -----------------------------------------------------------+
+;;; | MBRLoader 2.0-i386                                                      |
+;;; | Gestionnnaire de démarrage "multi-boot"                                 |
+;;; |                                                                         |
+;;; | Voyez la documentation ci-jointe                                        |
+;;; |                                                                         |
+;;; +-  Contacts  ------------------------------------------------------------+
+;;; | http://mbrloader.arnak.cjb.net                                          |
+;;; | mailto:mbrloader@arnak.cjb.net                                          |
+;;; |                                                                         |
+;;; +-  Auteur  --------------------------------------------------------------+
+;;; | ArnaK, SARL / Rip-off, Inc. / Kompanio Fraudo / Schwindel, GmbH         |
+;;; | Fabien Pollet                                                           |
+;;; | http://www.arnak.cjb.net                                                |
+;;; | mailto:arnak@arnak.cjb.net                                              |
+;;; |                                                                         |
+;;; +-  Fichier  -------------------------------------------------------------+
+;;; | os.qas                                                                  |
+;;; | Fonctions gérant les types de partitions                                |
+;;; +-------------------------------------------------------------------------+
 	
 ;;; +-------------------------------------------------------------------------+
 ;;; | oslist : liste des types de partitions                                  |

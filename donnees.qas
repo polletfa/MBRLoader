@@ -1,8 +1,23 @@
-;;;             +------------- MBRLoader 0.6-i386 -----------------+
-;;;             | ArnaK, Inc.                                      |
-;;;             |                                                  |
-;;;             | donnees.qas                                      |
-;;;             +--------------------------------------------------+
+;;; +-  Programme  -----------------------------------------------------------+
+;;; | MBRLoader 2.0-i386                                                      |
+;;; | Gestionnnaire de démarrage "multi-boot"                                 |
+;;; |                                                                         |
+;;; | Voyez la documentation ci-jointe                                        |
+;;; |                                                                         |
+;;; +-  Contacts  ------------------------------------------------------------+
+;;; | http://mbrloader.arnak.cjb.net                                          |
+;;; | mailto:mbrloader@arnak.cjb.net                                          |
+;;; |                                                                         |
+;;; +-  Auteur  --------------------------------------------------------------+
+;;; | ArnaK, SARL / Rip-off, Inc. / Kompanio Fraudo / Schwindel, GmbH         |
+;;; | Fabien Pollet                                                           |
+;;; | http://www.arnak.cjb.net                                                |
+;;; | mailto:arnak@arnak.cjb.net                                              |
+;;; |                                                                         |
+;;; +-  Fichier  -------------------------------------------------------------+
+;;; | donnees.qas                                                             |
+;;; | Données en langue française                                             |
+;;; +-------------------------------------------------------------------------+
 
 load_msg_fr:
 	.chainez "Chargement en cours ..."
@@ -24,6 +39,12 @@ autostart_str_fr:
 	.chainez "Configurer l'option de lancement automatique"
 langue_str_fr:
 	.chainez "Choix d'une langue"
+inserez_mbrtb_disq_fr:
+	.chainez "Ins\202rez la disquette MBRToolBox"
+pas_de_toolbox_fr:
+	.chainez "MBRToolBox introuvable"
+toolbox_str_fr:
+	.chainez "Lancer MBRToolBox (bo\214te \205 outils)"
 savequit_fr:
 	.chainez "Enregistrer et quitter"
 quit_fr:
@@ -45,4 +66,4 @@ vol_inconnu_fr:
 vol_vide_fr:
 	.chainez "Aucun"
 systeme_inconnu_fr:
-	.chainez "Système inconnu"
+	.chainez "Syst\212me inconnu"

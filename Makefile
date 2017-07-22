@@ -1,15 +1,33 @@
-#             +------------- MBRLoader 0.6-i386 -----------------+
-#             | ArnaK, Inc.                                      |
-#             |                                                  |
-#             | Makefile                                         |
-#             +--------------------------------------------------+
+# +-  Programme  -----------------------------------------------------------+
+# | MBRLoader 2.0-i386                                                      |
+# | Gestionnnaire de démarrage "multi-boot"                                 |
+# |                                                                         |
+# | Voyez la documentation ci-jointe                                        |
+# |                                                                         |
+# +-  Contacts  ------------------------------------------------------------+
+# | http://mbrloader.arnak.cjb.net                                          |
+# | mailto:mbrloader@arnak.cjb.net                                          |
+# |                                                                         |
+# +-  Auteur  --------------------------------------------------------------+
+# | ArnaK, SARL / Rip-off, Inc. / Kompanio Fraudo / Schwindel, GmbH         |
+# | Fabien Pollet                                                           |
+# | http://www.arnak.cjb.net                                                |
+# | mailto:arnak@arnak.cjb.net                                              |
+# |                                                                         |
+# +-  Fichier  -------------------------------------------------------------+
+# | Makefile                                                                |
+# | Fichier Makefile                                                        |
+# +-------------------------------------------------------------------------+
 
 # +-------------------------------------------------------------------------+
 # | Variables                                                               |
 # +-------------------------------------------------------------------------+
 
+include Makefile.devicefiles
+
 CC = gcc
 CFLAGS = -c
+INSTALLERFLAGS = -DHARDDISK=$(HARDDISK) -DFLOPPYDISK=$(FLOPPYDISK)
 LD = gcc
 LDFLAGS = 
 
@@ -30,7 +48,7 @@ installer : $(OBJS_INSTALLER)
 	$(LD) -o $@ $(LDFLAGS) $^
 
 installer.o : installer.c
-	$(CC) $(CFLAGS) $<
+	$(CC) $(CFLAGS) $(INSTALLERFLAGS) $<
 
 #--- step1
 step1 : $(SRCS_STEP1)
@@ -45,16 +63,22 @@ install : all
 	if [ ! -d $(DESTDIR)/bin ];\
 	then mkdir $(DESTDIR)/bin;\
 	fi;
-	cp installer $(DESTDIR)/bin/mbrloader0.6-i386;
-	chmod 555 $(DESTDIR)/bin/mbrloader0.6-i386;
-	rm -f $(DESTDIR)/bin/mbrloader;
-	ln -s $(DESTDIR)/bin/mbrloader0.6-i386 $(DESTDIR)/bin/mbrloader;
-	cp step1 /boot/mbrloader0.6-i386.step1;
-	cp step2 /boot/mbrloader0.6-i386.step2;
+	if [ ! -d $(DESTDIR)/boot ];\
+	then mkdir $(DESTDIR)/boot;\
+	fi;
 	if [ ! -d $(DESTDIR)/doc ];\
 	then mkdir $(DESTDIR)/doc;\
 	fi;
-	cp lisezmoi $(DESTDIR)/doc/mbrloader0.6-i386
+	if [ ! -d $(DESTDIR)/doc/mbrloader2.0-i386 ];\
+	then mkdir $(DESTDIR)/doc/mbrloader2.0-i386;\
+	fi;
+	cp installer $(DESTDIR)/bin/mbrloader2.0-i386;
+	chmod 555 $(DESTDIR)/bin/mbrloader2.0-i386;
+	rm -f $(DESTDIR)/bin/mbrloader;
+	ln -s $(DESTDIR)/bin/mbrloader2.0-i386 $(DESTDIR)/bin/mbrloader;
+	cp step1 $(DESTDIR)/boot/mbrloader2.0-i386.step1;
+	cp step2 $(DESTDIR)/boot/mbrloader2.0-i386.step2;
+	cp LISEZMOI TOOLBOXES ADRESSES DEVICEFILES $(DESTDIR)/doc/mbrloader2.0-i386
 
 #--- clean
 clean :

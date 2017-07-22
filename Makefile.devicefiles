@@ -1,0 +1,25 @@
+# +-  Programme  -----------------------------------------------------------+
+# | MBRLoader 2.0-i386                                                      |
+# | Gestionnnaire de démarrage "multi-boot"                                 |
+# |                                                                         |
+# | Voyez la documentation ci-jointe                                        |
+# |                                                                         |
+# +-  Contacts  ------------------------------------------------------------+
+# | http://mbrloader.arnak.cjb.net                                          |
+# | mailto:mbrloader@arnak.cjb.net                                          |
+# |                                                                         |
+# +-  Auteur  --------------------------------------------------------------+
+# | ArnaK, SARL / Rip-off, Inc. / Kompanio Fraudo / Schwindel, GmbH         |
+# | Fabien Pollet                                                           |
+# | http://www.arnak.cjb.net                                                |
+# | mailto:arnak@arnak.cjb.net                                              |
+# |                                                                         |
+# +-  Fichier  -------------------------------------------------------------+
+# | Makefile.devicefiles                                                    |
+# | Options de configuration concernant les fichiers de périphériques       |
+# +-------------------------------------------------------------------------+
+
+# Note : voyez le fichier DEVICEFILES pour plus d'informations sur l'usage de
+# ce fichier.
+HARDDISK=\"/dev/wd0c\"
+FLOPPYDISK=\"/dev/fd0a\"

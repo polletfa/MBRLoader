@@ -1,8 +1,23 @@
-;;;             +------------- MBRLoader 0.6-i386 -----------------+
-;;;             | ArnaK, Inc.                                      |
-;;;             |                                                  |
-;;;             | interf.qas                                       |
-;;;             +--------------------------------------------------+
+;;; +-  Programme  -----------------------------------------------------------+
+;;; | MBRLoader 2.0-i386                                                      |
+;;; | Gestionnnaire de démarrage "multi-boot"                                 |
+;;; |                                                                         |
+;;; | Voyez la documentation ci-jointe                                        |
+;;; |                                                                         |
+;;; +-  Contacts  ------------------------------------------------------------+
+;;; | http://mbrloader.arnak.cjb.net                                          |
+;;; | mailto:mbrloader@arnak.cjb.net                                          |
+;;; |                                                                         |
+;;; +-  Auteur  --------------------------------------------------------------+
+;;; | ArnaK, SARL / Rip-off, Inc. / Kompanio Fraudo / Schwindel, GmbH         |
+;;; | Fabien Pollet                                                           |
+;;; | http://www.arnak.cjb.net                                                |
+;;; | mailto:arnak@arnak.cjb.net                                              |
+;;; |                                                                         |
+;;; +-  Fichier  -------------------------------------------------------------+
+;;; | interf.qas                                                              |
+;;; | Gestion de l'interface semi-graphique                                   |
+;;; +-------------------------------------------------------------------------+
 
 ;;; +------------------------------------------------------------------------+
 ;;; | disp_main_win                                                          |
@@ -465,7 +480,7 @@ inputbox_enter:
 ;;; +-------------------------------------------------------------------------+
 
 main_win_title:
-	.chaine "  MBRLoader v0.6-i386 - mbrloader@arnak.fr.st, www.arnak.fr.st/mbrloader        "
+	.chaine "  MBRLoader v2.0-i386 - mbrloader@arnak.fr.st, www.arnak.fr.st/mbrloader        "
 main_win_up:
 	.chaine "ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿"
 main_win_middle:
@@ -474,7 +489,7 @@ main_win_down:
 	.chaine "ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ"
 
 dialog_title:
-	.chaine "  MBRLoader v0.6-i386                   "
+	.chaine "  MBRLoader v2.0-i386                   "
 dialog_up:
 	.chaine "ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿"
 dialog_middle:

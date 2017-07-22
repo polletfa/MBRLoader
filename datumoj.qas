@@ -1,8 +1,23 @@
-;;;             +------------- MBRLoader 0.6-i386 -----------------+
-;;;             | ArnaK, Inc.                                      |
-;;;             |                                                  |
-;;;             | datumoj.qas                                      |
-;;;             +--------------------------------------------------+
+;;; +-  Programme  -----------------------------------------------------------+
+;;; | MBRLoader 2.0-i386                                                      |
+;;; | Gestionnnaire de démarrage "multi-boot"                                 |
+;;; |                                                                         |
+;;; | Voyez la documentation ci-jointe                                        |
+;;; |                                                                         |
+;;; +-  Contacts  ------------------------------------------------------------+
+;;; | http://mbrloader.arnak.cjb.net                                          |
+;;; | mailto:mbrloader@arnak.cjb.net                                          |
+;;; |                                                                         |
+;;; +-  Auteur  --------------------------------------------------------------+
+;;; | ArnaK, SARL / Rip-off, Inc. / Kompanio Fraudo / Schwindel, GmbH         |
+;;; | Fabien Pollet                                                           |
+;;; | http://www.arnak.cjb.net                                                |
+;;; | mailto:arnak@arnak.cjb.net                                              |
+;;; |                                                                         |
+;;; +-  Fichier  -------------------------------------------------------------+
+;;; | datumoj.qas                                                             |
+;;; | Données en espéranto / Datumoj en Esperanto                             |
+;;; +-------------------------------------------------------------------------+
 
 load_msg_eo:
 	.chainez "Sharganta ..."
@@ -24,6 +39,12 @@ autostart_str_eo:
 	.chainez "Konfiguru la opcion de automata startigo"
 langue_str_eo:
 	.chainez "Elektu lingvon"
+inserez_mbrtb_disq_eo:
+	.chainez "Enmetu la MBRToolBox-a disketo"
+pas_de_toolbox_eo:
+	.chainez "Netrovebla MBRToolBox"
+toolbox_str_eo:
+	.chainez "Shargu MBRToolBox (ilaro)"
 savequit_eo:
 	.chainez "Konservu kaj forlasu"
 quit_eo:

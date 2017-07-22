@@ -1,8 +1,23 @@
-;;;             +------------- MBRLoader 0.6-i386 -----------------+
-;;;             | ArnaK, Inc.                                      |
-;;;             |                                                  |
-;;;             | data.qas                                         |
-;;;             +--------------------------------------------------+
+;;; +-  Programme  -----------------------------------------------------------+
+;;; | MBRLoader 2.0-i386                                                      |
+;;; | Gestionnnaire de démarrage "multi-boot"                                 |
+;;; |                                                                         |
+;;; | Voyez la documentation ci-jointe                                        |
+;;; |                                                                         |
+;;; +-  Contacts  ------------------------------------------------------------+
+;;; | http://mbrloader.arnak.cjb.net                                          |
+;;; | mailto:mbrloader@arnak.cjb.net                                          |
+;;; |                                                                         |
+;;; +-  Auteur  --------------------------------------------------------------+
+;;; | ArnaK, SARL / Rip-off, Inc. / Kompanio Fraudo / Schwindel, GmbH         |
+;;; | Fabien Pollet                                                           |
+;;; | http://www.arnak.cjb.net                                                |
+;;; | mailto:arnak@arnak.cjb.net                                              |
+;;; |                                                                         |
+;;; +-  Fichier  -------------------------------------------------------------+
+;;; | data.qas                                                                |
+;;; | Données en langue anglaise / Data in english                            |
+;;; +-------------------------------------------------------------------------+
 
 load_msg_en:
 	.chainez "Loading in progress ..."
@@ -24,6 +39,12 @@ autostart_str_en:
 	.chainez "Configure the option of automatic start"
 langue_str_en:
 	.chainez "Select a language"
+inserez_mbrtb_disq_en:
+	.chainez "Insert the MBRToolBox floppy disk"
+pas_de_toolbox_en:
+	.chainez "MBRToolBox not found"
+toolbox_str_en:
+	.chainez "Launch MBRToolBox"
 savequit_en:
 	.chainez "Save and quit"
 quit_en:

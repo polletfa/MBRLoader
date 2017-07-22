@@ -1,8 +1,23 @@
-;;;             +------------- MBRLoader 0.6-i386 -----------------+
-;;;             | ArnaK, Inc.                                      |
-;;;             |                                                  |
-;;;             | daten.qas                                        |
-;;;             +--------------------------------------------------+
+;;; +-  Programme  -----------------------------------------------------------+
+;;; | MBRLoader 2.0-i386                                                      |
+;;; | Gestionnnaire de démarrage "multi-boot"                                 |
+;;; |                                                                         |
+;;; | Voyez la documentation ci-jointe                                        |
+;;; |                                                                         |
+;;; +-  Contacts  ------------------------------------------------------------+
+;;; | http://mbrloader.arnak.cjb.net                                          |
+;;; | mailto:mbrloader@arnak.cjb.net                                          |
+;;; |                                                                         |
+;;; +-  Auteur  --------------------------------------------------------------+
+;;; | ArnaK, SARL / Rip-off, Inc. / Kompanio Fraudo / Schwindel, GmbH         |
+;;; | Fabien Pollet                                                           |
+;;; | http://www.arnak.cjb.net                                                |
+;;; | mailto:arnak@arnak.cjb.net                                              |
+;;; |                                                                         |
+;;; +-  Fichier  -------------------------------------------------------------+
+;;; | daten.qas                                                               |
+;;; | Données en langue allemande / Daten auf Deutsch                         |
+;;; +-------------------------------------------------------------------------+
 
 load_msg_de:
 	.chainez "Ladung ..."
@@ -24,10 +39,16 @@ autostart_str_de:
 	.chainez "Das Option des automatischen Ladung bilden"
 langue_str_de:
 	.chainez "Eine Sprache festlegen"
+inserez_mbrtb_disq_de:
+	.chainez "F\201gen Sie die MBRToolBox Diskette ein"
+pas_de_toolbox_de:
+	.chainez "MBRToolBox nicht gefunden"
+toolbox_str_de:
+	.chainez "MBRToolBox laden"
 savequit_de:
-	.chainez "Regiestrieren und beenden"
+	.chainez "Registrieren und beenden"
 quit_de:
-	.chainez "Beenden, ohne zu regiestrieren"
+	.chainez "Beenden, ohne zu registrieren"
 annuler_de:
 	.chainez "Abbruch"
 label_de:
@@ -46,3 +67,4 @@ vol_vide_de:
 	.chainez "Kein Name"
 systeme_inconnu_de:
 	.chainez "Unbekannter Betriebssystem"
+

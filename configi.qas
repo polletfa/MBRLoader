@@ -1,8 +1,23 @@
-;;;             +------------- MBRLoader 0.6-i386 -----------------+
-;;;             | ArnaK, Inc.                                      |
-;;;             |                                                  |
-;;;             | configi.qas                                      |
-;;;             +--------------------------------------------------+
+;;; +-  Programme  -----------------------------------------------------------+
+;;; | MBRLoader 2.0-i386                                                      |
+;;; | Gestionnnaire de démarrage "multi-boot"                                 |
+;;; |                                                                         |
+;;; | Voyez la documentation ci-jointe                                        |
+;;; |                                                                         |
+;;; +-  Contacts  ------------------------------------------------------------+
+;;; | http://mbrloader.arnak.cjb.net                                          |
+;;; | mailto:mbrloader@arnak.cjb.net                                          |
+;;; |                                                                         |
+;;; +-  Auteur  --------------------------------------------------------------+
+;;; | ArnaK, SARL / Rip-off, Inc. / Kompanio Fraudo / Schwindel, GmbH         |
+;;; | Fabien Pollet                                                           |
+;;; | http://www.arnak.cjb.net                                                |
+;;; | mailto:arnak@arnak.cjb.net                                              |
+;;; |                                                                         |
+;;; +-  Fichier  -------------------------------------------------------------+
+;;; | configi.qas                                                             |
+;;; | Interface de configuration                                              |
+;;; +-------------------------------------------------------------------------+
 
 ;;; +-------------------------------------------------------------------------+
 ;;; | Interface de configuration                                              |
@@ -35,6 +50,8 @@ config_interf:
 	call $add_item
 	mov si, [$langue_str]
 	call $add_item
+	mov si, [$toolbox_str]
+	call $add_item
 	mov si, [$savequit]
 	call $add_item
 	mov si, [$quit]
@@ -45,6 +62,135 @@ config_interf:
 	mov [$selected_item], al
 
 	jmp $main_loop
+
+;;; +-------------------------------------------------------------------------+
+;;; | configi_toolbox                                                         |
+;;; +-------------------------------------------------------------------------+
+configi_toolbox:
+	;; Message "insérez la disquette"
+	mov si, [$inserez_mbrtb_disq]
+	call $dialog
+	mov ah, 0
+	int 0x16
+
+	;; lire les secteurs 19-36 (charger à l'adresse 0x2000:0)
+        ;; de la disquette (deux tentatives)
+	mov cx, 2
+configi_toolbox_read:
+	push cx
+	push es
+	push ds
+	mov ah, 0
+	mov dl, 0
+	int 0x13
+	mov dl, 0
+	mov dh, 1
+	mov cl, 1
+	mov ch, 0
+	mov ax, 0x2000
+	mov es, ax
+	mov ds, ax
+	mov ah, 2
+	mov al, 18
+	mov bx, 0
+	int 0x13
+	jc $toolbox_dskerr
+
+	jmp $toolbox_dsknoerr
+
+toolbox_dskerr:
+	pop ds
+	pop es
+	pop cx
+	dec cx
+	jnz $configi_toolbox_read
+	
+	mov ax, 0
+	push cx
+	push es
+	push ds
+toolbox_dsknoerr:
+	pop ds
+	pop es
+
+	pop cx
+
+	;; puis 37-54 à l'adresse 0x2240:0
+	mov cx, 2
+configi_toolbox_read2:
+	push cx
+	push es
+	push ds
+	mov ah, 0
+	mov dl, 0
+	int 0x13
+	mov dl, 0
+	mov dh, 0
+	mov cl, 1
+	mov ch, 1
+	mov ax, 0x2240
+	mov es, ax
+	mov ds, ax
+	mov ah, 2
+	mov al, 18
+	mov bx, 0
+	int 0x13
+	jc $toolbox_dskerr2
+
+	jmp $toolbox_dsknoerr2
+
+toolbox_dskerr2:
+	pop ds
+	pop es
+	pop cx
+	dec cx
+	jnz $configi_toolbox_read2
+	
+	mov ax, 0
+	push cx
+	push es
+	push ds
+toolbox_dsknoerr2:
+	pop ds
+	pop es
+
+	pop cx
+
+	;; vérifier le mot "magique"
+	push ds
+	mov ax, 0x2000
+	mov ds, ax
+	mov ax, [ds:0]
+	pop ds
+	cmp ax, 0x4254        ; 'TB'
+	jnz $no_toolbox
+
+	;; lancer la boîte à outils
+	push es			; 
+	mov ax, 0x1000		; 
+	mov es, ax		; argument : langue
+	mov al, [es:$langue]	; 
+	pop es			; 
+
+	push es			; 
+	push ds			; 
+	mov bx, 0x2000		; 
+	mov es, bx		; lancer la boîte 
+	mov ds, bx		; à outils
+	callf 0x20000002	; 
+	pop ds			; 
+	pop es			; 
+	
+	jmp $config_interf
+
+no_toolbox:
+	;; Message "toolbox introuvable"
+	mov si, [$pas_de_toolbox]
+	call $dialog
+	mov ah, 0
+	int 0x16
+
+	jmp $config_interf
 
 ;;; +-------------------------------------------------------------------------+
 ;;; | configi_langue                                                          |
