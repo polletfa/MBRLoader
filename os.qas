@@ -1,181 +1,181 @@
-;;;             +------------- MBRLoader 0.3-i386 -----------------+
+;;;             +------------- MBRLoader 0.4-i386 -----------------+
 ;;;             | ArnaK, Inc.                                      |
 ;;;             |                                                  |
-;;;             | os.qas                                            |
+;;;             | os.qas                                           |
 ;;;             +--------------------------------------------------+
 	
 ;;; +-------------------------------------------------------------------------+
 ;;; | oslist : liste des types de partitions                                  |
 ;;; +-------------------------------------------------------------------------+
 oslist:
-	.byte	0x1
-	.strz	"FAT12"
-	.byte	0x2
-	.strz	"XENIX root"
-	.byte	0x3
-	.strz	"XENIX usr"
-	.byte	0x4
-	.strz	"FAT16 <32M"
-	.byte	0x5
-	.strz	"Extended"
-	.byte	0x6
-	.strz	"FAT16"
-	.byte	0x7
-	.strz	"HPFS/NTFS"
-	.byte	0x8
-	.strz	"AIX"
-	.byte	0x9
-	.strz	"AIX bootable"
-	.byte	0xa
-	.strz	"OS/2 Boot Manager"
-	.byte	0xb
-	.strz	"Win95 FAT32"
-	.byte	0xc
-	.strz	"Win95 FAT32 (LBA)"
-	.byte	0xe
-	.strz	"Win95 FAT16 (LBA)"
-	.byte	0xf
-	.strz	"Win95 Ext'd (LBA)"
-	.byte	0x10
-	.strz	"OPUS"
-	.byte	0x11
-	.strz	"Hidden FAT12"
-	.byte	0x12
-	.strz	"Compaq"
-	.byte	0x14
-	.strz	"Hidden FAT16 <32M"
-	.byte	0x16
-	.strz	"Hidden FAT16"
-	.byte	0x17
-	.strz	"Hidden HPFS/NTFS"
-	.byte	0x18
-	.strz	"AST Windows swap"
-	.byte	0x1b
-	.strz	"Hidden Win95"
-	.byte	0x1c
-	.strz	"Hidden Win95"
-	.byte	0x1e
-	.strz	"Hidden Win95"
-	.byte	0x24
-	.strz	"NEC DOS"
-	.byte	0x3c
-	.strz	"PartitionMagic"
-	.byte	0x40
-	.strz	"Venix 80286"
-	.byte	0x41
-	.strz	"PPC PReP Boot"
-	.byte	0x42
-	.strz	"SFS"
-	.byte	0x4d
-	.strz	"QNX4.x"
-	.byte	0x4e
-	.strz	"QNX4.x 2nd partition"
-	.byte	0x4f
-	.strz	"QNX4.x 3rd partition"
-	.byte	0x50
-	.strz	"OnTrack DM"
-	.byte	0x51
-	.strz	"OnTrack DM6 Aux."
-	.byte	0x52
-	.strz	"CP/M"
-	.byte	0x53
-	.strz	"OnTrack DM6 Aux."
-	.byte	0x54
-	.strz	"OnTrackDM6"
-	.byte	0x55
-	.strz	"EZ-Drive"
-	.byte	0x56
-	.strz	"Golden Bow"
-	.byte	0x5c
-	.strz	"Priam Edisk"
-	.byte	0x61
-	.strz	"SpeedStor"
-	.byte	0x63
-	.strz	"GNU HURD or SysV386"
-	.byte	0x64
-	.strz	"Novell Netware 286"
-	.byte	0x65
-	.strz	"Novell Netware 3.11"
-	.byte	0x67
-	.strz	"Novell"
-	.byte	0x68
-	.strz	"Novell"
-	.byte	0x69
-	.strz	"Novell"
-	.byte	0x70
-	.strz	"DiskSecure Multi-Boot"
-	.byte	0x75
-	.strz	"PC/IX"
-	.byte	0x80
-	.strz	"Old Minix"
-	.byte	0x81
-	.strz	"Minix / old Linux"
-	.byte	0x82
-	.strz	"Linux swap"
-	.byte	0x83
-	.strz	"Linux"
-	.byte	0x84
-	.strz	"OS/2 hidden C:"
-	.byte	0x85
-	.strz	"Linux extended"
-	.byte	0x86
-	.strz	"NTFS"
-	.byte	0x87
-	.strz	"NTFS"
-	.byte	0x93
-	.strz	"Amoeba"
-	.byte	0x94
-	.strz	"Amoeba BBT"
-	.byte	0xa0
-	.strz	"IBM Thinkpad"
-	.byte	0xa5
-	.strz	"BSD/386"
-	.byte	0xa6
-	.strz	"OpenBSD"
-	.byte	0xa7
-	.strz	"NeXTSTEP"
-	.byte	0xb7
-	.strz	"BSDI"
-	.byte	0xb8
-	.strz	"BSDI swap"
-	.byte	0xc1
-	.strz	"DRDOS"
-	.byte	0xc4
-	.strz	"DRDOS"
-	.byte	0xc6
-	.strz	"DRDOS"
-	.byte	0xc7
-	.strz	"Syrinx"
-	.byte	0xd5
-	.strz	"NTDIOS"
-	.byte	0xd8
-	.strz	"CP/M-86"
-	.byte	0xdb
-	.strz	"CP/M / CTOS"
-	.byte	0xe1
-	.strz	"CP/M / CTOS"
-	.byte	0xe3
-	.strz	"DOS R/O"
-	.byte	0xe4
-	.strz	"SpeedStor"
-	.byte	0xeb
-	.strz	"BeOS"
-	.byte	0xf1
-	.strz	"Storage Dimensions"
-	.byte	0xf2
-	.strz	"DOS secondary"
-	.byte	0xf4
-	.strz	"Storage Dimensions"
-	.byte	0xfd
-	.strz	"Linux raid auto"
-	.byte	0xfe
-	.strz	"LANstep"
-	.byte	0xff
-	.strz	"BBT"
-	.byte	0
+	.octet		0x1
+	.chainez	"FAT12"
+	.octet		0x2
+	.chainez	"XENIX root"
+	.octet		0x3
+	.chainez	"XENIX usr"
+	.octet		0x4
+	.chainez	"FAT16 <32M"
+	.octet		0x5
+	.chainez	"Extended"
+	.octet		0x6
+	.chainez	"FAT16"
+	.octet		0x7
+	.chainez	"HPFS/NTFS"
+	.octet		0x8
+	.chainez	"AIX"
+	.octet		0x9
+	.chainez	"AIX bootable"
+	.octet		0xa
+	.chainez	"OS/2 Boot Manager"
+	.octet		0xb
+	.chainez	"Win95 FAT32"
+	.octet		0xc
+	.chainez	"Win95 FAT32 (LBA)"
+	.octet		0xe
+	.chainez	"Win95 FAT16 (LBA)"
+	.octet		0xf
+	.chainez	"Win95 Ext'd (LBA)"
+	.octet		0x10
+	.chainez	"OPUS"
+	.octet		0x11
+	.chainez	"Hidden FAT12"
+	.octet		0x12
+	.chainez	"Compaq"
+	.octet		0x14
+	.chainez	"Hidden FAT16 <32M"
+	.octet		0x16
+	.chainez	"Hidden FAT16"
+	.octet		0x17
+	.chainez	"Hidden HPFS/NTFS"
+	.octet		0x18
+	.chainez	"AST Windows swap"
+	.octet		0x1b
+	.chainez	"Hidden Win95"
+	.octet		0x1c
+	.chainez	"Hidden Win95"
+	.octet		0x1e
+	.chainez	"Hidden Win95"
+	.octet		0x24
+	.chainez	"NEC DOS"
+	.octet		0x3c
+	.chainez	"PartitionMagic"
+	.octet		0x40
+	.chainez	"Venix 80286"
+	.octet		0x41
+	.chainez	"PPC PReP Boot"
+	.octet		0x42
+	.chainez	"SFS"
+	.octet		0x4d
+	.chainez	"QNX4.x"
+	.octet		0x4e
+	.chainez	"QNX4.x 2nd partition"
+	.octet		0x4f
+	.chainez	"QNX4.x 3rd partition"
+	.octet		0x50
+	.chainez	"OnTrack DM"
+	.octet		0x51
+	.chainez	"OnTrack DM6 Aux."
+	.octet		0x52
+	.chainez	"CP/M"
+	.octet		0x53
+	.chainez	"OnTrack DM6 Aux."
+	.octet		0x54
+	.chainez	"OnTrackDM6"
+	.octet		0x55
+	.chainez	"EZ-Drive"
+	.octet		0x56
+	.chainez	"Golden Bow"
+	.octet		0x5c
+	.chainez	"Priam Edisk"
+	.octet		0x61
+	.chainez	"SpeedStor"
+	.octet		0x63
+	.chainez	"GNU HURD or SysV386"
+	.octet		0x64
+	.chainez	"Novell Netware 286"
+	.octet		0x65
+	.chainez	"Novell Netware 3.11"
+	.octet		0x67
+	.chainez	"Novell"
+	.octet		0x68
+	.chainez	"Novell"
+	.octet		0x69
+	.chainez	"Novell"
+	.octet		0x70
+	.chainez	"DiskSecure Multi-Boot"
+	.octet		0x75
+	.chainez	"PC/IX"
+	.octet		0x80
+	.chainez	"Old Minix"
+	.octet		0x81
+	.chainez	"Minix / old Linux"
+	.octet		0x82
+	.chainez	"Linux swap"
+	.octet		0x83
+	.chainez	"Linux"
+	.octet		0x84
+	.chainez	"OS/2 hidden C:"
+	.octet		0x85
+	.chainez	"Linux extended"
+	.octet		0x86
+	.chainez	"NTFS"
+	.octet		0x87
+	.chainez	"NTFS"
+	.octet		0x93
+	.chainez	"Amoeba"
+	.octet		0x94
+	.chainez	"Amoeba BBT"
+	.octet		0xa0
+	.chainez	"IBM Thinkpad"
+	.octet		0xa5
+	.chainez	"BSD/386"
+	.octet		0xa6
+	.chainez	"OpenBSD"
+	.octet		0xa7
+	.chainez	"NeXTSTEP"
+	.octet		0xb7
+	.chainez	"BSDI"
+	.octet		0xb8
+	.chainez	"BSDI swap"
+	.octet		0xc1
+	.chainez	"DRDOS"
+	.octet		0xc4
+	.chainez	"DRDOS"
+	.octet		0xc6
+	.chainez	"DRDOS"
+	.octet		0xc7
+	.chainez	"Syrinx"
+	.octet		0xd5
+	.chainez	"NTDIOS"
+	.octet		0xd8
+	.chainez	"CP/M-86"
+	.octet		0xdb
+	.chainez	"CP/M / CTOS"
+	.octet		0xe1
+	.chainez	"CP/M / CTOS"
+	.octet		0xe3
+	.chainez	"DOS R/O"
+	.octet		0xe4
+	.chainez	"SpeedStor"
+	.octet		0xeb
+	.chainez	"BeOS"
+	.octet		0xf1
+	.chainez	"Storage Dimensions"
+	.octet		0xf2
+	.chainez	"DOS secondary"
+	.octet		0xf4
+	.chainez	"Storage Dimensions"
+	.octet		0xfd
+	.chainez	"Linux raid auto"
+	.octet		0xfe
+	.chainez	"LANstep"
+	.octet		0xff
+	.chainez	"BBT"
+	.octet		0
 endlistos:
-	.strz	"Systeme inconnu"
-	.byte	0
+	.chainez	"Systeme inconnu"
+	.octet		0
 
 ;;; +-------------------------------------------------------------------------+
 ;;; | findos                                                                  |

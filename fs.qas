@@ -1,0 +1,330 @@
+;;;             +------------- MBRLoader 0.4-i386 -----------------+
+;;;             | ArnaK, Inc.                                      |
+;;;             |                                                  |
+;;;             | fs.qas                                           |
+;;;             +--------------------------------------------------+
+
+;;; +-------------------------------------------------------------------------+
+;;; | ident_fs                                                                |
+;;; | entree :                                                                |
+;;; |  dl = disque                                                            |
+;;; |  dh = tete                                                              |
+;;; |  cx = secteur/cylindre                                                  |
+;;; | sortie :                                                                |
+;;; |  ax = systeme de fichier :                                              |
+;;; |       0 = Non identifie                                                 |
+;;; |       1 = FAT 12                                                        |
+;;; |       2 = FAT 16                                                        |
+;;; |       3 = FAT 32                                                        |
+;;; |       4 = Extended 2 FS                                                 |
+;;; | 0x3000:0 = 3 premiers secteurs                                          |
+;;; +-------------------------------------------------------------------------+
+ident_fs:
+	push es
+	push bx
+	
+	;; Charger les 3 premiers secteurs de la partition
+	mov ax, 0x3000
+	mov es, ax
+	mov ah, 2
+	mov al, 3
+	mov bx, 0
+	int 0x13
+	jc $ident_fs_no
+
+	; Est-ce FAT 12 ?
+	call $ident_fat12
+	jnc $ident_fs_fat12
+
+	; Est-ce FAT 16 ?
+	call $ident_fat16
+	jnc $ident_fs_fat16
+
+	; Est-ce FAT 32 ?
+	call $ident_fat32
+	jnc $ident_fs_fat32	
+
+	; Est-ce Ext2FS ?
+	call $ident_ext2fs
+	jnc $ident_fs_ext2fs
+
+ident_fs_no:
+	mov ax, 0
+	jmp $ident_fs_end
+ident_fs_fat12:
+	mov ax, 1
+	jmp $ident_fs_end
+ident_fs_fat16:
+	mov ax, 2
+	jmp $ident_fs_end
+ident_fs_fat32:
+	mov ax, 3
+	jmp $ident_fs_end
+ident_fs_ext2fs:
+	mov ax, 4
+	jmp $ident_fs_end
+
+ident_fs_end:
+	pop bx
+	pop es
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | ident_fat12                                                             |
+;;; | entree : es:bx = 3 premiers secteurs de la partition                    |
+;;; | sortie : Carry Flag = 0 : oui ; Carry Flag = 1 : non                    |
+;;; +-------------------------------------------------------------------------+
+ident_fat12:
+	push ax
+	push bx
+	push cx
+	push di
+
+	mov di, bx
+	add di, 0x36
+	mov ax, [es:di]
+	add di, 2
+	mov bx, [es:di]
+	add di, 2
+	mov cl, [es:di]
+
+	cmp al, 70
+	jnz $ident_fat12_no
+	cmp ah, 65
+	jnz $ident_fat12_no
+	cmp bl, 84
+	jnz $ident_fat12_no
+	cmp bh, 49
+	jnz $ident_fat12_no
+	cmp cl, 50
+	jnz $ident_fat12_no
+
+	pop di
+	pop cx
+	pop bx
+	pop ax
+	clc
+	ret
+
+ident_fat12_no:
+	pop di
+	pop cx
+	pop bx
+	pop ax
+	stc
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | ident_fat16                                                             |
+;;; | entree : es:bx = 3 premiers secteurs de la partition                    |
+;;; | sortie : Carry Flag = 0 : oui ; Carry Flag = 1 : non                    |
+;;; +-------------------------------------------------------------------------+
+ident_fat16:
+	push ax
+	push bx
+	push cx
+	push di
+
+	mov di, bx
+	add di, 0x36
+	mov ax, [es:di]
+	add di, 2
+	mov bx, [es:di]
+	add di, 2
+	mov cl, [es:di]
+
+	cmp al, 70
+	jnz $ident_fat16_no
+	cmp ah, 65
+	jnz $ident_fat16_no
+	cmp bl, 84
+	jnz $ident_fat16_no
+	cmp bh, 49
+	jnz $ident_fat16_no
+	cmp cl, 54
+	jnz $ident_fat16_no
+
+	pop di
+	pop cx
+	pop bx
+	pop ax
+	clc
+	ret
+
+ident_fat16_no:
+	pop di
+	pop cx
+	pop bx
+	pop ax
+	stc
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | ident_fat32                                                             |
+;;; | entree : es:bx = 3 premiers secteurs de la partition                    |
+;;; | sortie : Carry Flag = 0 : oui ; Carry Flag = 1 : non                    |
+;;; +-------------------------------------------------------------------------+
+ident_fat32:
+	push ax
+	push bx
+	push cx
+	push di
+
+	mov di, bx
+	add di, 0x52
+	mov ax, [es:di]
+	add di, 2
+	mov bx, [es:di]
+	add di, 2
+	mov cl, [es:di]
+
+	cmp al, 70
+	jnz $ident_fat32_no
+	cmp ah, 65
+	jnz $ident_fat32_no
+	cmp bl, 84
+	jnz $ident_fat32_no
+	cmp bh, 51
+	jnz $ident_fat32_no
+	cmp cl, 50
+	jnz $ident_fat32_no
+
+	pop di
+	pop cx
+	pop bx
+	pop ax
+	clc
+	ret
+
+ident_fat32_no:
+	pop di
+	pop cx
+	pop bx
+	pop ax
+	stc
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | ident_ext2fs                                                            |
+;;; | entree : es:bx = 3 premiers secteurs de la partition                    |
+;;; | sortie : Carry Flag = 0 : oui ; Carry Flag = 1 : non                    |
+;;; +-------------------------------------------------------------------------+
+ident_ext2fs:
+	push ax
+	push di
+
+	mov di, bx
+	add di, 0x438
+	mov ax, [es:di]
+
+	cmp ax, 0xef53
+	jnz $ident_ext2fs_no
+
+	pop di
+	pop ax
+	clc
+	ret
+
+ident_ext2fs_no:
+	pop di
+	pop ax
+	stc
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | get_volume                                                              |
+;;; | entree : dx, cx : parametres de l'int 0x13                              |
+;;; |          es:di : buffer pour le nom de volume                           |
+;;; | sortie : es:di : volume                                                 |
+;;; +-------------------------------------------------------------------------+
+get_volume:
+	push ax
+	push bx
+	push si
+	push ds
+
+	call $ident_fs
+	cmp ax, 0
+	jz $get_volume_inconnu
+	cmp ax, 1
+	jz $get_volume_fat12
+	cmp ax, 2
+	jz $get_volume_fat16
+	cmp ax, 3
+	jz $get_volume_fat32
+	cmp ax, 4
+	jz $get_volume_ext2fs
+
+get_volume_inconnu:
+	mov si, $vol_inconnu
+	call $strcpy
+	mov cx, 7
+	jmp $get_volume_end
+get_volume_fat12:
+	mov cx, 11
+	call $make_str_blank
+	mov ax, 0x3000
+	mov ds, ax
+	mov si, 0x2b
+	call $strncpy
+	jmp $get_volume_end
+get_volume_fat16:
+	mov cx, 11
+	call $make_str_blank
+	mov ax, 0x3000
+	mov ds, ax
+	mov si, 0x2b
+	call $strncpy
+	jmp $get_volume_end
+get_volume_fat32:
+	mov cx, 11
+	call $make_str_blank
+	mov ax, 0x3000
+	mov ds, ax
+	mov si, 0x47
+	call $strncpy
+	jmp $get_volume_end
+get_volume_ext2fs:
+	mov cx, 16
+	call $make_str_blank
+	mov ax, 0x3000
+	mov ds, ax
+	mov si, 0x478
+	call $strncpy
+	jmp $get_volume_end
+
+get_volume_end:
+	;; Supprimer les espaces a la fin du volume
+	dec cx
+	mov bx, cx
+delete_spaces:
+	mov al, [es:di+bx]
+	cmp al, 0x20
+	jnz $delete_end
+	mov [es:di+bx], byte 0
+	dec bx
+	loop $delete_spaces
+delete_end:
+	;; Verifier que le nom n'est pas vide
+	mov al, [es:di]
+	cmp al, 0
+	jnz $volume_ok
+	pop ds
+	push ds
+	mov si, $vol_vide
+	call $strcpy
+
+volume_ok:
+	pop ds
+	pop si
+	pop bx
+	pop ax
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | Donnees                                                                 |
+;;; +-------------------------------------------------------------------------+
+vol_inconnu:
+	.chainez "Inconnu"
+vol_vide:
+	.chainez "Aucun"

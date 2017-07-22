@@ -1,4 +1,4 @@
-;;;             +------------- MBRLoader 0.3-i386 -----------------+
+;;;             +------------- MBRLoader 0.4-i386 -----------------+
 ;;;             | ArnaK, Inc.                                      |
 ;;;             |                                                  |
 ;;;             | configi.qas                                      |
@@ -247,7 +247,7 @@ configi_delos_selected:
 
 	rep movsb
 
-	dec [$nb_os]
+	dec byte [$nb_os]
 
 	;; restaurer les segments
 	pop es
@@ -302,7 +302,36 @@ configi_addos_launch_interf:
 launch_interf_additem:
 	mov al, [di]
 	call $findos
+
+	push ax
+	push bx
+	push cx
+	push dx
+	push di
+
+	mov bl, [$nb_parts]
+	sub bl, cl
+	
+	sub di, 4
+	mov dl, [di]
+	mov dh, [di+1]
+	mov cx, [di+2]
+
+	mov di, $mbrloader_end
+	mov ax, 80
+	mul bl
+	add di, ax
+	call $build_item_os
+	mov si, di	
+
+	pop di
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+
 	call $add_item
+
 	add di, 5
 	loop $launch_interf_additem
 
@@ -342,7 +371,7 @@ configi_addos_selected:
 	mov es, ax
 
 input_ok:
-	inc [es:$nb_os]
+	inc byte [es:$nb_os]
 
 	;; obtenir et enregistrer les infos sur cette partition
 	mov si, $list
@@ -366,32 +395,77 @@ input_ok:
 	jmp $config_interf
 
 ;;; +-------------------------------------------------------------------------+
+;;; | build_item_os                                                           |
+;;; | entree : ds:si : nom du systeme                                         |
+;;; |          dx, cx : parametres de l'int 0x13                              |
+;;; | sortie : es:di : item au format                                         |
+;;; |                  "Partition=NomDuSysteme, Volume=NomDuVolume"           |
+;;; +-------------------------------------------------------------------------+
+build_item_os:
+	push si
+	push di
+	push cx
+	push dx
+
+	;; "Partition="
+	push si
+	mov si, $part_str
+	call $strcpy
+	pop si
+	;; "Partition=NomDuSysteme"
+	add di, 10
+	call $strcpy
+	;; "Partition=NomDuSysteme, Volume="
+	call $strlen
+	add di, cx
+	mov si, $vol_str
+	call $strcpy
+	;; "Partition=NomDuSysteme, Volume=NomDuVolume"
+	add di, 9
+	pop dx
+	pop cx
+	push cx
+	push dx
+	call $get_volume
+
+	pop dx
+	pop cx
+	pop di
+	pop si
+	ret
+
+;;; +-------------------------------------------------------------------------+
 ;;; | Donnees                                                                 |
 ;;; +-------------------------------------------------------------------------+
 
+part_str:
+	.chainez "Partition="
+vol_str:
+	.chainez ", Volume="
+
 additem_str:
-	.strz "Ajouter un syst\212me \205 la liste"
+	.chainez "Ajouter un syst\212me \205 la liste"
 delitem_str:
-	.strz "Supprimer un syst\212me de la liste"
+	.chainez "Supprimer un syst\212me de la liste"
 autostart_str:
-	.strz "Configurer l'option de lancement automatique"
+	.chainez "Configurer l'option de lancement automatique"
 savequit:
-	.strz "Enregistrer et quitter"
+	.chainez "Enregistrer et quitter"
 quit:
-	.strz "Quitter sans enregistrer"
+	.chainez "Quitter sans enregistrer"
 annuler:
-	.strz "Annuler"
+	.chainez "Annuler"
 label:
-	.strz "Entrez un nom pour ce syst\212me"
+	.chainez "Entrez un nom pour ce syst\212me"
 liste_pleine:
-	.strz "Maximum de 20 syst\212mes atteint"
+	.chainez "Maximum de 20 syst\212mes atteint"
 empty_str:
-	.strz "Ajout annul\202 : nom vide"
+	.chainez "Ajout annul\202 : nom vide"
 
 autostart_oui:
-	.strz "Lancer automatiquement sauf pression de la touche CTRL"
+	.chainez "Lancer automatiquement sauf pression de la touche CTRL"
 autostart_non:
-	.strz "Toujours demander \205 l'utilisateur avant de lancer un syst\212me"
+	.chainez "Toujours demander \205 l'utilisateur avant de lancer un syst\212me"
 
 ;;; buffer pour les partitions trouvees
 ;;; 	16 * (disque
@@ -401,6 +475,6 @@ autostart_non:
 ;;;     = 16 * 5
 ;;;     = 80
 nb_parts:
-	.byte 0
+	.octet 0
 list:
-	.buffer 80
+	.tampon 80

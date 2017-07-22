@@ -1,4 +1,4 @@
-;;;             +------------- MBRLoader 0.3-i386 -----------------+
+;;;             +------------- MBRLoader 0.4-i386 -----------------+
 ;;;             | ArnaK, Inc.                                      |
 ;;;             |                                                  |
 ;;;             | config.qas                                       |
@@ -11,18 +11,18 @@
 ;;; 	1 = toujours
 ;;; 	0 = si CTRL est pressee
 prompt:
-	.byte 1
+	.octet 1
 
 ;;; [default]
 ;;; Systeme a lancer par defaut ...
 ;;; 	numero correspondant a un numero de la liste
 default:
-	.byte 1
+	.octet 1
 
 ;;; [nb_os]
 ;;; Nombre d'OS configures (20 max)
 nb_os:
-	.byte 0
+	.octet 0
 
 ;;; [listos]
 ;;; Liste des systemes a proposer :
@@ -34,7 +34,7 @@ nb_os:
 ;;;			Total	25 octets
 ;;;	20 entrees max => 500
 listos:
-	.buffer 500
+	.tampon 500
 
 ;;; Reste du secteur
 ;;; 512
@@ -45,4 +45,4 @@ listos:
 ;;;	- 500	(listos)
 ;;; = 6
 
-.buffer 6
+.tampon 6

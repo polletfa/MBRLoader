@@ -1,77 +1,102 @@
 
 
 
-                           MBRLoader 0.3-i386
+                           MBRLoader 0.4-i386
 
 NOM
-	MBRLoader 0.3-i386 - Chargeur
+	MBRLoader 0.4-i386 - Chargeur
 
 DESCRIPTION
-	MBRLoader 0.3 est un chargeur dit 'multi-boot'. Cela signifie qu'il
-	permet de choisir le systeme a charger.
+	MBRLoader 0.4 est un chargeur dit 'multi-boot'. Cela signifie qu'il
+	permet de choisir le système à charger.
  
-	MBRLoader 0.3 est constitue de 2 parties. La 1e est le secteur
-	d'amorcage. Il se place normalement sur le MBR (1e secteur d'un disque
-	dur, le MBR contient egalement la table des partitions) mais il peut
-	etre place sur une partition ou une disquette.
-	La 2e partie occupe les secteurs 2 a 10 (2e...10e secteurs). Il s'agit
-	du reste du chargeur. En effet, le plus souvent, et c'est le cas pour
-	MBRLoader 0.3, un chargeur multi-boot est trop grand pour tenir dans
-	 un MBR et les secteurs 2 a 10 ne sont jamais occupes, sinon par
-	d'autres chargeurs.
+	MBRLoader 0.4 est constitué de 2 parties. La 1ère est le secteur
+	d'amorcage. Il se place normalement sur le MBR (1er secteur d'un disque
+	dur, le MBR contient également la table des partitions) mais il peut
+	être placé sur une partition ou une disquette.
+	La 2ème partie occupe les secteurs 2 à 12 (2e...12e secteurs).
+	Il s'agit du reste du chargeur. En effet, le plus souvent, et c'est le
+	cas pour MBRLoader 0.4, un chargeur multi-boot est trop grand pour
+	tenir dans un MBR et les secteurs 2 à 12 ne sont jamais occupés, 
+	sinon par d'autres chargeurs.
 
-	MBRLoader 0.3 se configure directement depuis son interface.
-	Vous pouvez lui indiquer une liste de systemes qu'il vous proposera
-	ensuite a chaque demarrage.
-	Grace a l'option de lancement automatique, vous pouvez selectionner
-	un systeme qui sera lance automatiquement sans vous le demander
+	MBRLoader 0.4 se configure directement depuis son interface.
+	Vous pouvez lui indiquer une liste de systèmes qu'il vous proposera
+	ensuite à chaque démarrage. Afin de faciliter ce choix, MBRLoader
+	0.4 affiche les noms de volumes pour les systèmes de fichiers
+	FAT (12, 16, 32) et Extended 2.
+	Grace à l'option de lancement automatique, vous pouvez sélectionner
+	un système qui sera lancé automatiquement sans vous le demander
 	sauf si vous appuyez sur la touche CTRL.
 
-	MBRLoader 0.3 supporte les partitions logiques presentes dans les
-	partitions etendues DOS (lorsque, dans le menu d'ajout d'une fonction,
-	vous selectionnez une partition etendue DOS, il affiche ses partitions
+	MBRLoader 0.4 supporte les partitions logiques présentes dans les
+	partitions étendues DOS (lorsque, dans le menu d'ajout d'une fonction,
+	vous sélectionnez une partition étendue DOS, il affiche ses partitions
 	logiques).
 
-	MBRLoader 0.3-i386 a lance sans probleme DOS/Win, BeOS, Linux,
+	MBRLoader 0.4-i386 a lancé sans problème DOS/Win, BeOS, Linux,
 	FreeBSD et AtheOS.
-	Il devrait normalement pouvoir lancer tous les systemes. (Pour Linux,
-	il faut quand meme installez LILO sur la partition, ainsi, MBRLoader
-	0.3-i386 lancera LILO, qui lancera Linux.)
+	Il devrait normalement pouvoir lancer tous les systèmes. (Pour Linux,
+	il faut quand même installez LILO sur la partition, ainsi, MBRLoader
+	0.4-i386 lancera LILO, qui lancera Linux.)
 
 COMPILATION
-	La compilation se realise par make ou make all depuis le repertoire
+	La compilation se realise par make ou make all depuis le répertoire
 	de MBRLoader.
 	Vous pouvez ensuite effacer les fichiers temporaires par make clean.
 
 INSTALLATION
-	L'installation du programme compile et de la documentation dans
+	L'installation du programme compilé et de la documentation dans
 	l'arborescence se fait par make install :
 
-	/ ---+--- boot ---+--- mbrloader0.3-i386.step1
-	     |            +--- mbrloader0.3-i386.step2
+	/ ---+--- boot ---+--- mbrloader0.4-i386.step1
+	     |            +--- mbrloader0.4-i386.step2
              |
 	     +--- usr --- local ---+--- bin ---+--- mbrloader
-	                           |           +--- mbrloader0.3-i386
+	                           |           +--- mbrloader0.4-i386
 	                           |
-	                           +--- doc --- mbrloader0.3-i386
+	                           +--- doc --- mbrloader0.4-i386
 
 NETTOYAGE
 	make distclean effacera, a l'instar de make clean, les fichiers
-	temporaires crees pendant la compilation mais aussi les binaires.
+	temporaires crées pendant la compilation mais aussi les binaires.
 
 INSTALLATION SUR LE MBR
-	Pour installer ensuite MBRLoader 0.3-i386 sur le MBR, lancez le
-	programme /usr/local/bin/mbrloader0.3-i386 en super-utilisateur.
-	Le fichier mbrloader est un lien vers ce programme cree a
-	l'installation de l'executable dans l'arborescence.
+	Pour installer ensuite MBRLoader 0.4-i386 sur le MBR, lancez le
+	programme /usr/local/bin/mbrloader0.4-i386 en super-utilisateur.
+	Le fichier mbrloader est un lien vers ce programme crée à
+	l'installation de l'éxecutable dans l'arborescence.
+
+LANCEMENT D'UN SYSTÈME - AVERTISSEMENT
+	La plupart des systèmes utilisent leurs propres chargeurs de démarrage.
+	Parfois, il constitue une part intégrante du noyau, comme dans le cas
+	de DOS et vous n'avez pas à vous en soucier.
+	Mais dans d'autres cas, comme Linux par exemple, il s'agit d'un
+	programme à part. MBRLoader sera incapable de lancer ces systèmes
+	seuls. Il faut dans ce cas "chainer" les chargeurs.
+	Prenons l'exemple de Linux qui utilise LILO. LILO est parfois
+	installé sur le MBR. Dans ce cas, il sera écrasé par MBRLoader qui
+	ne parviendra pas à lancer Linux. Il faut alors, pour résoudre
+	ce problème, installer LILO sur la partition racine de Linux, puis
+	installer MBRLoader. Dès lors, lorsque MBRLoader tentera de lancer
+	Linux, c'est LILO qu'il trouvera et lancera, ce dernier lancera
+	ensuite Linux.
+	Si votre système utilise également un chargeur spécifique sans
+	lequel il ne peut démarrer, VEILLEZ À EFFECTUER LA MÊME OPÉRATION.
+
+	Enfin, il est toujours préférable avant d'essayer un programme de ce
+	genre de réaliser une disquette de démarrage.
+
+	Pour des systèmes tels que DOS, vous ne devriez pas rencontrer ce type
+	de problèmes.
 
 BOGUES
-	Si vous en trouvez, n'hesitez pas a m'en avertir.
+	Si vous en trouvez, n'hésitez pas à m'en avertir.
 
 LICENCE
-	MBRLoader 0.3-i386 n'est soumis a aucune licence.
-	L'auteur ne peut etre tenu pour responsable si un probleme survient
-	suite a l'utilisation du logiciel.
+	MBRLoader 0.4-i386 n'est soumis à aucune licence.
+	L'auteur ne peut être tenu pour responsable si un problème survient
+	suite à l'utilisation du logiciel.
 
 AUTEUR
 	ArnaK, Inc.

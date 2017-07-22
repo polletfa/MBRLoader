@@ -1,4 +1,4 @@
-;;;             +------------- MBRLoader 0.3-i386 -----------------+
+;;;             +------------- MBRLoader 0.4-i386 -----------------+
 ;;;             | ArnaK, Inc.                                      |
 ;;;             |                                                  |
 ;;;             | disk.qas                                         |
@@ -57,7 +57,7 @@ part_found:
 	mov cx, 4
 	rep movsb
 	add si, 0xf
-	inc [es:$nb_parts]
+	inc byte [es:$nb_parts]
 	pop cx
 	loop $nextpart
 findparts_end:

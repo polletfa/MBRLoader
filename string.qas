@@ -1,4 +1,4 @@
-;;;             +------------- MBRLoader 0.3-i386 -----------------+
+;;;             +------------- MBRLoader 0.4-i386 -----------------+
 ;;;             | ArnaK, Inc.                                      |
 ;;;             |                                                  |
 ;;;             | string.qas                                       |
@@ -24,4 +24,76 @@ strlen1:
 strlen2:
 	pop si
 	pop ax
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | strcpy                                                                  |
+;;; | entree : ds:si = chaine1                                                |
+;;; |          es:di = chaine2                                                |
+;;; | sortie : es:di = chaine1                                                |
+;;; +-------------------------------------------------------------------------+
+strcpy:
+	push ax
+	push si
+	push di
+
+strcpy1:
+	mov al, [ds:si]
+	mov [es:di], al
+	cmp al, 0
+	jz $strcpy2
+	inc si
+	inc di
+	jmp $strcpy1
+strcpy2:
+	pop di
+	pop si
+	pop ax
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | strncpy                                                                 |
+;;; | entree : ds:si = chaine1                                                |
+;;; |          es:di = chaine2                                                |
+;;; |          cx = taille max                                                |
+;;; | sortie : es:di = cx caract max de chaine1                               |
+;;; +-------------------------------------------------------------------------+
+strncpy:
+	push ax
+	push cx
+	push si
+	push di
+
+strncpy1:
+	mov al, [ds:si]
+	cmp al, 0
+	jz $strncpy2
+	mov [es:di], al
+	inc si
+	inc di
+	loop $strncpy1
+strncpy2:
+	mov byte [es:di], 0
+	pop di
+	pop si
+	pop cx
+	pop ax
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | make_str_blank                                                          |
+;;; | entree : es:di : chaine, cx = taille                                    |
+;;; | sortie : es:di : cx caracteres espaces                                  |
+;;; +-------------------------------------------------------------------------+
+make_str_blank:
+	push cx
+	push di
+
+make_str_blank_loop:
+	mov [es:di], byte 0x20
+	inc di
+	loop $make_str_blank_loop
+
+	pop di
+	pop cx
 	ret

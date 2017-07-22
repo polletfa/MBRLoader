@@ -1,4 +1,4 @@
-;;;             +------------- MBRLoader 0.3-i386 -----------------+
+;;;             +------------- MBRLoader 0.4-i386 -----------------+
 ;;;             | ArnaK, Inc.                                      |
 ;;;             |                                                  |
 ;;;             | main.qas                                         |
@@ -12,7 +12,7 @@
 ;;; +-------------------------------------------------------------------------+
 ;;; | Secteur de configuration                                                |
 ;;; +-------------------------------------------------------------------------+
-.include "config.qas"
+.inclure "config.qas"
 
 ;;; +-------------------------------------------------------------------------+
 ;;; | Fonction principale                                                     |
@@ -116,7 +116,7 @@ load:
 	pop ax
 
 	;; saut
-	jmpf 0x7c00000
+	jmpf 0x7c0:0000
 
 ;;; +-------------------------------------------------------------------------+
 ;;; | Fonction appelee par jump lorsqu'une entree d'un menu est selectionnee  |
@@ -257,20 +257,23 @@ selected_6_select:
 ;;; | Inclusions                                                              |
 ;;; +-------------------------------------------------------------------------+
 
-.include "interf.qas"
-.include "string.qas"
-.include "configi.qas"
-.include "disk.qas"
-.include "os.qas"
+.inclure "interf.qas"
+.inclure "string.qas"
+.inclure "configi.qas"
+.inclure "disk.qas"
+.inclure "os.qas"
+.inclure "fs.qas"
 
 ;;; +-------------------------------------------------------------------------+
 ;;; | Donnees                                                                 |
 ;;; +-------------------------------------------------------------------------+
 
 load_msg:
-	.strz "Chargement en cours ..."
+	.chainez "Chargement en cours ..."
 config_str:
-	.strz "Configuration"
+	.chainez "Configuration"
 
 current_menu:
-	.byte 0
+	.octet 0
+
+mbrloader_end:

@@ -1,4 +1,4 @@
-;;;             +------------- MBRLoader 0.3-i386 -----------------+
+;;;             +------------- MBRLoader 0.4-i386 -----------------+
 ;;;             | ArnaK, Inc.                                      |
 ;;;             |                                                  |
 ;;;             | interf.qas                                       |
@@ -78,7 +78,7 @@ add_item:
 	mov ax, cs
 	mov ds, ax
 	
-	inc [$nb_items]
+	inc byte [$nb_items]
 	mov dh, [$nb_items]
 	inc dh
         mov ax, 0x1301
@@ -465,32 +465,32 @@ inputbox_enter:
 ;;; +-------------------------------------------------------------------------+
 
 main_win_title:
-	.str "  MBRLoader v0.3-i386 - mbrloader@arnak.fr.st, www.arnak.fr.st/mbrloader        "
+	.chaine "  MBRLoader v0.4-i386 - mbrloader@arnak.fr.st, www.arnak.fr.st/mbrloader        "
 main_win_up:
-	.str "ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿"
+	.chaine "ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿"
 main_win_middle:
-	.str "³                                                                              ³"
+	.chaine "³                                                                              ³"
 main_win_down:
-	.str "ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ"
+	.chaine "ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ"
 
 dialog_title:
-	.str "  MBRLoader v0.3-i386                   "
+	.chaine "  MBRLoader v0.4-i386                   "
 dialog_up:
-	.str "ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿"
+	.chaine "ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿"
 dialog_middle:
-	.str "³                                      ³"
+	.chaine "³                                      ³"
 dialog_down:
-	.str "ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ"
+	.chaine "ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ"
 textarea:
-	.str "________________________________________"
+	.chaine "________________________________________"
 
 ;;; Gestion des items
 selected_item:
-	.byte 0
+	.octet 0
 nb_items:
-	.byte 0
+	.octet 0
 items:
 	;; 2 octets par items, avec les adresses (offsets uniquement)
 	;; max de 21 items
 	;; soit 52 octets au total
-	.buffer 52
+	.tampon 52
