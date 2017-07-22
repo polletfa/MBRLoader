@@ -1,38 +1,35 @@
 ;;;             +------------- MBRLoader 0.1-i386 -----------------+
 ;;;             | ArnaK, Inc.                                      |
 ;;;             |                                                  |
-;;;             | list.S                                           |
+;;;             | list.qas                                         |
 ;;;             +--------------------------------------------------+
 	
-	GET	step2.S
-
 ;;; +-------------------------------------------------------------------------+
 ;;; | makelist                                                                |
 ;;; +-------------------------------------------------------------------------+
-export	makelist
 makelist:
 	push	di
 	push	ax
 	push	cx
 	push	dx
 
-	mov	dl,#0x80	; 
-	mov	dh,#1		; 1e disque, 1e part.
-	mov	di,#list	; debut de liste
+	mov	dl,0x80	; 
+	mov	dh,1		; 1e disque, 1e part.
+	mov	di,$list	; debut de liste
 	
 nextentry:
 			
-	mov	ah,#8
+	mov	ah,8
 	push	dx
 	int	0x13
-	jc	_done
+	jc	$_done
 
 	pop	dx
 	
-	call	gettype
-	cmp	al,#0
-	jnz	putinlist
-	jmp	continue
+	call	$gettype
+	cmp	al,0
+	jnz	$putinlist
+	jmp	$continue
 	
 putinlist:
 	
@@ -45,18 +42,18 @@ putinlist:
 continue:
 	
 	inc	dh
-	cmp	dh,#5
-	jz	nextdisk
-	jmp	nextentry
+	cmp	dh,5
+	jz	$nextdisk
+	jmp	$nextentry
 
 nextdisk:
 
-	mov	dh,#1
+	mov	dh,1
 	inc	dl
-	cmp	dl,#0x84
-	jnz	nextentry
+	cmp	dl,0x84
+	jnz	$nextentry
 
-	jmp	done
+	jmp	$done
 
 _done:	
 	pop	dx
@@ -81,8 +78,6 @@ done:
 	;;                    disque BYTE
 	;;                    part BYTE
 	;;                    type de la part. BYTE
-	;; Au total : 25 WORDS + 1 BYTE
-export	list
+	;; Au total : 51 BYTE
 list:
-	.word	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	.byte	0
+	.buffer	51

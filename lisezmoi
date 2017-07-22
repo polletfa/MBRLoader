@@ -27,8 +27,8 @@ DESCRIPTION
 	partitions etendues comme des partitions normales.
 
 
-	MBRLoader 0.1-i386 a lance sans probleme DOS/Win, BeOS, Linux et
-	FreeBSD.
+	MBRLoader 0.1-i386 a lance sans probleme DOS/Win, BeOS, Linux,
+	FreeBSD et AtheOS.
 	Il devrait normalement pouvoir lancer tous les systemes. (Pour Linux,
 	il faut quand meme installez LILO sur la partition, ainsi, MBRLoader
 	0.1-i386 lancera LILO, qui lancera Linux.)
@@ -71,9 +71,5 @@ LICENCE
 
 AUTEUR
 	ArnaK, Inc.
-	arnak.inc@laposte.net
-        arnak@extraterrestre.net
-	http://www.skreel.org/arnak/
+        arnak@arnak.fr.st
 	http://www.arnak.fr.st
-
-

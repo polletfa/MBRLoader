@@ -6,5 +6,4 @@
 #              | Date et heure de compilation                 |
 #              +----------------------------------------------+
 
-echo ".ascii \" ($(date +%x\ %X\ %Z))\""> version.S
-
+echo ".str \" ($(date +%x\ %X\ %Z))\""> version.qas

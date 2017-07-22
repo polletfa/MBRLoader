@@ -12,15 +12,10 @@ CC = gcc
 CFLAGS = -c
 LD = gcc
 LDFLAGS = 
-AS86 = as86
-AS86FLAGS = 
-LD86 = ld86
-LD86FLAGS = -d
 
 OBJS_INSTALLER = installer.o
-OBJS_STEP1 = bootsect.o
-OBJS_STEP2 = main.o disk.o io.o list.o os.o
-
+SRCS_STEP1 = bootsect.qas
+SRCS_STEP2 = main.qas list.qas os.qas disk.qas version config.qas
 DESTDIR = /usr/local
 
 # +-------------------------------------------------------------------------+
@@ -38,23 +33,14 @@ installer.o : installer.c
 	$(CC) $(CFLAGS) $<
 
 #--- step1
-step1 : $(OBJS_STEP1)
-	$(LD86) -o $@ $(LD86FLAGS) $^
-
-bootsect.o : bootsect.S
-	$(AS86) -o $@ $(AS86FLAGS) $<
+step1 : $(SRCS_STEP1)
+	quickasm $< $@
 
 #--- step2
-step2 : $(OBJS_STEP2)
-	$(LD86) -o $@ $(LD86FLAGS) $^
+step2 : $(SRCS_STEP2)
+	quickasm $< $@
 
-main.o : main.S version step2.S config.S
-	$(AS86) -o $@  $(AS86FLAGS) $<
-
-%.o : %.S step2.S
-	$(AS86) -o $@ $(AS86FLAGS) $<
-
-config.S :
+config.qas :
 	make config
 
 config :
@@ -84,4 +70,4 @@ clean :
 	rm -f *.o *~
 
 distclean : clean
-	rm -f step1 step2 installer config.S version.S
+	rm -f step1 step2 installer config.qas version.qas

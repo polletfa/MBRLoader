@@ -1,0 +1,141 @@
+;;;             +------------- MBRLoader 0.1-i386 -----------------+
+;;;             | ArnaK, Inc.                                      |
+;;;             |                                                  |
+;;;             | main.qas                                         |
+;;;             +--------------------------------------------------+
+
+_main:
+
+	;; ES et DS pointent deja vers le bon segment.
+
+	mov	si,$intro
+	call	$print
+
+	call	$makelist
+
+	mov	al,[$_prompt]
+	cmp	al,1
+	jz	$prompt
+
+	;; touche <CTRL> pressee ?
+	mov	ah,2
+	int	0x16
+
+	and	al,4
+	cmp	al,4		; <CTRL> pressee
+	jz	$prompt
+	
+	;; lancer sans demander
+	mov	di,$list
+	sub	di,3
+	mov	cl,[$_default]
+	mov	ch,0
+	jmp	$findgoodentry
+	
+prompt:
+	call	$printlist
+
+	mov	si,$prompt_
+	call	$print
+
+	call	$inputchar
+
+	cmp	al,49		; '1'
+	jc	$badrep
+	cmp	al,58		; ':' (apres '9')
+	jnc	$repabcdefg	; si >= '5' , a-f ?
+
+	jmp	$goodrep
+
+badrep:
+	mov	si,$invalid
+	call	$print
+
+	jmp	$prompt
+
+repabcdefg:
+	cmp	al,97		; 'a'
+	jc	$badrep
+	cmp	al,104		; 'h
+	jnc	$badrep
+	
+goodrep:
+	mov	di,$list
+	sub	di,3
+	mov	ch,0
+	mov	cl,al
+	cmp	cl,58
+	jnc	$abcdefg
+
+	sub	cl,48
+	jmp	$findgoodentry
+abcdefg:
+	sub	cl,87
+findgoodentry:
+	add	di,3
+	loop	$findgoodentry
+
+	mov	dl,[di]
+	inc	di
+	mov	al,[di]
+
+	;; on verifie maintenant si la reponse entree etait dans la liste
+	;; proposee.
+	cmp	dl,0
+	jz	$badrep		; non
+	
+load:
+	;; charger le MBR
+	call	$loadMBR
+
+	;; on lit les infos.
+	
+	;; on se deplace 0x10 octets avant l'entree correspondant a la 1e part
+	add     di,0x1ae
+
+	;; on se deplace a la bonne entree
+	mov	ch,0
+	mov	cl,al
+nextpart:
+	add	di,0x10
+	loop	$nextpart
+
+	;; on lit maintenant les parametres de l'interruption pour chargement
+	inc	di
+	mov	dh,[es:di]
+	inc	di
+	mov	cl,[es:di]
+	inc	di
+	mov	ch,[es:di]
+
+	push	ax
+	mov	ax,0x7c0
+	mov	es,ax
+	pop	ax
+
+	mov	di,0
+
+	call	$disk_read
+
+	;; saut a l'adresse concerne
+
+	jmpf 0x7c00000
+
+	;; FIN
+
+intro:
+	.str  "MBRLoader 0.1-i386"
+	.include "version.qas"
+	.byte   10
+	.byte	13
+	.str  "ArnaK, Inc."
+	.byte   10
+	.byte	10
+	.byte	13
+	.byte	0
+
+.include "config.qas"
+.include "io.qas"
+.include "disk.qas"
+.include "os.qas"
+.include "list.qas"

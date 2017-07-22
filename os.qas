@@ -1,0 +1,217 @@
+;;;             +------------- MBRLoader 0.1-i386 -----------------+
+;;;             | ArnaK, Inc.                                      |
+;;;             |                                                  |
+;;;             | os.qas                                            |
+;;;             +--------------------------------------------------+
+	
+;;; +-------------------------------------------------------------------------+
+;;; | oslist : liste des types de partitions                                  |
+;;; +-------------------------------------------------------------------------+
+oslist:
+	.byte	0x1
+	.strz	"FAT12"
+	.byte	0x2
+	.strz	"XENIX root"
+	.byte	0x3
+	.strz	"XENIX usr"
+	.byte	0x4
+	.strz	"FAT16 <32M"
+	.byte	0x5
+	.strz	"Extended"
+	.byte	0x6
+	.strz	"FAT16"
+	.byte	0x7
+	.strz	"HPFS/NTFS"
+	.byte	0x8
+	.strz	"AIX"
+	.byte	0x9
+	.strz	"AIX bootable"
+	.byte	0xa
+	.strz	"OS/2 Boot Manager"
+	.byte	0xb
+	.strz	"Win95 FAT32"
+	.byte	0xc
+	.strz	"Win95 FAT32 (LBA)"
+	.byte	0xe
+	.strz	"Win95 FAT16 (LBA)"
+	.byte	0xf
+	.strz	"Win95 Ext'd (LBA)"
+	.byte	0x10
+	.strz	"OPUS"
+	.byte	0x11
+	.strz	"Hidden FAT12"
+	.byte	0x12
+	.strz	"Compaq"
+	.byte	0x14
+	.strz	"Hidden FAT16 <32M"
+	.byte	0x16
+	.strz	"Hidden FAT16"
+	.byte	0x17
+	.strz	"Hidden HPFS/NTFS"
+	.byte	0x18
+	.strz	"AST Windows swap"
+	.byte	0x1b
+	.strz	"Hidden Win95"
+	.byte	0x1c
+	.strz	"Hidden Win95"
+	.byte	0x1e
+	.strz	"Hidden Win95"
+	.byte	0x24
+	.strz	"NEC DOS"
+	.byte	0x3c
+	.strz	"PartitionMagic"
+	.byte	0x40
+	.strz	"Venix 80286"
+	.byte	0x41
+	.strz	"PPC PReP Boot"
+	.byte	0x42
+	.strz	"SFS"
+	.byte	0x4d
+	.strz	"QNX4.x"
+	.byte	0x4e
+	.strz	"QNX4.x 2nd partition"
+	.byte	0x4f
+	.strz	"QNX4.x 3rd partition"
+	.byte	0x50
+	.strz	"OnTrack DM"
+	.byte	0x51
+	.strz	"OnTrack DM6 Aux."
+	.byte	0x52
+	.strz	"CP/M"
+	.byte	0x53
+	.strz	"OnTrack DM6 Aux."
+	.byte	0x54
+	.strz	"OnTrackDM6"
+	.byte	0x55
+	.strz	"EZ-Drive"
+	.byte	0x56
+	.strz	"Golden Bow"
+	.byte	0x5c
+	.strz	"Priam Edisk"
+	.byte	0x61
+	.strz	"SpeedStor"
+	.byte	0x63
+	.strz	"GNU HURD or SysV386"
+	.byte	0x64
+	.strz	"Novell Netware 286"
+	.byte	0x65
+	.strz	"Novell Netware 3.11"
+	.byte	0x67
+	.strz	"Novell"
+	.byte	0x68
+	.strz	"Novell"
+	.byte	0x69
+	.strz	"Novell"
+	.byte	0x70
+	.strz	"DiskSecure Multi-Boot"
+	.byte	0x75
+	.strz	"PC/IX"
+	.byte	0x80
+	.strz	"Old Minix"
+	.byte	0x81
+	.strz	"Minix / old Linux"
+	.byte	0x82
+	.strz	"Linux swap"
+	.byte	0x83
+	.strz	"Linux"
+	.byte	0x84
+	.strz	"OS/2 hidden C:"
+	.byte	0x85
+	.strz	"Linux extended"
+	.byte	0x86
+	.strz	"NTFS"
+	.byte	0x87
+	.strz	"NTFS"
+	.byte	0x93
+	.strz	"Amoeba"
+	.byte	0x94
+	.strz	"Amoeba BBT"
+	.byte	0xa0
+	.strz	"IBM Thinkpad"
+	.byte	0xa5
+	.strz	"BSD/386"
+	.byte	0xa6
+	.strz	"OpenBSD"
+	.byte	0xa7
+	.strz	"NeXTSTEP"
+	.byte	0xb7
+	.strz	"BSDI"
+	.byte	0xb8
+	.strz	"BSDI swap"
+	.byte	0xc1
+	.strz	"DRDOS"
+	.byte	0xc4
+	.strz	"DRDOS"
+	.byte	0xc6
+	.strz	"DRDOS"
+	.byte	0xc7
+	.strz	"Syrinx"
+	.byte	0xd5
+	.strz	"NTDIOS"
+	.byte	0xd8
+	.strz	"CP/M-86"
+	.byte	0xdb
+	.strz	"CP/M / CTOS"
+	.byte	0xe1
+	.strz	"CP/M / CTOS"
+	.byte	0xe3
+	.strz	"DOS R/O"
+	.byte	0xe4
+	.strz	"SpeedStor"
+	.byte	0xeb
+	.strz	"BeOS"
+	.byte	0xf1
+	.strz	"Storage Dimensions"
+	.byte	0xf2
+	.strz	"DOS secondary"
+	.byte	0xf4
+	.strz	"Storage Dimensions"
+	.byte	0xfd
+	.strz	"Linux raid auto"
+	.byte	0xfe
+	.strz	"LANstep"
+	.byte	0xff
+	.strz	"BBT"
+	.byte	0
+endlistos:
+	.strz	"Systeme inconnu"
+	.byte	0
+
+;;; +-------------------------------------------------------------------------+
+;;; | findos                                                                  |
+;;; |     entree : al=numero de la partition                                  |
+;;; |     retour : [ds:si] : nom du systeme                                   |
+;;; +-------------------------------------------------------------------------+
+findos:
+	push	ax
+	push	cx
+
+	mov	si,$oslist
+	
+isthisos:
+	mov	cl,[si]
+	cmp	cl,al
+	jz	$osfound	; trouve
+	cmp	cl,0
+	jz	$osfound	; liste parcourue, syst. non trouve.
+	;; retourne "Systeme inconnu"
+	
+	;; passer a l'OS suivant
+getnextos:
+	inc	si	
+	mov	cl,[si]
+	cmp	cl,0
+	jnz	$getnextos
+
+	inc	si
+	jmp	$isthisos	; tester cet OS
+	
+
+osfound:
+
+	inc	si
+	
+	pop	cx
+	pop	ax
+
+	ret
