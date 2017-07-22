@@ -1,4 +1,4 @@
-;;;             +------------- MBRLoader 0.4-i386 -----------------+
+;;;             +------------- MBRLoader 0.5-i386 -----------------+
 ;;;             | ArnaK, Inc.                                      |
 ;;;             |                                                  |
 ;;;             | configi.qas                                      |
@@ -60,7 +60,7 @@ configi_savequit:
 	pop ds
 
 	;; ecrire le secteur sur le disque
-	mov dl, 0x80
+	mov dl, [$mbrloader_disk]
 	mov dh, 0
 	mov cx, 2
 	mov al, 1

@@ -1,4 +1,4 @@
-;;;             +------------- MBRLoader 0.4-i386 -----------------+
+;;;             +------------- MBRLoader 0.5-i386 -----------------+
 ;;;             | ArnaK, Inc.                                      |
 ;;;             |                                                  |
 ;;;             | bootsect.qas                                     |
@@ -13,7 +13,8 @@ main:
 	mov	es,ax		; programme a ete charge par le BIOS
 	mov	ds,ax		; idem pour DS
 
-	;;  charger les secteurs 2-12 du disque 0x80
+	;; charger les secteurs 2-12 du disque depuis lequel ce programme
+	;; a été chargé
 	jmp	$load
 
 ;;; +-------------------------------------------------------------------------+
@@ -35,11 +36,11 @@ diskerr:
 load:
 	;; initialiser
 	mov	ah,0
-	mov	dl,0x80
+	; ne pas toucher à dl
 	int	0x13
 	
-	;; on charge les secteurs 2-12 a 0x50:0
-	mov	dl,0x80
+	;; on charge les secteurs 2-12 à 0x50:0
+	; ne pas toucher à dl
 	mov	dh,0
 	mov	cx,2
 	mov	ax,0x50
@@ -93,7 +94,7 @@ print2:
 ;;; +-------------------------------------------------------------------------+
 
 demsg:
-	.chaine	"MBRLoader 0.4-i386"
+	.chaine	"MBRLoader 0.5-i386"
 	.octet	10
 	.octet  13
 	.chaine "ArnaK, Inc."
@@ -103,7 +104,7 @@ demsg:
 	.chaine "** ERREUR **"
 	.octet	10
 	.octet	13
-	.chaine "Erreur d'acces au disque 0x80."
+	.chaine "Erreur d'acces au disque."
 	.octet	10
 	.octet	13
 	.octet	0

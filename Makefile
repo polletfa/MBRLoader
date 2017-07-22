@@ -1,4 +1,4 @@
-#             +------------- MBRLoader 0.4-i386 -----------------+
+#             +------------- MBRLoader 0.5-i386 -----------------+
 #             | ArnaK, Inc.                                      |
 #             |                                                  |
 #             | Makefile                                         |
@@ -45,16 +45,16 @@ install : all
 	if [ ! -d $(DESTDIR)/bin ];\
 	then mkdir $(DESTDIR)/bin;\
 	fi;
-	cp installer $(DESTDIR)/bin/mbrloader0.4-i386;
-	chmod 555 $(DESTDIR)/bin/mbrloader0.4-i386;
+	cp installer $(DESTDIR)/bin/mbrloader0.5-i386;
+	chmod 555 $(DESTDIR)/bin/mbrloader0.5-i386;
 	rm -f $(DESTDIR)/bin/mbrloader;
-	ln -s $(DESTDIR)/bin/mbrloader0.4-i386 $(DESTDIR)/bin/mbrloader;
-	cp step1 /boot/mbrloader0.4-i386.step1;
-	cp step2 /boot/mbrloader0.4-i386.step2;
+	ln -s $(DESTDIR)/bin/mbrloader0.5-i386 $(DESTDIR)/bin/mbrloader;
+	cp step1 /boot/mbrloader0.5-i386.step1;
+	cp step2 /boot/mbrloader0.5-i386.step2;
 	if [ ! -d $(DESTDIR)/doc ];\
 	then mkdir $(DESTDIR)/doc;\
 	fi;
-	cp lisezmoi $(DESTDIR)/doc/mbrloader0.4-i386
+	cp lisezmoi $(DESTDIR)/doc/mbrloader0.5-i386
 
 #--- clean
 clean :

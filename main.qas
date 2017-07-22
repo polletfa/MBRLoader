@@ -1,4 +1,4 @@
-;;;             +------------- MBRLoader 0.4-i386 -----------------+
+;;;             +------------- MBRLoader 0.5-i386 -----------------+
 ;;;             | ArnaK, Inc.                                      |
 ;;;             |                                                  |
 ;;;             | main.qas                                         |
@@ -18,6 +18,9 @@
 ;;; | Fonction principale                                                     |
 ;;; +-------------------------------------------------------------------------+
 main:
+	;; Enregistrer le disque actuel
+	mov [$mbrloader_disk], dl
+
 	;; Verifier si il faut demander a l'utilisateur quelle partition
 	;; demarrer
 	cmp byte [$prompt], 0
@@ -116,7 +119,7 @@ load:
 	pop ax
 
 	;; saut
-	jmpf 0x7c0:0000
+	jmpf 0x7c00000
 
 ;;; +-------------------------------------------------------------------------+
 ;;; | Fonction appelee par jump lorsqu'une entree d'un menu est selectionnee  |
@@ -274,6 +277,9 @@ config_str:
 	.chainez "Configuration"
 
 current_menu:
+	.octet 0
+
+mbrloader_disk:
 	.octet 0
 
 mbrloader_end:
