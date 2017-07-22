@@ -1,0 +1,85 @@
+;;; +-  Programme  -----------------------------------------------------------+
+;;; | MBRLoader 3.0-i386 / Kernel                                             |
+;;; | Gestionnnaire de démarrage "multi-boot"                                 |
+;;; |                                                                         |
+;;; | Voyez la documentation ci-jointe                                        |
+;;; |                                                                         |
+;;; +-  Contacts  ------------------------------------------------------------+
+;;; | http://mbrloader.arnak.cjb.net                                          |
+;;; | mailto:mbrloader@arnak.cjb.net                                          |
+;;; |                                                                         |
+;;; +-  Auteur  --------------------------------------------------------------+
+;;; | ArnaK, SARL / Rip-off, Inc. / Kompanio Fraudo / Schwindel, GmbH         |
+;;; | Fabien Pollet                                                           |
+;;; | http://www.arnak.cjb.net                                                |
+;;; | mailto:arnak@arnak.cjb.net                                              |
+;;; |                                                                         |
+;;; +-  Fichier  -------------------------------------------------------------+
+;;; | kernel/api.qas                                                          |
+;;; | Appels des fonctions d'API                                              |
+;;; +-------------------------------------------------------------------------+
+
+api_dsk_chs2lba:
+	jmp $dsk_chs2lba
+api_dsk_diskexists:
+	jmp $dsk_diskexists
+api_dsk_getinf:
+	jmp $dsk_getinf
+api_dsk_lba2chs:
+	jmp $dsk_lba2chs
+api_dsk_read:
+	jmp $dsk_read
+api_dsk_reset:
+	jmp $dsk_reset
+api_dsk_write:
+	jmp $dsk_write
+api_intf_additem:
+	jmp $intf_additem
+api_intf_clearscreen:
+	jmp $intf_clearscreen
+api_intf_dialog:
+	jmp $intf_dialog
+api_intf_dispcursor:
+	jmp $intf_dispcursor
+api_intf_init:
+	jmp $intf_init
+api_intf_inputbox:
+	jmp $intf_inputbox
+api_intf_mainloop:
+	jmp $intf_mainloop
+api_intf_selectitem:
+	jmp $intf_selectitem
+api_intf_unselectitem:
+	jmp $intf_unselectitem
+api_intf_window:
+	jmp $intf_window
+api_io_printintdec:
+	jmp $io_printintdec
+api_io_printinthex:
+	jmp $io_printinthex
+api_io_printstr:
+	jmp $io_printstr
+api_io_readstr:
+	jmp $io_readstr
+api_mem_alloc:
+	jmp $mem_alloc
+api_mem_free:
+	jmp $mem_free
+api_parts_findparts:
+	jmp $parts_findparts
+api_parts_osname:
+	jmp $parts_osname
+api_str_blank:
+	jmp $str_blank
+api_str_getnthword:
+	jmp $str_getnthword
+api_str_str2int:
+	jmp $str_str2int
+api_str_strcmp:
+	jmp $str_strcmp
+api_str_strcpy:
+	jmp $str_strcpy
+api_str_strlen:
+	jmp $str_strlen
+api_str_strncpy:
+	jmp $str_strncpy

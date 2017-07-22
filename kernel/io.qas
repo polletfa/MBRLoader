@@ -1,0 +1,244 @@
+;;; +-  Programme  -----------------------------------------------------------+
+;;; | MBRLoader 3.0-i386 / Kernel                                             |
+;;; | Gestionnnaire de démarrage "multi-boot"                                 |
+;;; |                                                                         |
+;;; | Voyez la documentation ci-jointe                                        |
+;;; |                                                                         |
+;;; +-  Contacts  ------------------------------------------------------------+
+;;; | http://mbrloader.arnak.cjb.net                                          |
+;;; | mailto:mbrloader@arnak.cjb.net                                          |
+;;; |                                                                         |
+;;; +-  Auteur  --------------------------------------------------------------+
+;;; | ArnaK, SARL / Rip-off, Inc. / Kompanio Fraudo / Schwindel, GmbH         |
+;;; | Fabien Pollet                                                           |
+;;; | http://www.arnak.cjb.net                                                |
+;;; | mailto:arnak@arnak.cjb.net                                              |
+;;; |                                                                         |
+;;; +-  Fichier  -------------------------------------------------------------+
+;;; | kernel/io.qas                                                           |
+;;; | Fonction d'E/S                                                          |
+;;; +-------------------------------------------------------------------------+
+
+;;; +-------------------------------------------------------------------------+
+;;; | io_printstr                                                             |
+;;; | entree : ds:si = chaine                                                 |
+;;; +-------------------------------------------------------------------------+
+io_printstr:	
+	push	ax
+	push	bx
+
+	mov	ah,0xe		; affichage en mode teletype
+	mov	bx,si		; [ds:si] = message a afficher
+io_printstr1:	
+	mov	al,[bx]
+	cmp	al,0		; si caractere de fin de chaine
+	jz	$io_printstr2	; ->fin
+	;; sinon
+	inc	bx		; adresse du caractere suivant
+	push	bx
+	mov	bl,7		; couleur de texte
+	int	0x10		; afficher le caractere
+	pop	bx
+	jmp	$io_printstr1	; boucle
+io_printstr2:	
+	pop	bx
+	pop	ax
+	
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | io_readstr                                                              |
+;;; | entree : es:di = tampon                                                 |
+;;; |          cx = nombre max.                                               |
+;;; | sortie : es:di = chaine                                                 |
+;;; +-------------------------------------------------------------------------+
+io_readstr:	
+	push ax
+	push bx
+	push cx
+	
+	mov bx, 0
+io_readstr_input:	
+	mov ah, 0
+	int 0x16
+	cmp ah, 0xe
+	jz $io_readstr_back
+	cmp al, 13
+	jz $io_readstr_enter
+	cmp cx, 0
+	jz $io_readstr_input
+	cmp al, 32
+	jnc $io_readstr_char
+	jmp $io_readstr_input
+io_readstr_char:
+	mov [es:di+bx], al
+	mov ah, 0xe
+	int 0x10
+	dec cx
+	inc bx
+	jmp $io_readstr_input
+io_readstr_back:
+	cmp bx, 0
+	jz $io_readstr_input
+	mov ah, 0xe
+	mov al, 8
+	int 0x10
+	mov al, 32
+	int 0x10
+	mov al, 8
+	int 0x10
+	inc cx
+	dec bx
+	jmp $io_readstr_input
+io_readstr_enter:
+	mov byte [es:di+bx], 0
+	mov ah, 0xe
+	mov al, 10
+	int 0x10
+	mov al, 13
+	int 0x10
+
+	pop cx
+	pop bx
+	pop ax
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | io_printinthex                                                          |
+;;; | entrée : ax = nombre                                                    |
+;;; +-------------------------------------------------------------------------+
+io_printinthex:
+	push ax
+	push bx
+	push cx
+
+	push ax
+	mov ah, 0xe
+	mov al, 48
+	int 0x10
+	mov al, 0x78
+	int 0x10
+	pop ax
+	
+	mov cx, 0
+	mov bx, ax
+	shr bx, 12
+	and bx, 0xf
+	call $io_printinthex_char
+
+	mov bl, ah
+	and bx, 0xf
+	call $io_printinthex_char
+
+	mov bx, ax
+	shr bx, 4
+	and bx, 0xf
+	call $io_printinthex_char
+
+	mov cx, 1
+	mov bx, ax
+	and bx, 0xf
+	call $io_printinthex_char
+	
+	pop cx
+	pop bx
+	pop ax
+	ret
+
+;;; io_printinthex_char (sous-routine de io_printinthex)
+;;; entrée : bx = nombre entre 0 et 0xf
+;;; cx == 0 => ne pas afficher si bx=0
+;;; cx == 1 => afficher qqsoit bx
+;;; sortie : cx = 1 si bx != 0 ou cx (entrée) == 1
+io_printinthex_char:
+	push ax
+	push bx
+
+	;; bx == 0 ?
+	cmp bx, 0
+	jz $io_printinthex_char0
+
+	;; bx >=1 && bx <=9
+	cmp bx, 9
+	jbe $io_printinthex_char19
+
+	;; bx >= a && bx <= f
+	jmp $io_printinthex_charAF
+
+io_printinthex_char0:
+	;; cx == 0 ?
+	cmp cx, 0
+	jz $io_printinthex_char_end
+	;; non -> on continue vers print_hex_char19
+io_printinthex_char19:
+	mov ah, 0xe
+	mov al, bl
+	add al, 48
+	int 0x10
+	mov cx, 1
+	jmp $io_printinthex_char_end
+io_printinthex_charAF:	
+	mov ah, 0xe
+	mov al, bl
+	add al, 55
+	int 0x10
+	mov cx, 1
+io_printinthex_char_end:
+	pop bx
+	pop ax
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | io_printintdec                                                          |
+;;; | entrée : ax = nombre                                                    |
+;;; +-------------------------------------------------------------------------+
+io_printintdec:
+	push ax
+	push bx
+	push cx
+	push dx
+
+	mov cx, 0
+	mov bx, 10000
+io_printintdec_loop:
+	mov dx, 0
+	div bx
+	cmp al, 0
+	je $io_printintdec_0
+	mov ah, 0xe
+	add al, 48
+	int 0x10
+	mov cx, 1
+	jmp $io_printintdec_suite
+io_printintdec_0:
+	cmp cx, 0
+	je $io_printintdec_suite
+	mov ah, 0xe
+	mov al, 48
+	int 0x10	
+io_printintdec_suite:	
+	mov ax, dx
+	push dx
+	push ax
+	mov ax, bx
+	mov dx, 0
+	mov bx, 10
+	div bx
+	mov bx, ax
+	pop ax
+	pop dx
+	cmp bx, 0
+	jne $io_printintdec_loop
+
+	cmp cx, 0
+	jne $io_printintdec_fin
+
+	mov ah, 0xe
+	mov al, 48
+	int 0x10
+io_printintdec_fin:
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+	ret

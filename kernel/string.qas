@@ -1,0 +1,310 @@
+;;; +-  Programme  -----------------------------------------------------------+
+;;; | MBRLoader 3.0-i386 / Kernel                                             |
+;;; | Gestionnnaire de démarrage "multi-boot"                                 |
+;;; |                                                                         |
+;;; | Voyez la documentation ci-jointe                                        |
+;;; |                                                                         |
+;;; +-  Contacts  ------------------------------------------------------------+
+;;; | http://mbrloader.arnak.cjb.net                                          |
+;;; | mailto:mbrloader@arnak.cjb.net                                          |
+;;; |                                                                         |
+;;; +-  Auteur  --------------------------------------------------------------+
+;;; | ArnaK, SARL / Rip-off, Inc. / Kompanio Fraudo / Schwindel, GmbH         |
+;;; | Fabien Pollet                                                           |
+;;; | http://www.arnak.cjb.net                                                |
+;;; | mailto:arnak@arnak.cjb.net                                              |
+;;; |                                                                         |
+;;; +-  Fichier  -------------------------------------------------------------+
+;;; | kernel/string.qas                                                       |
+;;; | Fonctions de gestion des chaînes de caractères                          |
+;;; +-------------------------------------------------------------------------+
+
+;;; +-------------------------------------------------------------------------+
+;;; | str_strlen                                                              |
+;;; | entree : ds:si = chaine                                                 |
+;;; | sortie cx = longueur                                                    |
+;;; +-------------------------------------------------------------------------+
+str_strlen:
+	push ax
+	push si
+
+	mov cx, 0
+str_strlen1:
+	mov al, [si]
+	cmp al, 0
+	jz $str_strlen2
+	inc si
+	inc cx
+	jmp $str_strlen1
+str_strlen2:
+	pop si
+	pop ax
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | str_strcpy                                                              |
+;;; | entree : ds:si = chaine                                                 |
+;;; |          es:di = tampon                                                 |
+;;; | sortie : es:di = chaine                                                 |
+;;; +-------------------------------------------------------------------------+
+str_strcpy:
+	push ax
+	push si
+	push di
+
+str_strcpy1:
+	mov al, [ds:si]
+	mov [es:di], al
+	cmp al, 0
+	jz $str_strcpy2
+	inc si
+	inc di
+	jmp $str_strcpy1
+str_strcpy2:
+	pop di
+	pop si
+	pop ax
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | str_strncpy                                                             |
+;;; | entree : ds:si = chaine                                                 |
+;;; |          es:di = tampon                                                 |
+;;; |          cx = taille max                                                |
+;;; | sortie : es:di = cx caract max de la chaine                             |
+;;; +-------------------------------------------------------------------------+
+str_strncpy:
+	push ax
+	push cx
+	push si
+	push di
+
+str_strncpy1:
+	mov al, [ds:si]
+	cmp al, 0
+	jz $str_strncpy2
+	mov [es:di], al
+	inc si
+	inc di
+	loop $str_strncpy1
+str_strncpy2:
+	mov byte [es:di], 0
+	pop di
+	pop si
+	pop cx
+	pop ax
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | str_strcmp                                                              |
+;;; | entree : ds:si = chaine1                                                |
+;;; |          ds:di = chaine2                                                |
+;;; | sortie : ax = 0 (chaines correspondent) ou 1                            |
+;;; +-------------------------------------------------------------------------+
+str_strcmp:
+	push si
+	push di
+
+str_strcmp1:
+	mov al, [ds:si]
+	mov ah, [ds:di]
+	cmp al, ah
+	jnz $str_strcmp_no
+	cmp al, 0
+	jz $str_strcmp_yes
+	inc si
+	inc di
+	jmp $str_strcmp1
+str_strcmp_no:
+	mov ax, 1
+	jmp $str_strcmp2
+str_strcmp_yes:
+	mov ax, 0
+str_strcmp2:
+	pop di
+	pop si
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | str_blank                                                               |
+;;; | entree : es:di : chaine, cx = taille                                    |
+;;; | sortie : es:di : cx caracteres espaces                                  |
+;;; +-------------------------------------------------------------------------+
+str_blank:
+	push cx
+	push di
+
+str_blank_loop:
+	mov [es:di], byte 0x20
+	inc di
+	loop $str_blank_loop
+
+	pop di
+	pop cx
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | str_getnthword                                                          |
+;;; | entree : ds:si : chaine, cx                                             |
+;;; |          es:di : tampon                                                 |
+;;; | sortie : es:di : cx-ième mot de la chaine                               |
+;;; +-------------------------------------------------------------------------+
+str_getnthword:
+	push ax
+	push bx
+	push cx
+	push bp
+	push si
+	
+	mov bx, 0
+	mov bp, 0
+	
+	;; Passons les espaces de départ s'il y en a
+str_getnthword_loop1:
+	mov al, [ds:si+bx]
+	cmp al, 0
+	jz $str_getnthword_fin
+	cmp al, 32
+	jnz $str_getnthword_loop1_fin
+	inc bx
+	jmp $str_getnthword_loop1
+str_getnthword_loop1_fin:
+	
+	;; Si n=0 => on enregistre le mot
+	;; Sinon => appel récursif
+	cmp cx, 0
+	jz $str_getnthword_loop2
+	jmp $str_getnthword_loop3
+
+str_getnthword_loop2:
+	mov al, [ds:si+bx]
+	mov [es:di+bp], al
+	cmp al, 0
+	jz $str_getnthword_fin
+	cmp al, 32
+	jz $str_getnthword_fin
+	inc bx
+	inc bp
+	jmp $str_getnthword_loop2
+
+str_getnthword_loop3:
+	mov al, [ds:si+bx]
+	cmp al, 0
+	jz $str_getnthword_fin
+	cmp al, 32
+	jz $str_getnthword_rec
+	inc bx
+	jmp $str_getnthword_loop3
+str_getnthword_rec:	
+	add si, bx
+	dec cx
+	call $str_getnthword
+	jmp $str_getnthword_ffin
+
+str_getnthword_fin:
+	mov byte [es:di+bp], 0
+str_getnthword_ffin:
+	pop si
+	pop bp
+	pop cx
+	pop bx
+	pop ax
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | str_str2int                                                             |
+;;; | entree : ds:[si] chaine                                                 |
+;;; | sortie : ax                                                             |
+;;; | erreur : CF=1                                                           |
+;;; +-------------------------------------------------------------------------+
+str_str2int:
+	push bx
+	push cx
+	push dx
+	push si
+	
+	;; Base 16 ?
+	mov ax, [ds:si]
+	cmp ax, 0x7830
+	je $str_str2int_16
+
+	;; Base 8 ?
+	mov al, [ds:si]
+	cmp al,	48
+	je $str_str2int_8
+
+	;; Base 10
+str_str2int_10:
+	mov bl, 10
+	jmp $str_str2int_
+str_str2int_16:
+	mov bl, 16
+	add si, 2
+	jmp $str_str2int_
+str_str2int_8:
+	mov bl, 8
+	inc si
+str_str2int_:
+	mov ax, 0
+str_str2int_loop:
+	mov cl, [ds:si]
+	cmp cl, 0
+	je $str_str2int_end
+	
+	mov bh, 0
+	mul bx
+	cmp dx, 0
+	jne $str_str2int_bad	; nombre trop grand
+
+	call $str_convert_num
+	jc $str_str2int_bad
+	cmp bl, cl
+	jbe $str_str2int_bad
+
+	mov dx, 0xffff
+	mov ch, 0
+	sub dx, ax
+	cmp dx, cx
+	jc $str_str2int_bad		; nombre trop grand
+
+	add ax, cx
+	inc si
+	jmp $str_str2int_loop
+str_str2int_bad:
+	mov ax, 0
+	stc
+str_str2int_end:
+	pop si
+	pop dx
+	pop cx
+	pop bx	
+	ret
+
+str_convert_num:
+	cmp cl, 48
+	jc $str_convert_num_bad	; AL < '0' -> erreur
+	cmp cl, 57
+	jbe $str_convert_num_09	; '0' <= AL <= '9' -> 0-9
+	cmp cl, 65
+	jc $str_convert_num_bad	; '9' < AL < 'A' -> erreur
+	cmp cl,	70
+	jbe $str_convert_num_AF	; 'A' <= AL <= 'F' -> A-F
+	cmp cl, 97
+	jc $str_convert_num_bad	; 'F' < AL < 'a' -> erreur
+	cmp cl, 102
+	jbe $str_convert_num_af	; 'a' <= AL <= 'f' -> a-f
+
+	jmp $str_convert_num_bad	; 'f' < AL -> erreur
+str_convert_num_09:
+	sub cl, 48
+	ret
+str_convert_num_AF:
+	sub cl, 55
+	ret
+str_convert_num_af:
+	sub cl, 87
+	ret
+str_convert_num_bad:
+	mov cl, 0
+	stc
+	ret

@@ -1,0 +1,250 @@
+Intro :
+
+Cette nouvelle version de mbrloader est organisée comme un mini-système d'exploitation afin d'en faciliter la programmation et d'en clarifier le code source (par exemple, la programmation d'un mini gestionnaire de mémoire, pour limité qu'il soit, permet de mettre fin à l'organisation "brouillon" de la mémoire pour les versions précédentes ; de même, l'organisation en fichiers résout les problèmes liés à l'augmentation constante de la taille du programme ; ...). Cependant, il convient de garder à l'esprit que sa fonction reste celle d'un chargeur et à ce titre les fonctions de "système d'exploitation" en question sont très limitées et parfois - souvent ? - imparfaites. L'API a été conçue en pensant à la réécriture de MBRLoader. Il ne s'agit pas de l'API d'un vrai système d'exploitation. De même, la gestion de la mémoire et des exécutables privilégie l'aspect pratique sur l'économie de mémoire, puisque peu de mémoire est réellement nécessaire à MBRLoader.
+
+Note : cette version ne pourra pas assurer la compatibilité avec la MBRToolBox 0.1 car les modifications sont trop importantes.
+---
+boot stage ou stage 1 (boot sector)						ok
+stage 2 ou kernel :
+	Pilote de disque (floppy/hd, basé sur le BIOS)				ok
+	Pilotes de FS (support complet MBRL/FS1 + noms de volumes FAT/Ext2)
+	Gestionnaire de mémoire simple						ok
+	Gestionnaire d'exécutables simple (monotâche)
+	API (interface/pilotes/fonctions standard/mémoire)
+Applications et fichiers :
+	kernel.bin      (fichier spécial : se trouve au début de la partition)
+	kernel.fr
+	kernel.en
+	kernel.eo
+	kernel.de
+	loader.bin
+	config.dat
+	loader.fr
+	loader.en
+	loader.eo
+	loader.de
+	(Si une boîte à outils est installée :
+	toolbox.bin
+	toolbox.fr
+	toolbox.en
+	toolbox.eo
+	toolbox.de
+	tbuninst.bin
+	... différents outils de la toolbox (selon la version) )
+	(Présent uniquement dans la disquette d'installation :
+	install.bin
+	install.fr
+	install.en
+	install.eo
+	install.de )
+	
+---
+boot stage :
+	lance le stage 2
+---
+stage 2 :
+	doit faire au max. 18 secteurs
+---
+Pilote de disque :
+	Fonctions d'API dsk_*
+
+Disques 0 et 0x80-0x8f
+---
+Pilotes de FS
+	Fonctions d'API fs_*
+
+	Ext2FS, FAT pour les noms de volume
+	MBRL/FS1 pour le reste
+---
+MBRL/FS1 (MBRLoader File System version 1)
+
+Ce système de fichiers est extrêmement simple et répond uniquement aux besoins de MBRLoader.
+
+	* Kernel
+	Une partition MBRL/FS1 commencera toujours pas 18 secteurs
+	qui seront utilisés pour recevoir le Kernel de MBRLoader (stage 2)
+	* Identification
+	Secteur permettant d'identifier le FS
+	* Table d'allocation des fichiers
+	Cette zone définira les fichiers présents sur la partition et leur
+	emplacement.
+	* Bitmap
+	Cette zone servira à connaître les emplacements libres sur le disque
+	* Zone de données
+	Cette zone contiendra les fichiers.
+
+* Identification :
+	"MBRL/FS1"
+	le reste du secteur est rempli de 0
+
+* Table d'allocation des fichiers :
+Cette table, d'une taille fixe, contiendra 100 entrées de fichiers, chacune au format suivant :
+	nom du fichier		21 octets (20 caractères max + \0)
+	extension		4 octets (3 caractères max + \0)
+	taille en secteurs	2 octets (taille max ~= 32 Mo)
+	nb de caractères dans le dernier secteur
+				1 octet
+	adresse (*)		2 octets
+(*) l'adresse du premier secteur de données est 0
+
+La TAF compte donc (21+4+2+2)*100=3000 octets soit 6 secteurs (le 6e est complété avec des 0)
+
+* Bitmap
+Dans la bitmap, chaque bit représente 1 secteur dans la zone de données.
+La bitmap a une taille variable selon la taille de la partition.
+Les 2 premiers octets de la bitmap contiennent la taille de la zone de données (soit au max ~= 32 Mo)
+Le dernier secteur de la bitmap est complété par des 0
+
+* Zone de données
+Cette zone contient au maximum 65535 secteurs.
+Chaque fichier commence au début d'un secteur.
+Les fichiers ne peuvent pas être fragmentés : une erreur survient s'il n'y a plus la place pour prolonger un fichier mais cela ne devrait pas arriver compte tenu des besoins de MBRLoader.
+
+Conclusion :
+	Kernel		18 secteurs
+	Identification	1 secteur
+	TAF		6 secteurs
+	Bitmap		1 à 16 secteurs
+	Zone de données	1 à 65535 secteurs
+
+---
+Mémoire :
+	Fonctions d'API mem_*
+
+	1e Mo de mémoire
+	
+	Bitmap de 8Ko (1 bit par page de 16 octets)
+
+	Organisation du 1e Mo de mémoire à l'initialisation :
+	Pages 0-4f	 Occupées (BIOS)
+	Pages 50-24f	 Occupées (MBRL/Mem/Bitmap)
+	Pages 250-6cf    Occupées (MBRL/Kernel)
+	Pages 6d0-8fff   Libres
+	Pages 9000-9fff  Occupées (MBRL/Pile)
+	Pages a000-ffff  Occupées (BIOS)
+
+	Soit :
+	218 octets 0xff
+	4390 octets 0x00
+	3584 octets 0xff
+
+Note : à l'initialisation, le secteur de démarrage se trouve dans la zone allouée pour le noyau.
+
+---
+Exécutables :
+	Fonctions d'API exec_*
+
+	Gestion sous forme d'une pile avec stockage de quelques infos utiles (nom du prog par ex, taille ...)
+	Avant de charger un prog, le gestionnaire d'exec recherche les fichiers de données puis alloue suffisamment de mémoire pour charger le programme et le plus gros fichier de données (avec une limite max de 0xffff octets).
+	Exception : pour le noyau, on ignore la taille des fichiers de données au chargement donc on alloue 18 ko (2 * 18 secteurs). Les fichiers de données doivent donc être d'une taille <= au fichier prog.
+
+	Format des exéc. :
+	en-tête : saut vers le code
+		  chainez d'indentification ("MBRLoader 3.0-i386")
+		  chainez identifiant la version la plus ancienne avec laquelle le programme est compatible ("MBRLoader 3.0-i386");
+	code :
+		binaire 16 bits simple sans format
+	taille < 0xffff
+	le noyau est traité comme un programme normal (en bas de la pile)
+
+	Le gestionnaire d'exécutable dispose d'une liste des versions compatibles. Avec la 2e chaine d'identification, il peut déterminer si un programme peut être lancé.
+---
+Interface :
+	Fonctions d'API intf_*
+
+---
+Gestion des langues :
+	fonctions d'API lng_*
+
+	Le programme, le plus tôt possible, doit initialiser le gestionnaire de langue en lui indiquant une adresse contenant une liste de pointeurs vers les différentes données.
+	Le système intialise cette liste avec la langue actuellement sélectionnée.
+
+	Pour initialiser (ou lors de la sélection d'une langue), le système doit trouver les adresses des chaînes dans la bonne langue. Pour cela, il recherche le fichier portant le même nom que le programme et l'extension associée à la langue (.fr, .en, .eo et .de) et le charge à la suite du programme (l'ensemble prog+données doit être d'une taille <= à la quantité de mémoire allouée pour le prog). Ce fichier commence par une liste d'adresses (chacune précédée de 0xc2, la liste étant terminée par 0x90) dans le même ordre que ce que le programme utilise. Le système utilise ces adresses (qu'il ajoute à l'offset ou est chargé le fichier) pour remplir la liste dont l'adresse est fourni à l'initialisation.
+	Le reste du fichier contient les données aux offsets correspondants à ce qui est indiqué.
+
+	La gestion de la langue est donc intégrée au système.
+
+	Note : le système initialise également ses propres données multilingues d'une manière similaire.
+
+	Note : le format utilisé a été choisi pour permettre de le coder simplement avec la syntaxe quickasm (en utilisant les instructions ret et nop)
+---
+Installation d'une toolbox :
+	Une toolbox est préinstallée.
+
+Installation d'une nouvelle toolbox :
+	le prg d'installation de mbrloade fournira une option pour installer
+	la toolbox présente sur la disquette sur la partition mbrl/fs1.
+	Si une toolbox est déjà présente, il proposera de la désinstaller.
+	Pour ça, il utilisera le prog tbuninst.bin (un sous-prog de la toolbox)
+	qui effacera les fichiers de cette toolbox
+
+	pour installer une nouvelle toolbox il faudra recréer la disquette
+	d'installation en remplaçant la vielle toolbox par la nouvelle
+	puis utiliser cette option.
+---
+Installation :
+
+Le programme d'installation (pour les versions futures) pourra utiliser les chaînes d'identification pour identifier les versions déjà installées et proposer à l'utilisateur de conserver la configuration si c'est possible (selon la compatibilité).
+
+---
+API :
+	dsk_chs2lba				ok
+	dsk_diskexists				ok
+	dsk_getinf				ok
+	dsk_lba2chs				ok
+	dsk_read				ok
+	dsk_reset				ok
+	dsk_write				ok
+	exec_run
+	fs_close
+	fs_del
+	fs_getfs
+	fs_getvolname
+	fs_init
+	fs_open
+	fs_read
+	fs_reorg
+	fs_seek
+	fs_selectpart
+	fs_tell
+	fs_write
+	fs_listopen
+	fs_listread
+	fs_listclose
+	intf_additem				ok
+	intf_clearscreen			ok
+	intf_dialog				ok
+	intf_dispcursor				ok
+	intf_init				ok
+	intf_inputbox				ok
+	intf_mainloop				ok
+	intf_selectitem				ok
+	intf_unselectitem			ok
+	intf_window				ok
+	io_printintdec				ok
+	io_printinthex				ok
+	io_printstr				ok
+	io_readstr				ok
+	lng_init
+	lng_selectlang
+	lng_getselectedlang
+	mem_alloc				ok
+	mem_free				ok
+	parts_findparts				ok
+	parts_osname				ok
+	str_blank				ok
+	str_getnthword				ok
+	str_str2int				ok
+	str_strcmp				ok
+	str_strcpy				ok
+	str_strlen				ok
+	str_strncpy				ok
+	sys_reboot				ok
+
+---
+tests :
+string		ok
+io		ok
+memory		ok
+interface	ok
+disk		en cours

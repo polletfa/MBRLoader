@@ -1,0 +1,25 @@
+;;; +-  Programme  -----------------------------------------------------------+
+;;; | MBRLoader 3.0-i386 / Kernel                                             |
+;;; | Gestionnnaire de démarrage "multi-boot"                                 |
+;;; |                                                                         |
+;;; | Voyez la documentation ci-jointe                                        |
+;;; |                                                                         |
+;;; +-  Contacts  ------------------------------------------------------------+
+;;; | http://mbrloader.arnak.cjb.net                                          |
+;;; | mailto:mbrloader@arnak.cjb.net                                          |
+;;; |                                                                         |
+;;; +-  Auteur  --------------------------------------------------------------+
+;;; | ArnaK, SARL / Rip-off, Inc. / Kompanio Fraudo / Schwindel, GmbH         |
+;;; | Fabien Pollet                                                           |
+;;; | http://www.arnak.cjb.net                                                |
+;;; | mailto:arnak@arnak.cjb.net                                              |
+;;; |                                                                         |
+;;; +-  Fichier  -------------------------------------------------------------+
+;;; | kernel/data.qas                                                         |
+;;; | Table des données multilingues                                          |
+;;; +-------------------------------------------------------------------------+
+
+data_table:
+data_parts_systeme_inconnu:	
+	.mot 0
+

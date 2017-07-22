@@ -1,0 +1,25 @@
+;;; tests :
+;;; diskexists ok
+;;; getinf ok
+;;; reset ok
+main:
+	call $mem_init
+		
+	mov dl, 0x80
+	call $dsk_reset
+	call $dsk_getinf
+	jc $end
+	
+	call $io_printinthex
+	mov ax, bx
+	call $io_printinthex
+end:
+	mov ax, 0x1234
+	call $io_printinthex
+	cli
+	hlt
+	
+.inclure "memory.qas"
+.inclure "disk.qas"
+.inclure "io.qas"
+.inclure "string.qas"

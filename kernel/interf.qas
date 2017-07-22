@@ -1,0 +1,701 @@
+;;; +-  Programme  -----------------------------------------------------------+
+;;; | MBRLoader 3.0-i386 / Kernel                                             |
+;;; | Gestionnnaire de démarrage "multi-boot"                                 |
+;;; |                                                                         |
+;;; | Voyez la documentation ci-jointe                                        |
+;;; |                                                                         |
+;;; +-  Contacts  ------------------------------------------------------------+
+;;; | http://mbrloader.arnak.cjb.net                                          |
+;;; | mailto:mbrloader@arnak.cjb.net                                          |
+;;; |                                                                         |
+;;; +-  Auteur  --------------------------------------------------------------+
+;;; | ArnaK, SARL / Rip-off, Inc. / Kompanio Fraudo / Schwindel, GmbH         |
+;;; | Fabien Pollet                                                           |
+;;; | http://www.arnak.cjb.net                                                |
+;;; | mailto:arnak@arnak.cjb.net                                              |
+;;; |                                                                         |
+;;; +-  Fichier  -------------------------------------------------------------+
+;;; | kernel/interf.qas                                                       |
+;;; | Fonctions de gestion de l'interface semi-graphique                      |
+;;; +-------------------------------------------------------------------------+
+
+;;; +------------------------------------------------------------------------+
+;;; | intf_window                                                            |
+;;; | entrée : ds:si : titre (80 caractères sans \0)                         |
+;;; +------------------------------------------------------------------------+
+intf_window:
+	push ax
+	push bx
+	push cx
+	push dx
+	push bp
+
+	;; effacer le curseur
+	mov ah, 1
+	mov cx, 0x100
+	int 0x10
+
+	;; remettre à 0 le nombre d'items
+	mov byte [$intf_nb_items], 0
+	mov byte [$intf_selected_item], 1
+	mov byte [$intf_first_item], 1
+		
+	;; ecrire le titre
+	mov ax, 0x1301
+	mov bh, 0
+	mov bl, 0x1f
+	mov cx, 80
+	mov dh, 0
+	mov dl, 0
+	mov bp, si
+	int 0x10
+
+        ;; dessiner le haut du cadre
+	mov bl, 7
+        mov bp, $intf_window_up
+	inc dh
+	int 0x10
+
+	;; dessiner les 21 lignes interieures
+	mov cx, 21
+	mov bp, $intf_window_middle
+intf_window_disp_middle:
+	push cx
+	mov cx, 80
+	inc dh
+	int 0x10
+	pop cx
+	loop $intf_window_disp_middle
+
+	;; dessiner le bas du cadre
+	mov cx, 80
+	mov bp, $intf_window_down
+	inc dh
+	int 0x10
+
+	pop bp
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | intf_additem                                                            |
+;;; | entree:                                                                 |
+;;; |    ES:SI = chaine                                                       |
+;;; | erreur : CF=1                                                           |
+;;; +-------------------------------------------------------------------------+
+intf_additem:
+	push ax
+	push bx
+	push cx
+	push dx
+	push bp
+	push di
+	push ds
+
+	call $str_strlen
+	cmp cx, 77
+	jnc $intf_additem_err
+	
+	mov ax, cs
+	mov ds, ax
+
+	cmp byte [$intf_nb_items], 100
+	jz $intf_additem_err	; max atteint
+	
+	inc byte [$intf_nb_items]
+	mov al, [$intf_nb_items]
+	sub al, [$intf_first_item]
+	cmp al, 21
+	jnc $intf_additem_notdisp
+	
+	mov dh, [$intf_nb_items]
+	inc dh
+        mov ax, 0x1301
+	mov bh, 0
+	mov bl, 7
+	mov dl, 2
+	mov bp, si
+	int 0x10
+
+intf_additem_notdisp:	
+	;; placer l'adresse de la chaine dans la liste
+	mov di, [$intf_items_off]
+	mov ax, 0
+	mov al, [$intf_nb_items]
+	dec al
+	shl ax, 2 ; ax * 4
+	add di, ax
+	push ds
+	mov ax, [$intf_items]
+	mov ds, ax
+	mov ax, es
+	mov [ds:di], ax
+	mov [ds:di+2], si
+	pop ds
+
+	clc
+	jmp $intf_additem_end
+intf_additem_err:
+	stc
+intf_additem_end:	
+	pop ds
+	pop di
+	pop bp
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | intf_unselectitem                                                       |
+;;; | entree : al = numero de l'item                                          |
+;;; +-------------------------------------------------------------------------+
+intf_unselectitem:
+	push ax
+	push bx
+	push cx
+	push dx
+	push bp
+	push di
+	push si
+
+	mov bl, al
+	sub bl, [$intf_first_item]
+	cmp bl, 21
+	jnc $intf_unselectitem_end
+
+	push es	
+	push ax
+	mov di, [$intf_items_off]
+	mov ax, [$intf_items]
+	mov es, ax
+	pop ax
+	push ax
+	mov ah, 0
+	dec al
+	shl ax, 2
+	add di, ax
+	mov bp, [es:di+2]
+	mov si, bp
+	mov ax, [es:di]
+	mov es, ax
+	pop ax
+	
+	mov dh, al
+	sub dh, [$intf_first_item]
+	add dh, 2
+        mov ax, 0x1301
+	mov bh, 0
+	mov bl, 7
+	call $str_strlen
+	mov dl, 2
+	int 0x10
+	pop es
+intf_unselectitem_end:	
+	pop si
+	pop di
+	pop bp
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | selectitem                                                              |
+;;; | entree : al = numero de l'item                                          |
+;;; | sortie : al = item selectionnee                                         |
+;;; +-------------------------------------------------------------------------+
+intf_selectitem:
+	push bx
+	push cx
+	push dx
+	push bp
+	push di
+	push si
+	push ax
+
+	mov ah, [$intf_first_item]
+	add ah, 20
+	cmp ah, al
+	jc $intf_selectitem_over
+	cmp al, [$intf_first_item]
+	jc $intf_selectitem_under
+	jmp $intf_selectitem_ok
+intf_selectitem_over:
+	mov bl, al
+	add bl, 19
+	cmp bl, [$intf_nb_items]
+	jc $intf_selectitem_under
+
+	mov bl, [$intf_nb_items]
+	sub bl, 20
+	mov [$intf_first_item], bl
+	jmp $intf_selectitem_redisp
+intf_selectitem_under:
+	mov [$intf_first_item], al
+	jmp $intf_selectitem_redisp
+intf_selectitem_redisp:
+	push ax
+	push es
+	push di
+
+	;; afficher chaque item de first à first+20
+	mov cx, 0
+	mov di, [$intf_items_off]
+	mov ax, 0
+	mov al, [$intf_first_item]
+	dec al
+	shl ax, 2
+	add di, ax
+	mov ax, [$intf_items]
+	mov es, ax
+intf_selectitem_redisp_loop:
+	push es
+	push cx
+	mov dh, cl
+	add dh, 2
+	mov bh, 0
+	mov bl, 7
+	mov dl, 2
+	mov bp, [es:di+2]
+	mov si, bp
+	mov ax, [es:di]
+	mov es, ax
+
+	push si
+	push ds
+	mov ds, ax
+	mov si, bp
+	call $str_strlen
+	pop ds
+	pop si
+        mov ax, 0x1301	
+	int 0x10
+	pop cx
+	pop es
+	inc cx
+	add di, 4
+	cmp cx, 21
+	jnz $intf_selectitem_redisp_loop
+
+	pop di
+	pop es
+	pop ax
+	
+intf_selectitem_ok:
+	push es
+	push ax
+	mov di, [$intf_items_off]
+	mov ax, [$intf_items]
+	mov es, ax
+	pop ax
+	push ax
+	mov ah, 0
+	dec al
+	shl ax, 2
+	add di, ax
+	mov bp, [es:di+2]
+	mov si, bp
+	mov ax, [es:di]
+	mov es, ax
+	pop ax
+	
+	mov dh, al
+	sub dh, [$intf_first_item]
+	add dh, 2
+        mov ax, 0x1301
+	mov bh, 0
+	mov bl, 0x1f
+	push ax
+	push ds
+	mov ax, es
+	mov ds, ax
+	call $str_strlen
+	pop ds
+	pop ax
+	mov dl, 2
+	int 0x10
+	pop es
+
+	pop ax
+	mov al, dh
+	sub al, 2
+	add al, [$intf_first_item]
+	
+	mov [$intf_selected_item], al
+
+	pop si
+	pop di
+	pop bp
+	pop dx
+	pop cx
+	pop bx
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | intf_mainloop                                                           |
+;;; | sortie : al = item sélectionnée                                         |
+;;; +-------------------------------------------------------------------------+
+intf_mainloop:
+	push si
+	push cx
+	push bx
+	push ax
+	
+intf_mainloop_loop:	
+	mov bl, [$intf_selected_item]
+		
+	mov ah, 0
+	int 0x16
+
+	cmp ah, 0x50
+	jz $intf_mainloop_event_down
+	cmp ah, 0x48
+	jz $intf_mainloop_event_up
+	cmp ah, 0x4f
+	jz $intf_mainloop_event_end
+	cmp ah, 0x47
+	jz $intf_mainloop_event_origin
+	cmp al, 13
+	jz $intf_mainloop_event_select
+
+	jmp $intf_mainloop
+
+intf_mainloop_event_down:
+	cmp bl, [$intf_nb_items]
+	jz $intf_mainloop_loop
+	mov al, bl
+	call $intf_unselectitem
+	inc al
+	jmp $intf_mainloop_select
+
+intf_mainloop_event_up:
+	cmp bl, 1
+	jz $intf_mainloop_loop
+	mov al, bl
+	call $intf_unselectitem
+	dec al
+	jmp $intf_mainloop_select
+
+intf_mainloop_event_end:
+	mov al, bl
+	call $intf_unselectitem
+	mov al, [$intf_nb_items]
+	jmp $intf_mainloop_select
+
+intf_mainloop_event_origin:
+	mov al, bl
+	call $intf_unselectitem
+	mov al, 1
+
+intf_mainloop_select:
+	;; l'item al est-elle affichée ?
+	call $intf_selectitem
+	mov bl, al
+	jmp $intf_mainloop_loop
+	
+intf_mainloop_event_select:
+	mov [$intf_selected_item], bl
+	pop ax
+	mov al, bl
+	pop bx
+	pop cx
+	pop si
+	ret
+	
+;;; +-------------------------------------------------------------------------+
+;;; | intf_init                                                               |
+;;; | erreur CF=1                                                             |
+;;; +-------------------------------------------------------------------------+
+intf_init:
+	push ax
+	push cx
+	push es
+	push di
+
+	mov byte [$intf_nb_items], 0
+
+	;; allouer de la mémoire
+	mov ax, 400		; 4 octets par item, 100 items max
+	call $mem_alloc
+	jc $intf_init_err
+	mov ax, es
+	mov [ds:$intf_items], ax
+	mov [ds:$intf_items_off], di
+
+	call $intf_clearscreen
+	clc
+	jmp $intf_init_end
+intf_init_err:
+	stc
+intf_init_end:	
+	pop di
+	pop es
+	pop cx
+	pop ax
+	ret
+
+;;; +------------------------------------------------------------------------+
+;;; | intf_dispcursor                                                        |
+;;; +------------------------------------------------------------------------+
+intf_dispcursor:
+	push ax
+	push cx
+	
+	mov ah, 1
+	mov cx, 0x607
+	int 0x10
+
+	pop cx
+	pop ax
+	ret
+
+;;; +------------------------------------------------------------------------+
+;;; | intf_clearscreen                                                       |
+;;; +------------------------------------------------------------------------+
+intf_clearscreen:
+	push ax
+	push bx
+	push cx
+	push dx
+	
+	mov ah, 0x6
+	mov al, 0
+	mov bh, 7
+	mov cx, 0
+	mov dh, 24
+	mov dl, 79
+	int 0x10
+
+	mov ah, 2
+	mov bh, 0
+	mov dx, 0
+	int 0x10
+
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | intf_dialog                                                             |
+;;; | entree : ds:si = message                                                |
+;;; |          ds:di = titre (40 caractères sans \0)                          |
+;;; +-------------------------------------------------------------------------+
+intf_dialog:
+	push ax
+	push bx
+	push cx
+	push dx
+	push bp
+
+	;; ecrire le titre
+	mov ax, 0x1301
+	mov bh, 0
+	mov bl, 0x1f
+	mov cx, 40
+	mov dh, 9
+	mov dl, 20
+	mov bp, di
+	int 0x10
+
+        ;; dessiner le haut du cadre
+	mov bl, 7
+        mov bp, $intf_dialog_up
+	inc dh
+	int 0x10
+
+	;; dessiner les 3 lignes interieures
+	mov bp, $intf_dialog_middle
+	inc dh
+	int 0x10
+	inc dh
+	int 0x10
+	inc dh
+	int 0x10 
+
+	;; ecrire le message
+	add dl, 2
+	dec dh
+	mov bp, si
+	call $str_strlen
+	int 0x10
+	sub dl, 2
+	inc dh
+
+	;; dessiner le bas du cadre
+	mov cx, 40
+	mov bp, $intf_dialog_down
+	inc dh
+	int 0x10
+
+	pop bp
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | intf_inputbox                                                           |
+;;; | entree : ds:si = message                                                |
+;;; |          ds:bp = titre (40 caractères sans \0)                          |
+;;; |          es:di = buffer pour la reponse                                 |
+;;; |          cx = nombre max de caracteres                                  |
+;;; +-------------------------------------------------------------------------+
+intf_inputbox:
+	push ax
+	push bx
+	push cx
+	push dx
+	push bp
+
+	push es
+	push cx
+
+	mov ax, cs
+	mov es, ax
+
+	;; ecrire le titre
+	mov ax, 0x1301
+	mov bh, 0
+	mov bl, 0x1f
+	mov cx, 40
+	mov dh, 10
+	mov dl, 20
+	int 0x10
+
+        ;; dessiner le haut du cadre
+	mov bl, 7
+        mov bp, $intf_dialog_up
+	inc dh
+	int 0x10
+
+	;; dessiner les deux lignes interieures
+	mov bp, $intf_dialog_middle
+	inc dh
+	int 0x10
+	inc dh
+	int 0x10
+
+	;; ecrire le message
+	dec dh
+	add dl, 2
+	mov bp, si
+	call $str_strlen
+	int 0x10
+	sub dl, 2
+	inc dh
+
+	;; dessiner le bas du cadre
+	mov cx, 40
+	mov bp, $intf_dialog_down
+	inc dh
+	int 0x10
+
+	pop cx
+	push cx
+
+        ;; dessiner la zone de texte
+	dec dh
+	mov bp, $intf_textarea
+	add dl, 2
+	int 0x10
+	
+	;; afficher le curseur
+	mov bh, 0
+	mov ah, 2
+	int 0x10
+	dec ah
+	mov cx, 0x607
+	int 0x10
+
+	pop cx
+	pop es
+
+	mov bx, 0
+	;; analyser la saisie de l'utilisateur
+intf_inputbox_input:
+	mov ah, 0
+	int 0x16
+	cmp ah, 0xe
+	jz $intf_inputbox_back
+	cmp al, 13
+	jz $intf_inputbox_enter
+	cmp cx, 0
+	jz $intf_inputbox_input
+	cmp al, 32
+	jnc $intf_inputbox_char
+	jmp $intf_inputbox_input
+intf_inputbox_char:
+	mov [es:di+bx], al
+	mov ah, 0xe
+	int 0x10
+	dec cx
+	inc bx
+	jmp $intf_inputbox_input
+intf_inputbox_back:
+	cmp bx, 0
+	jz $intf_inputbox_input
+	mov ah, 0xe
+	mov al, 8
+	int 0x10
+	mov al, 95
+	int 0x10
+	mov al, 8
+	int 0x10
+	inc cx
+	dec bx
+	jmp $intf_inputbox_input
+intf_inputbox_enter:
+	mov byte [es:di+bx], 0
+
+	;; effacer le curseur
+	mov ah, 1
+	mov cx, 0x100
+	int 0x10
+
+	pop bp
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | Donnees                                                                 |
+;;; +-------------------------------------------------------------------------+
+
+intf_window_up:
+	.chaine "ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿"
+intf_window_middle:
+	.chaine "³                                                                              ³"
+intf_window_down:
+	.chaine "ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ"
+
+intf_dialog_up:
+	.chaine "ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿"
+intf_dialog_middle:
+	.chaine "³                                      ³"
+intf_dialog_down:
+	.chaine "ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ"
+intf_textarea:
+	.chaine "________________________________________"
+
+;;; Gestion des items
+intf_selected_item:
+	.octet 0
+intf_nb_items:
+	.octet 0
+intf_first_item:
+	.octet 1
+intf_items:
+	.mot 0			; segment
+intf_items_off:	
+	.mot 0			; offset

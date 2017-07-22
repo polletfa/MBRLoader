@@ -1,0 +1,33 @@
+;;; +-  Programme  -----------------------------------------------------------+
+;;; | MBRLoader 3.0-i386 / Kernel                                             |
+;;; | Gestionnnaire de démarrage "multi-boot"                                 |
+;;; |                                                                         |
+;;; | Voyez la documentation ci-jointe                                        |
+;;; |                                                                         |
+;;; +-  Contacts  ------------------------------------------------------------+
+;;; | http://mbrloader.arnak.cjb.net                                          |
+;;; | mailto:mbrloader@arnak.cjb.net                                          |
+;;; |                                                                         |
+;;; +-  Auteur  --------------------------------------------------------------+
+;;; | ArnaK, SARL / Rip-off, Inc. / Kompanio Fraudo / Schwindel, GmbH         |
+;;; | Fabien Pollet                                                           |
+;;; | http://www.arnak.cjb.net                                                |
+;;; | mailto:arnak@arnak.cjb.net                                              |
+;;; |                                                                         |
+;;; +-  Fichier  -------------------------------------------------------------+
+;;; | kernel/sys.qas                                                          |
+;;; | Fonctions systèmes                                                      |
+;;; +-------------------------------------------------------------------------+
+
+;;; +-------------------------------------------------------------------------+
+;;; | sys_reboot                                                              |
+;;; +-------------------------------------------------------------------------+
+sys_reboot:
+	call $intf_clearscreen
+
+	mov ax, 0x40
+	mov es, ax
+	mov [es:0x72], 0x1234
+	jmpf 0xffff0000
+	cli			; ne devrait pas être
+	hlt			; exécuté

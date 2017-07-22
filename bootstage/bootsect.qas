@@ -1,0 +1,149 @@
+;;; +-  Programme  -----------------------------------------------------------+
+;;; | MBRLoader 3.0-i386 / Boot stage                                         |
+;;; | Gestionnnaire de démarrage "multi-boot"                                 |
+;;; |                                                                         |
+;;; | Voyez la documentation ci-jointe                                        |
+;;; |                                                                         |
+;;; +-  Contacts  ------------------------------------------------------------+
+;;; | http://mbrloader.arnak.cjb.net                                          |
+;;; | mailto:mbrloader@arnak.cjb.net                                          |
+;;; |                                                                         |
+;;; +-  Auteur  --------------------------------------------------------------+
+;;; | ArnaK, SARL / Rip-off, Inc. / Kompanio Fraudo / Schwindel, GmbH         |
+;;; | Fabien Pollet                                                           |
+;;; | http://www.arnak.cjb.net                                                |
+;;; | mailto:arnak@arnak.cjb.net                                              |
+;;; |                                                                         |
+;;; +-  Fichier  -------------------------------------------------------------+
+;;; | bootstage/bootsect.qas                                                  |
+;;; | Secteur de démarrage (boot stage)                                       |
+;;; +-------------------------------------------------------------------------+
+
+;;; +-----------------------------------------------------------------------+
+;;; | Symbole main : symbole principal                                      |
+;;; +-----------------------------------------------------------------------+
+main:
+
+	mov	ax,0x07c0	; On fixe l'ES a 0x7c0 car c'est la que le
+	mov	es,ax		; programme a ete charge par le BIOS
+	mov	ds,ax		; idem pour DS
+
+	mov	ax, 0x9000	; 
+	mov	ss, ax		; On fixe la pile à 0x9ffff
+	mov	sp, 0xffff	;
+	
+	;; charger le stage 2
+	jmp	$load
+
+;;; +-------------------------------------------------------------------------+
+;;; | _diskerr : appele en cas d'erreur d'acces au disque                     |
+;;; +-------------------------------------------------------------------------+
+diskerr:
+	mov	ax,0x7c0
+	mov	es,ax
+	mov	ds,ax
+
+	mov	si,$demsg
+	call	$print
+	cli			; désactiver les interruptions
+	hlt			; 'endormir' le processeur
+
+;;; +-------------------------------------------------------------------------+
+;;; | load                                                                    |
+;;; +-------------------------------------------------------------------------+
+load:
+	;; initialiser
+	mov	ah,0
+	mov	dl, [$stage2disk]
+	int	0x13
+	
+	;; on charge le stage 2 (18 secteurs max) à 0x250:0
+	mov	dl, [$stage2disk]
+	mov	dh, [$stage2H]
+	mov	cl, [$stage2S]
+	mov	ch, [$stage2C]
+	mov	ax,0x250
+	mov	es,ax
+	mov	ds,ax
+	mov	ah,2
+	mov	al,18
+	mov	bx,0
+	
+	int	0x13
+	jc	$diskerr
+		
+	;; chargeur charge :)
+
+	jmpf 0x2500000
+
+	;; *** chargeur charge et lance
+
+
+;;; +-------------------------------------------------------------------------+
+;;; | print                                                                   |
+;;; |     entree : [ds:si]                                                    |
+;;; +-------------------------------------------------------------------------+
+print:
+	push	ax
+	push	bx
+
+	mov	ah,0xe		; affichage en mode teletype
+	mov	bx,si		; [ds:si] = message a afficher
+print1:
+	mov al,[bx]
+	cmp	al,0		; si caractere de fin de chaine
+	jz	$print2		; ->fin
+	;; sinon
+	inc	bx		; adresse du caractere suivant
+	push	bx
+	mov	bl,1		; couleur de texte
+	int	0x10		; afficher le caractere
+	pop	bx
+	jmp	$print1		; boucle
+print2:
+
+	pop	bx
+	pop	ax
+	
+	ret
+
+
+;;; +-------------------------------------------------------------------------+
+;;; | Donnees                                                                 |
+;;; +-------------------------------------------------------------------------+
+
+demsg:
+	.chaine	"MBRLoader 3.0-i386"
+	.octet	10
+	.octet  13
+	.chaine "ArnaK, SARL / Kompanio Fraudo / Rip-off, Inc. / Schwindel, GmbH"
+	.octet  10
+	.octet	10
+	.octet	13
+	.chaine "** ERREUR / ERARO / ERROR / FEHLER **"
+	.octet	10
+	.octet	13
+	.chaine "Impossible de lire le disque."
+	.octet	10
+	.octet	13
+	.chaine "Neebla legi la disko."
+	.octet	10
+	.octet	13
+	.chaine "Unable to read the disk."
+	.octet	10
+	.octet	13
+	.chaine "Unmoeglish, die Platte zu lesen."
+	.octet	0
+
+	;; Où se trouve le stage 2 ? (disque et paramètres de l'interruption 0x13)
+	;; Pour l'installation, les paramètres sont 0 et 0/0/2 (disquette, 2e secteur)
+stage2disk:
+	.octet 0
+stage2C:
+	.octet 0
+stage2H:
+	.octet 0
+stage2S:
+	.octet 2
+
+end:		

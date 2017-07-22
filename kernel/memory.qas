@@ -1,0 +1,350 @@
+;;; +-  Programme  -----------------------------------------------------------+
+;;; | MBRLoader 3.0-i386 / Kernel                                             |
+;;; | Gestionnnaire de démarrage "multi-boot"                                 |
+;;; |                                                                         |
+;;; | Voyez la documentation ci-jointe                                        |
+;;; |                                                                         |
+;;; +-  Contacts  ------------------------------------------------------------+
+;;; | http://mbrloader.arnak.cjb.net                                          |
+;;; | mailto:mbrloader@arnak.cjb.net                                          |
+;;; |                                                                         |
+;;; +-  Auteur  --------------------------------------------------------------+
+;;; | ArnaK, SARL / Rip-off, Inc. / Kompanio Fraudo / Schwindel, GmbH         |
+;;; | Fabien Pollet                                                           |
+;;; | http://www.arnak.cjb.net                                                |
+;;; | mailto:arnak@arnak.cjb.net                                              |
+;;; |                                                                         |
+;;; +-  Fichier  -------------------------------------------------------------+
+;;; | kernel/memory.qas                                                       |
+;;; | Fonctions de gestion de la mémoire                                      |
+;;; +-------------------------------------------------------------------------+
+
+.equ mem_up 4608
+.equ mem_low 218
+
+;;; +-------------------------------------------------------------------------+
+;;; | mem_alloc                                                               |
+;;; | entrée     ax     taille (en octets)                                    |
+;;; | sortie     es:di  pointeur vers la zone allouée                         |
+;;; | erreur     CF=1                                                         |
+;;; +-------------------------------------------------------------------------+
+mem_alloc:
+	push ax
+	push bx
+	push cx
+	push dx
+	push es
+	push di
+	
+	;; calculer le nombre de pages de 16 octets nécessaires
+	mov dx, 0
+	mov bx, 16
+	div bx
+	cmp dx, 0
+	jz $mem_alloc_suite
+	inc ax
+mem_alloc_suite:
+	;; allouer ax pages de 16 octets :
+	;; parcourir la bitmap à la recherche de ax pages libres consécutives
+
+	;; quelques initialisations
+	mov cx, 0
+	push ax
+	mov ax, 0x50		; la bitmap se trouve à l'adresse 0050:0000
+	mov es, ax
+	pop ax
+	mov di, #mem_low
+	mov [$mem_alloc_octet], di
+	dec word [$mem_alloc_octet]
+	mov byte [$mem_alloc_bit], 7
+	
+	;; boucle : pour chaque octet de la bitmap (soit 8192)
+mem_alloc_loop1:
+	mov bl, [es:di]
+	;; boucle : pour chaque bit de l'octet actuel
+	mov bh, 0
+mem_alloc_loop2:
+	push bx
+	push cx
+	mov cl, bh
+	shr bl, cl
+	pop cx
+	and bl, 1
+	cmp bl, 0
+	jz $mem_alloc_loop2_0
+mem_alloc_loop2_1:		; occupé
+	mov cx, 0
+	mov [$mem_alloc_octet], di
+	pop bx
+	push bx
+	mov [$mem_alloc_bit], bh
+	jmp $mem_alloc_loop2_suite
+mem_alloc_loop2_0:		; libre
+	inc cx
+	cmp cx, ax
+	jz $mem_alloc_ok
+mem_alloc_loop2_suite:
+	pop bx
+	inc bh
+	cmp bh, 8
+	jnz $mem_alloc_loop2
+mem_alloc_loop2_end:
+	inc di
+	cmp di, #mem_up
+	jnz $mem_alloc_loop1
+mem_alloc_loop1_end:
+	;; aucune mémoire libre trouvée
+	pop di
+	pop es
+	stc
+	jmp $mem_alloc_end 
+mem_alloc_ok:
+	pop bx
+
+	mov di, [$mem_alloc_octet]
+	mov bh, [$mem_alloc_bit]
+	;; mémoire trouvée (suivant octet di/bit bh de la bitmap)
+
+	;; calculer l'emplacement correspondant
+	;; offset 0, segment di*8+bh+1
+	mov cx, di
+	pop di
+	pop es
+	push ax
+	mov ax, cx
+	shl ax, 3		; ax*8
+	mov bl, bh
+	mov bh, 0
+	add ax, bx
+	inc ax
+	mov es, ax
+	mov di, 0
+	pop ax
+
+	;; noter cette zone comme occupée	
+	call $mem_busy
+	
+	clc
+mem_alloc_end:
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+	ret
+
+mem_alloc_octet:
+	.mot 0
+mem_alloc_bit:
+	.octet 0
+	
+;;; +-------------------------------------------------------------------------+
+;;; | mem_busy                                                                |
+;;; | entrée     ax     taille (en pages)                                     |
+;;; |            es:di  pointeur vers la zone allouée                         |
+;;; +-------------------------------------------------------------------------+
+mem_busy:
+	push ax
+	.octet 0x66		; 
+	push bx			; push ebx
+	push cx
+	push dx
+	push es
+	push di
+
+	;; à quelle page correspond l'adresse
+	.octet 0x66		;
+	push ax			; push eax
+	.octet 0x66		;
+	mov bx, 0		; mov ebx, 0
+	.mot 0			; 
+	mov bx, es
+	.octet 0x66		; 
+	shl bx, 4		; shl ebx, 4
+	.octet 0x66		;
+	mov ax, 0		; mov eax, 0
+	.mot 0			;
+	mov ax, di
+	.octet 0x66		; 
+	add bx, ax		; add ebx, eax
+	.octet 0x66		; 
+	shr bx, 4		; shr ebx, 4
+	.octet 0x66		;
+	pop ax			; pop eax
+	
+	mov cx, ax
+	;; on effectue une boucle pour chaque page
+mem_busy_loop:
+	push bx
+	push cx
+	push es
+	push di
+
+	mov ax, bx
+	;; à quel bit de la bitmap cela correspond-il ?
+	mov dx, 0
+	mov bx, 8
+	div bx
+	;; (octet ax, bit dx)
+	;; définir le masque qu'il faudra appliquer
+	mov bl, 1
+	push cx
+	mov cl, dl
+	shl bl, cl
+	pop cx
+	;; il faudra appliquer le masque bl avec or
+	
+	;; lire l'octet ax de la bitmap
+	push ax
+	mov ax, 0x50		; la bitmap se trouve à l'adresse 0050:0000
+	mov es, ax
+	pop ax
+	mov di, ax
+	mov al, [es:di]
+	;; appliquer le masque
+	or al, bl
+	;; écrire l'octet modifié
+	mov [es:di], al
+
+	pop di
+	pop es
+	pop cx
+	pop bx
+	inc bx
+	dec cx
+	cmp cx, 0
+	jnz $mem_busy_loop
+mem_busy_end:
+	pop di
+	pop es
+	pop dx
+	pop cx
+	.octet 0x66		; 
+	pop bx			; pop ebx
+	pop ax
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | mem_free                                                                |
+;;; | entrée     ax     taille (en octets)                                    |
+;;; |            es:di  pointeur vers la zone allouée                         |
+;;; +-------------------------------------------------------------------------+
+mem_free:
+	push ax
+	.octet 0x66		; 
+	push bx			; pop ebx
+	push cx
+	push dx
+	push es
+	push di
+
+	;; calculer le nombre de pages de 16 octets
+	mov dx, 0
+	mov bx, 16
+	div bx
+	cmp dx, 0
+	jz $mem_free_suite
+	inc ax
+mem_free_suite:
+
+	;; à quelle page correspond l'adresse
+	.octet 0x66		;
+	push ax			; push eax
+	.octet 0x66		;
+	mov bx, 0		; mov ebx, 0
+	.mot 0			; 
+	mov bx, es
+	.octet 0x66		; 
+	shl bx, 4		; shl ebx, 4
+	.octet 0x66		;
+	mov ax, 0		; mov eax, 0
+	.mot 0			;
+	mov ax, di
+	.octet 0x66		; 
+	add bx, ax		; add ebx, eax
+	.octet 0x66		; 
+	shr bx, 4		; shr ebx, 4
+	.octet 0x66		;
+	pop ax			; pop eax
+	
+	mov cx, ax
+	;; on effectue une boucle pour chaque page
+mem_free_loop:
+	push bx
+	push cx
+	push es
+	push di
+
+	mov ax, bx
+	;; à quel bit de la bitmap cela correspond-il ?
+	mov dx, 0
+	mov bx, 8
+	div bx
+	;; (octet ax, bit dx)
+	;; définir le masque qu'il faudra appliquer
+	mov bl, 0xff
+	mov bh, 1
+	push cx
+	mov cl, dl
+	shl bh, cl
+	pop cx
+	xor bl, bh		; il faudra appliquer le masque bl avec and
+	
+	;; lire l'octet ax de la bitmap
+	push ax
+	mov ax, 0x50		; la bitmap se trouve à l'adresse 0050:0000
+	mov es, ax
+	pop ax
+	mov di, ax
+	mov al, [es:di]
+	;; appliquer le masque
+	and al, bl
+	;; écrire l'octet modifié
+	mov [es:di], al
+
+	pop di
+	pop es
+	pop cx
+	pop bx
+	inc bx
+	dec cx
+	cmp cx, 0
+	jnz $mem_free_loop
+mem_free_end:
+	pop di
+	pop es
+	pop dx
+	pop cx
+	.octet 0x66		; 
+	pop bx			; pop ebx
+	pop ax
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | mem_init                                                                |
+;;; +-------------------------------------------------------------------------+
+mem_init:
+	push ax
+	push cx
+	push es
+	push di
+
+	mov ax, 0x50
+	mov es, ax
+	mov di, 0
+
+	mov ax, 0xff
+	mov cx, 218
+	rep stosb
+	mov ax, 0
+	mov cx, 4390
+	rep stosb
+	mov ax, 0xff
+	mov cx, 3584
+	rep stosb
+
+	pop di
+	pop es
+	pop cx
+	pop ax
+	ret
+

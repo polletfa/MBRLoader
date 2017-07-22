@@ -1,0 +1,422 @@
+;;; +-  Programme  -----------------------------------------------------------+
+;;; | MBRLoader 3.0-i386 / Kernel                                             |
+;;; | Gestionnnaire de démarrage "multi-boot"                                 |
+;;; |                                                                         |
+;;; | Voyez la documentation ci-jointe                                        |
+;;; |                                                                         |
+;;; +-  Contacts  ------------------------------------------------------------+
+;;; | http://mbrloader.arnak.cjb.net                                          |
+;;; | mailto:mbrloader@arnak.cjb.net                                          |
+;;; |                                                                         |
+;;; +-  Auteur  --------------------------------------------------------------+
+;;; | ArnaK, SARL / Rip-off, Inc. / Kompanio Fraudo / Schwindel, GmbH         |
+;;; | Fabien Pollet                                                           |
+;;; | http://www.arnak.cjb.net                                                |
+;;; | mailto:arnak@arnak.cjb.net                                              |
+;;; |                                                                         |
+;;; +-  Fichier  -------------------------------------------------------------+
+;;; | kernel/disk.qas                                                         |
+;;; | Fonctions de gestion des disques                                        |
+;;; +-------------------------------------------------------------------------+
+
+;;; +-------------------------------------------------------------------------+
+;;; | dsk_reset                                                               |
+;;; | entrée : dl                                                             |
+;;; | erreur : CF=1                                                           |
+;;; +-------------------------------------------------------------------------+
+dsk_reset:
+	push ax
+	mov ah, 0
+	int 0x13
+	pop ax
+	
+;;; +-------------------------------------------------------------------------+
+;;; | dsk_diskexists                                                          |
+;;; | entrée : dl                                                             |
+;;; | sortie : ax (0=oui, 1=non)                                              |
+;;; +-------------------------------------------------------------------------+
+dsk_diskexists:
+	push bx
+	push cx
+	push dx
+	
+	mov ah, 8
+	int 0x13
+	jc $dsk_diskexists_no
+
+	mov ax, 0
+	jmp $dsk_diskexists_end
+dsk_diskexists_no:
+	mov ax, 1
+dsk_diskexists_end:
+	pop dx
+	pop cx
+	pop bx
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | dsk_getinf                                                              |
+;;; | entrée : dl                                                             |
+;;; | sortie : al = nb secteurs                                               |
+;;; |          ah = nb tetes                                                  |
+;;; |          bx = nb cyl                                                    |
+;;; | Erreur : CF=1                                                           |
+;;; +-------------------------------------------------------------------------+
+dsk_getinf:
+	push cx
+	push dx
+	
+	mov ah, 8
+	int 0x13
+	jc $dsk_getinf_err
+	
+	mov al, cl
+	and al, 63
+	inc dh
+	mov ah, dh
+	mov bh, cl
+	shr bh, 6
+	mov bl, ch
+	inc bx
+		
+	pop dx
+	pop cx
+	clc
+	ret
+dsk_getinf_err:
+	pop dx
+	pop cx
+	stc
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | dsk_lba2chs                                                             |
+;;; | entrée :                                                                |
+;;; |     cl = disque                                                         |
+;;; |     dx:ax = lba                                                         |
+;;; | sortie :                                                                |
+;;; |     CX/DX = paramètres de l'int 0x13                                    |
+;;; | erreur : CF=1                                                           |
+;;; +-------------------------------------------------------------------------+
+dsk_lba2chs:
+	push ax
+	push bx
+	
+	push dx
+	mov dl, cl
+	call $dsk_getinf
+	jc $dsk_lba2chs_err
+	mov bx, ax
+	pop dx
+	
+	;; s = 1 + lba % S
+	push bx
+	mov bh, 0
+	div bx
+	pop bx
+
+	inc dl
+	;; s = dl
+	push dx
+	
+	;; h = ( lba / S ) % H
+	;; or ( lba / S ) = ax
+	mov dx, 0
+	mov bl, bh
+	mov bh, 0
+	div bx
+	;; h = dl
+
+	;; c = lba / ( S * H ) = ( lba / S ) / H
+	;; ou ( lba / S ) / H = ax
+
+	;; Copier les résultats dans les bons registres
+	mov dh, dl		; h
+	mov dl, cl		; disque
+	mov cl, ah		; 
+	shl cl, 6		; c
+	pop dx			; 
+	or cl, dl		; s
+	mov ch, al		; c
+
+	pop bx
+	pop ax
+	clc
+	ret
+
+dsk_lba2chs_err:
+	pop dx
+	pop bx
+	pop ax
+	stc
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | dsk_chs2lba                                                             |
+;;; | entrée :                                                                |
+;;; |     cx/dx = paramètres de l'int 0x13                                    |
+;;; | sortie :                                                                |
+;;; |     dx:ax = lba                                                         |
+;;; | erreur : CF=1                                                           |
+;;; +-------------------------------------------------------------------------+
+dsk_chs2lba:
+	push bx
+	push cx
+	.octet 0x66		;
+	push ax			; push eax
+	.octet 0x66		;
+	push dx			; push edx
+	
+	;; lba = s - 1 + h * S + c * S * H
+	;;     = s - 1 + S * ( h + c * H )
+
+	call $dsk_getinf
+	mov bx, ax
+
+	mov al, ch
+	mov ah, cl
+	shr ah, 6		; ax = c
+
+	push ax
+	push es
+	mov ax, cs
+	mov es, ax
+	mov [es:$dsk_chs2lba_h], dh
+	pop es
+	pop ax
+
+	push bx
+	mov bl, bh
+	mov bh, 0
+	mul bx
+	pop bx			; dx:ax = c * H
+
+	;; placer dx:ax dans eax
+	.octet 0x66		; 
+	push bx			; push ebx
+	mov bx, ax
+	mov dx, ax
+	.octet 0x66		;
+	shl ax, 16		; shl eax, 16
+	mov ax, bx
+	;; Ajouter h
+	.octet 0x66		;
+	mov bx, 0		; mov ebx, 0
+	.mot 0			;
+	mov bl, [$dsk_chs2lba_h]
+	.octet 0x66		;
+	add ax, bx		; add eax, ebx
+	.octet 0x66		;
+	pop bx			; pop ebx
+	;; eax = h + c * H
+
+	.octet 0x66		;
+	push bx			; push ebx
+	push ax
+	mov al, bl
+	.octet 0x66		;
+	mov bx, 0		; mov ebx, 0
+	.mot 0			;
+	mov bl, al
+	pop ax
+	.octet 0x66		;
+	mul bx			; mul ebx
+	;; eax = S * ( h + c * H )
+	;; (le résultat tient sur 32 bits donc on peut ignorer edx)
+
+	.octet 0x66		; 
+	mov bx, 0		; mov ebx, 0
+	.mot 0
+	mov bl, cl
+	or bl, 63
+	dec bl
+	.octet 0x66		;
+	add ax, bx		; add eax, ebx
+	;; eax = s - 1 + S * ( h + c * H ) = lba
+	.octet 0x66		;
+	pop bx			; pop ebx
+
+	.octet 0x66		;
+	pop dx			; pop edx
+	
+	;; Remettre lba dans dx:ax
+	mov bx, ax
+	.octet 0x66		; 
+	shr ax, 16		; shr eax, 16
+	mov dx, ax
+	.octet 0x66		;
+	pop ax			; pop eax
+	mov ax, bx
+
+	pop cx
+	pop bx
+	ret
+
+dsk_chs2lba_h:
+	.octet 0
+	
+
+;;; +-------------------------------------------------------------------------+
+;;; | dsk_read                                                                |
+;;; | entrée     es:di  tampon                                                |
+;;; |            bl     disque                                                |
+;;; |            dx:ax  lba                                                   |
+;;; |            cx     nb de secteurs                                        |
+;;; | sortie     es:di  secteurs lus                                          |
+;;; |            cx=0                                                         |
+;;; | erreur     CF=1                                                         |
+;;; |            es:di  secteurs lus                                          |
+;;; |            cx     nb de secteurs restants                               |
+;;; +-------------------------------------------------------------------------+
+dsk_read:
+	.octet 0x66		; 
+	push ax			; push eax
+	push bx
+	push dx
+	push ds
+	
+	mov ax, cx
+	mov ds, ax
+	
+	mov [$dsk_read_disk], bl
+	
+	mov bx, di
+	;; pour chaque secteur
+dsk_read_loop:
+	dec cx
+
+	push ax
+	push cx
+	push dx
+
+	;; transformer lba en c/h/s
+	mov cl, [$dsk_read_disk]
+	call $dsk_lba2chs
+	;; lire
+	mov al, 1
+	mov ah, 2
+	int 0x13
+	jc $dsk_read_err
+
+	;; suivant
+	add bx, 512
+	;; placer dx:ax dans eax
+	.octet 0x66		; 
+	push bx			; push ebx
+	mov bx, ax
+	mov dx, ax
+	.octet 0x66		;
+	shl ax, 16		; shl eax, 16
+	mov ax, bx
+	;; incrémenter eax
+	.octet 0x66		;
+	inc ax			; inc eax
+	;; remettre eax dans dx:ax
+	mov bx, ax
+	.octet 0x66		; 
+	shr ax, 16		; shr eax, 16
+	mov dx, ax
+	.octet 0x66		;
+	pop ax			; pop eax
+	mov ax, bx
+	.octet 0x66		;
+	pop bx			; pop ebx
+
+	pop dx
+	pop cx
+	pop ax
+	cmp cx, 0
+	jz $dsk_read_end
+	jmp $dsk_read_loop
+dsk_read_err:
+	stc
+dsk_read_end:
+	pop ds
+	pop dx
+	pop bx
+	pop ax
+	ret
+
+dsk_read_disk:
+	.octet 0
+	
+;;; +-------------------------------------------------------------------------+
+;;; | dsk_write                                                               |
+;;; | entrée     es:di  données                                               |
+;;; |            bl     disque                                                |
+;;; |            dx:ax  lba                                                   |
+;;; |            cx     nb de secteurs                                        |
+;;; | sortie     cx=0                                                         |
+;;; | erreur     CF=1                                                         |
+;;; |            cx     nb de secteurs restants                               |
+;;; +-------------------------------------------------------------------------+
+dsk_write:	
+	.octet 0x66		; 
+	push ax			; push eax
+	push bx
+	push dx
+	push ds
+	
+	mov ax, cx
+	mov ds, ax
+	
+	mov [$dsk_read_disk], bl
+	
+	mov bx, di
+	;; pour chaque secteur
+dsk_write_loop:
+	dec cx
+
+	push ax
+	push cx
+	push dx
+
+	;; transformer lba en c/h/s
+	mov cl, [$dsk_read_disk]
+	call $dsk_lba2chs
+	;; lire
+	mov al, 1
+	mov ah, 3
+	int 0x13
+	jc $dsk_write_err
+
+	;; suivant
+	add bx, 512
+	;; placer dx:ax dans eax
+	.octet 0x66		; 
+	push bx			; push ebx
+	mov bx, ax
+	mov dx, ax
+	.octet 0x66		;
+	shl ax, 16		; shl eax, 16
+	mov ax, bx
+	;; incrémenter eax
+	.octet 0x66		;
+	inc ax			; inc eax
+	;; remettre eax dans dx:ax
+	mov bx, ax
+	.octet 0x66		; 
+	shr ax, 16		; shr eax, 16
+	mov dx, ax
+	.octet 0x66		;
+	pop ax			; pop eax
+	mov ax, bx
+	.octet 0x66		;
+	pop bx			; pop ebx
+
+	pop dx
+	pop cx
+	pop ax
+	cmp cx, 0
+	jz $dsk_write_end
+	jmp $dsk_write_loop
+dsk_write_err:
+	stc
+dsk_write_end:
+	pop ds
+	pop dx
+	pop bx
+	pop ax
+	ret
+
+

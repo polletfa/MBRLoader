@@ -1,0 +1,30 @@
+;;; +-  Programme  -----------------------------------------------------------+
+;;; | MBRLoader 3.0-i386 / Kernel                                             |
+;;; | Gestionnnaire de démarrage "multi-boot"                                 |
+;;; |                                                                         |
+;;; | Voyez la documentation ci-jointe                                        |
+;;; |                                                                         |
+;;; +-  Contacts  ------------------------------------------------------------+
+;;; | http://mbrloader.arnak.cjb.net                                          |
+;;; | mailto:mbrloader@arnak.cjb.net                                          |
+;;; |                                                                         |
+;;; +-  Auteur  --------------------------------------------------------------+
+;;; | ArnaK, SARL / Rip-off, Inc. / Kompanio Fraudo / Schwindel, GmbH         |
+;;; | Fabien Pollet                                                           |
+;;; | http://www.arnak.cjb.net                                                |
+;;; | mailto:arnak@arnak.cjb.net                                              |
+;;; |                                                                         |
+;;; +-  Fichier  -------------------------------------------------------------+
+;;; | kernel/data/fr.qas                                                      |
+;;; | Fichier de données françaises                                           |
+;;; +-------------------------------------------------------------------------+
+
+;;; Table des données françaises
+;;; Note : les ret et nop servent à respecter simplement le format des
+;;; fichiers de données mais ne sont pas destinées à être exécutées.
+	ret $fr_parts_systeme_inconnu
+	nop
+
+;;; Données :
+fr_parts_systeme_inconnu:
+	.chainez "Syst\212me inconnu"

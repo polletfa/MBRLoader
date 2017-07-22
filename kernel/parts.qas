@@ -1,0 +1,315 @@
+;;; +-  Programme  -----------------------------------------------------------+
+;;; | MBRLoader 3.0-i386 / Kernel                                             |
+;;; | Gestionnnaire de démarrage "multi-boot"                                 |
+;;; |                                                                         |
+;;; | Voyez la documentation ci-jointe                                        |
+;;; |                                                                         |
+;;; +-  Contacts  ------------------------------------------------------------+
+;;; | http://mbrloader.arnak.cjb.net                                          |
+;;; | mailto:mbrloader@arnak.cjb.net                                          |
+;;; |                                                                         |
+;;; +-  Auteur  --------------------------------------------------------------+
+;;; | ArnaK, SARL / Rip-off, Inc. / Kompanio Fraudo / Schwindel, GmbH         |
+;;; | Fabien Pollet                                                           |
+;;; | http://www.arnak.cjb.net                                                |
+;;; | mailto:arnak@arnak.cjb.net                                              |
+;;; |                                                                         |
+;;; +-  Fichier  -------------------------------------------------------------+
+;;; | kernel/parts.qas                                                        |
+;;; | Fonctions de gestion des partitions                                     |
+;;; +-------------------------------------------------------------------------+
+
+;;; +-------------------------------------------------------------------------+
+;;; | parts_findparts                                                         |
+;;; | entree :                                                                |
+;;; |   dl = disque                                                           |
+;;; |   dh = tete                                                             |
+;;; |   cx = cyl/sect                                                         |
+;;; |   es:di = tampon                                                        |
+;;; | sortie :                                                                |
+;;; |   es:di = liste des partitions trouvées                                 |
+;;; |   cx = nombre de partitions                                             |
+;;; +-------------------------------------------------------------------------+
+parts_findparts:
+	push ax
+	push bx
+	push cx
+	push dx
+	push si
+	push di
+	push ds
+	push es
+
+	;; charger le secteur donne en entree
+	mov ax, 0x7c0
+	mov es, ax
+	mov ds, ax
+	mov bx, 0
+	mov al, 1
+	mov ah, 2
+	int 0x13
+	jc $parts_findparts_end
+
+	pop es
+	push es
+
+	mov [es:$parts_nb_parts], 0
+	
+	mov si, 0x1c2 ;; ds:si contient le type de la 1e partition
+	mov cx, 4
+parts_findparts_nextpart:
+	mov al, [si]
+	cmp al, 0
+	jnz $parts_findparts_found
+	add si, 0x10
+	loop $parts_findparts_nextpart
+	jmp $parts_findparts_end
+parts_findparts_found:
+	push cx
+	;; se deplacer a la fin de la liste
+	mov al, [es:$parts_nb_parts]
+	mov bl, 5
+	mul bl
+	add di, ax
+	mov [es:di], dl
+	inc di
+	sub si, 3
+	mov cx, 4
+	rep movsb
+	add si, 0xf
+	inc byte [es:$parts_nb_parts]
+	pop cx
+	loop $parts_findparts_nextpart
+parts_findparts_end:
+	pop es
+	pop ds
+	pop di
+	pop si
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+	ret
+
+parts_nb_parts:
+	.octet 0
+
+;;; +-------------------------------------------------------------------------+
+;;; | parts_oslist : liste des types de partitions                            |
+;;; +-------------------------------------------------------------------------+
+parts_oslist:
+	.octet		0x1
+	.chainez	"FAT12"
+	.octet		0x2
+	.chainez	"XENIX root"
+	.octet		0x3
+	.chainez	"XENIX usr"
+	.octet		0x4
+	.chainez	"FAT16 <32M"
+	.octet		0x5
+	.chainez	"Extended"
+	.octet		0x6
+	.chainez	"FAT16"
+	.octet		0x7
+	.chainez	"HPFS/NTFS"
+	.octet		0x8
+	.chainez	"AIX"
+	.octet		0x9
+	.chainez	"AIX bootable"
+	.octet		0xa
+	.chainez	"OS/2 Boot Manager"
+	.octet		0xb
+	.chainez	"Win95 FAT32"
+	.octet		0xc
+	.chainez	"Win95 FAT32 (LBA)"
+	.octet		0xe
+	.chainez	"Win95 FAT16 (LBA)"
+	.octet		0xf
+	.chainez	"Win95 Ext'd (LBA)"
+	.octet		0x10
+	.chainez	"OPUS"
+	.octet		0x11
+	.chainez	"Hidden FAT12"
+	.octet		0x12
+	.chainez	"Compaq"
+	.octet		0x14
+	.chainez	"Hidden FAT16 <32M"
+	.octet		0x16
+	.chainez	"Hidden FAT16"
+	.octet		0x17
+	.chainez	"Hidden HPFS/NTFS"
+	.octet		0x18
+	.chainez	"AST Windows swap"
+	.octet		0x1b
+	.chainez	"Hidden Win95"
+	.octet		0x1c
+	.chainez	"Hidden Win95"
+	.octet		0x1e
+	.chainez	"Hidden Win95"
+	.octet		0x24
+	.chainez	"NEC DOS"
+	.octet		0x3c
+	.chainez	"PartitionMagic"
+	.octet		0x40
+	.chainez	"Venix 80286"
+	.octet		0x41
+	.chainez	"PPC PReP Boot"
+	.octet		0x42
+	.chainez	"SFS"
+	.octet		0x4d
+	.chainez	"QNX4.x"
+	.octet		0x4e
+	.chainez	"QNX4.x 2nd partition"
+	.octet		0x4f
+	.chainez	"QNX4.x 3rd partition"
+	.octet		0x50
+	.chainez	"OnTrack DM"
+	.octet		0x51
+	.chainez	"OnTrack DM6 Aux."
+	.octet		0x52
+	.chainez	"CP/M"
+	.octet		0x53
+	.chainez	"OnTrack DM6 Aux."
+	.octet		0x54
+	.chainez	"OnTrackDM6"
+	.octet		0x55
+	.chainez	"EZ-Drive"
+	.octet		0x56
+	.chainez	"Golden Bow"
+	.octet		0x5c
+	.chainez	"Priam Edisk"
+	.octet		0x61
+	.chainez	"SpeedStor"
+	.octet		0x63
+	.chainez	"GNU HURD or SysV386"
+	.octet		0x64
+	.chainez	"Novell Netware 286"
+	.octet		0x65
+	.chainez	"Novell Netware 3.11"
+	.octet		0x67
+	.chainez	"Novell"
+	.octet		0x68
+	.chainez	"Novell"
+	.octet		0x69
+	.chainez	"Novell"
+	.octet		0x70
+	.chainez	"DiskSecure Multi-Boot"
+	.octet		0x75
+	.chainez	"PC/IX"
+	.octet		0x80
+	.chainez	"Old Minix"
+	.octet		0x81
+	.chainez	"Minix / old Linux"
+	.octet		0x82
+	.chainez	"Linux swap"
+	.octet		0x83
+	.chainez	"Linux"
+	.octet		0x84
+	.chainez	"OS/2 hidden C:"
+	.octet		0x85
+	.chainez	"Linux extended"
+	.octet		0x86
+	.chainez	"NTFS"
+	.octet		0x87
+	.chainez	"NTFS"
+	.octet		0x93
+	.chainez	"Amoeba"
+	.octet		0x94
+	.chainez	"Amoeba BBT"
+	.octet		0xa0
+	.chainez	"IBM Thinkpad"
+	.octet		0xa5
+	.chainez	"BSD/386"
+	.octet		0xa6
+	.chainez	"OpenBSD"
+	.octet		0xa7
+	.chainez	"NeXTSTEP"
+	.octet		0xb7
+	.chainez	"BSDI"
+	.octet		0xb8
+	.chainez	"BSDI swap"
+	.octet		0xc1
+	.chainez	"DRDOS"
+	.octet		0xc4
+	.chainez	"DRDOS"
+	.octet		0xc6
+	.chainez	"DRDOS"
+	.octet		0xc7
+	.chainez	"Syrinx"
+	.octet		0xd5
+	.chainez	"NTDIOS"
+	.octet		0xd8
+	.chainez	"CP/M-86"
+	.octet		0xdb
+	.chainez	"CP/M / CTOS"
+	.octet		0xe1
+	.chainez	"CP/M / CTOS"
+	.octet		0xe3
+	.chainez	"DOS R/O"
+	.octet		0xe4
+	.chainez	"SpeedStor"
+	.octet		0xeb
+	.chainez	"BeOS"
+	.octet		0xf1
+	.chainez	"Storage Dimensions"
+	.octet		0xf2
+	.chainez	"DOS secondary"
+	.octet		0xf4
+	.chainez	"Storage Dimensions"
+	.octet		0xfa
+	.chainez	"MBRL/FS1"
+	.octet		0xfd
+	.chainez	"Linux raid auto"
+	.octet		0xfe
+	.chainez	"LANstep"
+	.octet		0xff
+	.chainez	"BBT"
+	.octet		0
+parts_endlistos:
+	.octet		0
+
+;;; +-------------------------------------------------------------------------+
+;;; | parts_osname                                                                  |
+;;; |     entree : al=numero de la partition                                  |
+;;; |     retour : [ds:si] : nom du systeme                                   |
+;;; +-------------------------------------------------------------------------+
+parts_osname:
+	push	ax
+	push	cx
+
+	mov	si,$parts_oslist
+	
+parts_osname_isthisos:
+	mov	cl,[si]
+	cmp	cl,0
+	jz	$parts_osname_osnotfound	; liste parcourue, syst. non trouve.
+	;; retourne "Systeme inconnu"
+	cmp	cl,al
+	jz	$parts_osname_osfound	; trouve
+	
+	;; passer a l'OS suivant
+parts_osname_getnextos:
+	inc	si	
+	mov	cl,[si]
+	cmp	cl,0
+	jnz	$parts_osname_getnextos
+
+	inc	si
+	jmp	$parts_osname_isthisos	; tester cet OS
+	
+
+parts_osname_osfound:
+	inc	si
+	
+	pop	cx
+	pop	ax
+
+	ret
+
+parts_osname_osnotfound:
+	mov si, [$data_parts_systeme_inconnu]
+
+	pop cx
+	pop ax
+
+	ret
