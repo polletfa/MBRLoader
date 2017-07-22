@@ -1,9 +1,9 @@
 /*
-Installation de MBRLoader 0.2-i386
+Installation de MBRLoader 0.3-i386
 ArnaK, Inc.
 
 ATTENTION : aucune verification des tailles des parties du chargeur n'est
-faite, si les fichiers sont bien ceux de MBRLoader 0.2, il ne doit
+faite, si les fichiers sont bien ceux de MBRLoader 0.3, il ne doit
 pas y avoir de problemes, sinon...
 
 */
@@ -20,14 +20,14 @@ int main()
       perror("Ouverture de /dev/hda en lecture/ecriture impossible ");
       exit(-1);
     }
-  if((l1=fopen("/boot/mbrloader0.2-i386.step1","r"))==NULL)
+  if((l1=fopen("/boot/mbrloader0.3-i386.step1","r"))==NULL)
     {
-      perror("Ouverture de /boot/mbrloader0.2-i386.step1 en lecture impossible ");
+      perror("Ouverture de /boot/mbrloader0.3-i386.step1 en lecture impossible ");
       exit(-2);
     }
-  if((l2=fopen("/boot/mbrloader0.2-i386.step2","r"))==NULL)
+  if((l2=fopen("/boot/mbrloader0.3-i386.step2","r"))==NULL)
     {
-      perror("Ouverture de /boot/mbrloader0.2-i386.step2 en lecture impossible ");
+      perror("Ouverture de /boot/mbrloader0.3-i386.step2 en lecture impossible ");
       exit(-3);
     }
 
@@ -45,7 +45,8 @@ int main()
   while((c=fgetc(l2))!=EOF)
     fputc(c,hda);
 
-  printf("MBRLoader 0.2-i386 installe.\n");
+  printf("MBRLoader 0.3-i386 installe.\n"
+	 "Redemarrer votre ordinateur pour pouvoir le configurer.\n");
 
   return 0;
 }

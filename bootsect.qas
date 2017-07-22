@@ -1,4 +1,4 @@
-;;;             +------------- MBRLoader 0.2-i386 -----------------+
+;;;             +------------- MBRLoader 0.3-i386 -----------------+
 ;;;             | ArnaK, Inc.                                      |
 ;;;             |                                                  |
 ;;;             | bootsect.qas                                     |
@@ -13,7 +13,7 @@ main:
 	mov	es,ax		; programme a ete charge par le BIOS
 	mov	ds,ax		; idem pour DS
 
-	;;  charger les secteurs 2-7 du disque 0x80
+	;;  charger les secteurs 2-10 du disque 0x80
 	jmp	$load
 
 ;;; +-------------------------------------------------------------------------+
@@ -38,7 +38,7 @@ load:
 	mov	dl,0x80
 	int	0x13
 	
-	;; on charge les secteurs 2-7 a 0x50:0
+	;; on charge les secteurs 2-10 a 0x50:0
 	mov	dl,0x80
 	mov	dh,0
 	mov	cx,2
@@ -46,7 +46,7 @@ load:
 	mov	es,ax
 	mov	ds,ax
 	mov	ah,2
-	mov	al,6
+	mov	al,9
 	mov	bx,0
 
 	int	0x13
@@ -93,7 +93,7 @@ print2:
 ;;; +-------------------------------------------------------------------------+
 
 demsg:
-	.str	"MBRLoader 0.2-i386"
+	.str	"MBRLoader 0.3-i386"
 	.byte	10
 	.byte   13
 	.str	"ArnaK, Inc."

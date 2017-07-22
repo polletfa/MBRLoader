@@ -1,4 +1,4 @@
-;;;             +------------- MBRLoader 0.2-i386 -----------------+
+;;;             +------------- MBRLoader 0.3-i386 -----------------+
 ;;;             | ArnaK, Inc.                                      |
 ;;;             |                                                  |
 ;;;             | interf.qas                                       |
@@ -57,7 +57,7 @@ main_win_disp_middle:
 ;;; +-------------------------------------------------------------------------+
 ;;; | Add_item                                                                |
 ;;; | entree:                                                                 |
-;;; |    DS:SI = chaine                                                       |
+;;; |    ES:SI = chaine                                                       |
 ;;; +-------------------------------------------------------------------------+
 add_item:
 	push ax
@@ -66,19 +66,24 @@ add_item:
 	push dx
 	push bp
 	push di
+	push ds
 
 	;; aucune verification du numero de l'item mais il doit etre compris
         ;; entre 1 et 21
 	;; de meme pour la taille de la chaine qui doit etre comprise entre
 	;; 1 et 76
 
+	call $strlen
+
+	mov ax, cs
+	mov ds, ax
+	
 	inc [$nb_items]
 	mov dh, [$nb_items]
 	inc dh
         mov ax, 0x1301
 	mov bh, 0
 	mov bl, 7
-	call $strlen
 	mov dl, 2
 	mov bp, si
 	int 0x10
@@ -92,6 +97,7 @@ add_item:
 	add di, ax
 	mov [di], bp
 
+	pop ds
 	pop di
 	pop bp
 	pop dx
@@ -250,7 +256,7 @@ event_origin:
 	jmp $main_loop
 
 event_select:
-	jmp $load
+	jmp $selected
 
 ;;; +-------------------------------------------------------------------------+
 ;;; | init_interf                                                             |
@@ -286,7 +292,7 @@ dialog:
 	mov bh, 0
 	mov bl, 0x1f
 	mov cx, 40
-	mov dh, 10
+	mov dh, 9
 	mov dl, 20
 	mov bp, $dialog_title
 	int 0x10
@@ -297,17 +303,23 @@ dialog:
 	inc dh
 	int 0x10
 
-	;; dessiner la ligne interieure
+	;; dessiner les 3 lignes interieures
 	mov bp, $dialog_middle
 	inc dh
 	int 0x10
+	inc dh
+	int 0x10
+	inc dh
+	int 0x10 
 
-	;; y ecrire le message
+	;; ecrire le message
 	add dl, 2
+	dec dh
 	mov bp, si
 	call $strlen
 	int 0x10
 	sub dl, 2
+	inc dh
 
 	;; dessiner le bas du cadre
 	mov cx, 40
@@ -323,11 +335,137 @@ dialog:
 	ret
 
 ;;; +-------------------------------------------------------------------------+
+;;; | inputbox                                                                |
+;;; | entree : ds:si = message                                                |
+;;; |          es:di = buffer pour la reponse                                 |
+;;; |          cx = nombre max de caracteres                                  |
+;;; +-------------------------------------------------------------------------+
+inputbox:
+	push ax
+	push bx
+	push cx
+	push dx
+	push bp
+
+	push es
+	push cx
+
+	mov ax, cs
+	mov es, ax
+
+	;; ecrire le titre
+	mov ax, 0x1301
+	mov bh, 0
+	mov bl, 0x1f
+	mov cx, 40
+	mov dh, 10
+	mov dl, 20
+	mov bp, $dialog_title
+	int 0x10
+
+        ;; dessiner le haut du cadre
+	mov bl, 7
+        mov bp, $dialog_up
+	inc dh
+	int 0x10
+
+	;; dessiner les deux lignes interieures
+	mov bp, $dialog_middle
+	inc dh
+	int 0x10
+	inc dh
+	int 0x10
+
+	;; ecrire le message
+	dec dh
+	add dl, 2
+	mov bp, si
+	call $strlen
+	int 0x10
+	sub dl, 2
+	inc dh
+
+	;; dessiner le bas du cadre
+	mov cx, 40
+	mov bp, $dialog_down
+	inc dh
+	int 0x10
+
+	pop cx
+	push cx
+
+        ;; dessiner la zone de texte
+	dec dh
+	mov bp, $textarea
+	add dl, 2
+	int 0x10
+	
+	;; afficher le curseur
+	mov bh, 0
+	mov ah, 2
+	int 0x10
+	dec ah
+	mov cx, 0x607
+	int 0x10
+
+	pop cx
+	pop es
+
+	mov bx, 0
+	;; analyser la saisie de l'utilisateur
+inputbox_input:
+	mov ah, 0
+	int 0x16
+	cmp ah, 0xe
+	jz $inputbox_back
+	cmp al, 13
+	jz $inputbox_enter
+	cmp cx, 0
+	jz $inputbox_input
+	cmp al, 32
+	jnc $inputbox_char
+	jmp $inputbox_input
+inputbox_char:
+	mov [es:di+bx], al
+	mov ah, 0xe
+	int 0x10
+	dec cx
+	inc bx
+	jmp $inputbox_input
+inputbox_back:
+	cmp bx, 0
+	jz $inputbox_input
+	mov ah, 0xe
+	mov al, 8
+	int 0x10
+	mov al, 95
+	int 0x10
+	mov al, 8
+	int 0x10
+	inc cx
+	dec bx
+	jmp $inputbox_input
+inputbox_enter:
+	mov byte [es:di+bx], 0
+
+	;; effacer le curseur
+	mov ah, 1
+	mov cx, 0x100
+	int 0x10
+
+	pop bp
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+	ret
+
+;;; +-------------------------------------------------------------------------+
 ;;; | Donnees                                                                 |
 ;;; +-------------------------------------------------------------------------+
 
 main_win_title:
-	.str "  MBRLoader v0.2-i386 - mbrloader@arnak.fr.st, www.arnak.fr.st/mbrloader        "
+	.str "  MBRLoader v0.3-i386 - mbrloader@arnak.fr.st, www.arnak.fr.st/mbrloader        "
 main_win_up:
 	.str "旼컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴커"
 main_win_middle:
@@ -336,13 +474,15 @@ main_win_down:
 	.str "읕컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴켸"
 
 dialog_title:
-	.str "  MBRLoader v0.2-i386                   "
+	.str "  MBRLoader v0.3-i386                   "
 dialog_up:
 	.str "旼컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴커"
 dialog_middle:
 	.str "�                                      �"
 dialog_down:
 	.str "읕컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴컴켸"
+textarea:
+	.str "________________________________________"
 
 ;;; Gestion des items
 selected_item:

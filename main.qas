@@ -1,11 +1,26 @@
-;;;             +------------- MBRLoader 0.2-i386 -----------------+
+;;;             +------------- MBRLoader 0.3-i386 -----------------+
 ;;;             | ArnaK, Inc.                                      |
 ;;;             |                                                  |
 ;;;             | main.qas                                         |
 ;;;             +--------------------------------------------------+
 
+;;; +-------------------------------------------------------------------------+
+;;; | Saut vers main                                                          |
+;;; +-------------------------------------------------------------------------+
+	jmp $main
+
+;;; +-------------------------------------------------------------------------+
+;;; | Secteur de configuration                                                |
+;;; +-------------------------------------------------------------------------+
+.include "config.qas"
+
+;;; +-------------------------------------------------------------------------+
+;;; | Fonction principale                                                     |
+;;; +-------------------------------------------------------------------------+
 main:
-	cmp [$prompt], 0
+	;; Verifier si il faut demander a l'utilisateur quelle partition
+	;; demarrer
+	cmp byte [$prompt], 0
 	jnz $ask ; demander la partition a demarrer
 
 	;; l'option prompt vaut 0 -> demarrage automatique sauf si ctrl est pressee
@@ -15,82 +30,63 @@ main:
 	cmp al, 4
 	jz $ask     ; CTRL pressee -> demander la partition a demarrer
 
+	;; verifier que la partition a lancer existe
+	mov al, [$default]
+	mov ah, [$nb_os]
+	cmp ah, al
+	jc $ask         ; la partition n'est pas dans la liste
+
 	;; demarrage automatique
-	mov dl, [$disk]
-	mov dh, [$head]
-	mov cx, [$cylsect]
-	jmp $load2
+	mov al, [$default]
+	mov [$selected_item], al
+	jmp $load
 
 ask: 
-	;; Trouver les partitions sur les disques BIOS 0x80, 0x81, 0x82 et 0x83
-	mov dl, 0x80
-	mov dh, 0
-	mov cx, 1
-	call $find_parts
-	inc dl
-	call $find_parts
-	inc dl
-	call $find_parts
-	inc dl
-	call $find_parts
+	;; lancer l'interface
+	call $init_interf
+	call $disp_main_win
+	mov byte [$current_menu], 1
 
-	jmp $launch_interf     ; lancer l'interface
+	cmp byte [$nb_os], 0
+	jz $addos_in_interf_end
 
+	mov cx, 0
+	mov cl, [$nb_os]
+	mov si, $listos
+addos_in_interf:
+	call $add_item
+	add si, 25
+	loop $addos_in_interf
+addos_in_interf_end:
+	mov si, $config_str
+	call $add_item
+
+	mov al,1
+	call $select_item
+	mov [$selected_item], al
+
+	jmp $main_loop
+
+;;; +-------------------------------------------------------------------------+
+;;; | Lancer un systeme                                                       |
+;;; +-------------------------------------------------------------------------+
 load:
-	;; obtenir les infos sur la partition selectionnee
-	mov si, $list
-	mov al, [$selected_item]
-	dec al
-	mov bl, 5
-	mul bl
-	add si, ax
-
-	mov dl, [si]
-	mov dh, [si+1]
-	mov cx, [si+2]
-	mov al, [si+4]
-
+	;; afficher un message
 	mov si, $load_msg
 	call $dialog
 
-	cmp al, 5 ; partition etendue DOS
-	jz $load_extended
-
-	jmp $load2
-
-load_extended:
-	mov [$nb_parts], 0
-	call $find_parts
-	call $launch_interf
-
-load2:
-	;; faut-il afficher des infos sur la partition avant de la demarrer ?
-	cmp [$print_param], 0
-	jz $load3
-
-	mov si, $params
-	push cx
-	call $strlen
-	add si, cx
-	pop cx
-	mov al, dl
-	call $nb2str
-	add si,3
-	mov al, dh
-	call $nb2str
-	add si, 3
-	mov al, ch
-	call $nb2str
-	add si, 2
-	mov al, cl
-	call $nb2str
-
-	mov si, $params
-	call $dialog
-	mov ah, 0
-	int 0x16
-
-load3:
+	;; obtenir les informations
+	mov al, [$selected_item]
+	dec al
+	mov bl, 25
+	mul bl
+	mov si, $listos
+	add si, ax
+	add si, 21
+	mov dl, [si]
+	mov dh, [si+1]
+	mov cx, [si+2]
+	
 	;; charger le secteur d'amorcage
 	mov ax, 0x7c0
 	mov es, ax
@@ -122,74 +118,140 @@ load3:
 	;; saut
 	jmpf 0x7c00000
 
-launch_interf:
-	call $init_interf
-	call $disp_main_win
-
-	cmp [$nb_parts], 0
-	jz $no_parts
-
-	mov cx, 0
-	mov cl, [$nb_parts]
-	mov di, $list
-	add di, 4
-launch_interf_additem:
-	mov al, [di]
-	call $findos
-	call $add_item
-	add di, 5
-	loop $launch_interf_additem
-
-	mov al,1
-	call $select_item
-	mov [$selected_item], al
-
-	jmp $main_loop
-
-no_parts:
-	mov si, $no_parts_msg
-	call $dialog
-	cli
-	hlt
-
 ;;; +-------------------------------------------------------------------------+
-;;; | nb2str                                                                  |
-;;; | entree :                                                                |
-;;; |  al = nombre                                                            |
-;;; |  ds:si = buffer de 2 octets                                             |
-;;; | sortie :                                                                |
-;;; |  ds:si = nb converti en chaine de 2 octets (sans caractere de fin)      |
+;;; | Fonction appelee par jump lorsqu'une entree d'un menu est selectionnee  |
 ;;; +-------------------------------------------------------------------------+
-nb2str:
+selected:
+	;; Determiner le menu appelant
+	cmp byte [$current_menu], 1    ; Menu principal
+	jz $selected_1
+	cmp byte [$current_menu], 2    ; Menu de configuration
+	jz $selected_2
+	cmp byte [$current_menu], 3    ; Ajout d'un OS/Selection
+	jz $selected_3
+	cmp byte [$current_menu], 4    ; Suppression d'un OS/Selection
+	jz $selected_4
+	cmp byte [$current_menu], 5    ; Option de lancement automatique
+	jz $selected_5
+	cmp byte [$current_menu], 6    ; Selection d'une partition par defaut
+	jz $selected_6
+
+;;; Menu principal
+selected_1:
+	mov al, [$nb_os]
+	inc al
+	cmp [$selected_item], al
+	jz $selected_1_config
+	jmp $selected_1_load
+selected_1_load:
+	jmp $load
+selected_1_config:
+	jmp $init_config_interf
+
+;;; Menu de configuration
+selected_2:
+	cmp byte [$selected_item], 1   ; Ajouter un systeme a la liste
+	jz $selected_2_addos
+	cmp byte [$selected_item], 2   ; Supprimer un systeme
+	jz $selected_2_delos
+	cmp byte [$selected_item], 3   ; Option de lancement auto.
+	jz $selected_2_autostart
+	cmp byte [$selected_item], 4   ; Enregistrer et quitter
+	jz $selected_2_savequit
+	cmp byte [$selected_item], 5   ; Quitter sans enregistrer
+	jz $selected_2_quit
+selected_2_addos:
+	jmp $configi_addos
+selected_2_delos:
+	jmp $configi_delos
+selected_2_autostart:
+	jmp $configi_autostart
+selected_2_savequit:
+	jmp $configi_savequit
+selected_2_quit:
+	jmp $configi_quit
+
+;;; Ajout d'un OS/Selection
+selected_3:
+	mov al, [$nb_parts]
+	inc al
+	cmp al, [$selected_item]
+	jz $selected_3_cancel
+
+	;; obtenir les infos sur la partition selectionnee
+	mov si, $list
+	mov al, [$selected_item]
+	dec al
+	mov bl, 5
+	mul bl
+	add si, ax
+
+	mov dl, [si]
+	mov dh, [si+1]
+	mov cx, [si+2]
+	mov al, [si+4]
+
+	cmp al, 5
+	jz $selected_3_extended
+	jmp $selected_3_select
+selected_3_extended:
+	mov byte [$nb_parts], 0
+	call $find_parts
+	jmp $configi_addos_launch_interf
+selected_3_select:
+	jmp $configi_addos_selected
+selected_3_cancel:
+	jmp $config_interf
+
+;;; Suppression d'un OS/Selection
+selected_4:
+	;; on restaure maintenant la configuration precedemment sauvegardee
+	push ds
 	push ax
-	shr al, 4
-	cmp al, 10
-	jb $nb2str1_c
-	jmp $nb2str1_l
-nb2str1_c:
-	add al, 48
-	mov [si], al
-	jmp $nb2str2
-nb2str1_l:
-	add al, 55
-	mov [si], al
-nb2str2:
+	mov ax, 0x1000
+	mov ds, ax
+	mov si, 0x200
+	mov di, 0
+	mov cx, 512
+	rep movsb
 	pop ax
+	pop ds
+
+	mov al, [$nb_items]
+	cmp al, [$selected_item]
+	jz $selected_4_cancel
+	jmp $selected_4_select
+selected_4_cancel:
+	jmp $config_interf
+selected_4_select:
+	jmp $configi_delos_selected
+
+;;; Option de lancement automatique
+selected_5:
+	jmp $configi_autostart_selected
+
+;;; Selection d'une partition par defaut
+selected_6:
+	;; on restaure maintenant la configuration precedemment sauvegardee
+	push ds
 	push ax
-	and al, 0xf
-	cmp al, 10
-	jb $nb2str2_c
-	jmp $nb2str2_l
-nb2str2_c:
-	add al, 48
-	mov [si+1], al
-	jmp $nb2str3
-nb2str2_l:
-	add al, 55
-	mov [si+1], al
-nb2str3:
+	mov ax, 0x1000
+	mov ds, ax
+	mov si, 0x200
+	mov di, 0
+	mov cx, 512
+	rep movsb
 	pop ax
-	ret
+	pop ds
+
+	mov al, [$nb_items]
+	cmp al, [$selected_item]
+	jz $selected_6_cancel
+	jmp $selected_6_select
+selected_6_cancel:
+	jmp $configi_autostart
+selected_6_select:
+	jmp $configi_default_selected
 
 ;;; +-------------------------------------------------------------------------+
 ;;; | Inclusions                                                              |
@@ -197,9 +259,9 @@ nb2str3:
 
 .include "interf.qas"
 .include "string.qas"
+.include "configi.qas"
 .include "disk.qas"
 .include "os.qas"
-.include "config.qas"
 
 ;;; +-------------------------------------------------------------------------+
 ;;; | Donnees                                                                 |
@@ -207,29 +269,8 @@ nb2str3:
 
 load_msg:
 	.strz "Chargement en cours ..."
+config_str:
+	.strz "Configuration"
 
-no_parts_msg:
-	.strz "Aucune partition trouv\202e"
-
-params:
-	.strz "Disque/T\210te/Cylsect = "
+current_menu:
 	.byte 0
-	.byte '/'
-	.word 0
-	.byte '/'
-	.word 0
-	.word 0
-	.byte 0
-
-;;; buffer pour les partitions trouvees
-;;; 	16 * (disque
-;;;          +tete
-;;;          +cyl/sect
-;;;          +type)
-;;;     = 16 * 5
-;;;     = 80
-nb_parts:
-	.byte 0
-list:
-	.buffer 80
-

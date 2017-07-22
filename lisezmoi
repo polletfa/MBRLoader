@@ -1,72 +1,67 @@
 
 
 
-                           MBRLoader 0.2-i386
+                           MBRLoader 0.3-i386
 
 NOM
-	MBRLoader 0.2-i386 - Chargeur
+	MBRLoader 0.3-i386 - Chargeur
 
 DESCRIPTION
-	MBRLoader 0.2 est un chargeur dit 'multi-boot'. Cela signifie qu'il
+	MBRLoader 0.3 est un chargeur dit 'multi-boot'. Cela signifie qu'il
 	permet de choisir le systeme a charger.
  
-	MBRLoader 0.2 est constitue de 2 parties. La 1e est le secteur
+	MBRLoader 0.3 est constitue de 2 parties. La 1e est le secteur
 	d'amorcage. Il se place normalement sur le MBR (1e secteur d'un disque
 	dur, le MBR contient egalement la table des partitions) mais il peut
 	etre place sur une partition ou une disquette.
-	La 2e partie occupe les secteurs 2 a 7 (2e...7e secteurs). Il s'agit
+	La 2e partie occupe les secteurs 2 a 10 (2e...10e secteurs). Il s'agit
 	du reste du chargeur. En effet, le plus souvent, et c'est le cas pour
-	MBRLoader 0.2, un chargeur multi-boot est trop grand pour
-	tenir dans un MBR et les secteurs 2 a 7 ne sont jamais occupes.
+	MBRLoader 0.3, un chargeur multi-boot est trop grand pour tenir dans
+	 un MBR et les secteurs 2 a 10 ne sont jamais occupes, sinon par
+	d'autres chargeurs.
 
-	MBRLoader 0.2-i386 vous propose de choisir parmi les partitions non
-	vides (type 0) qu'il a detecte (il teste les disques durs 0x80 a 0x83).
-	Il indique le type de la partition pour vous aidez a choisir.
+	MBRLoader 0.3 se configure directement depuis son interface.
+	Vous pouvez lui indiquer une liste de systemes qu'il vous proposera
+	ensuite a chaque demarrage.
+	Grace a l'option de lancement automatique, vous pouvez selectionner
+	un systeme qui sera lance automatiquement sans vous le demander
+	sauf si vous appuyez sur la touche CTRL.
 
-	Il supporte les partitions logiques presentes dans les partitions
-	etendues DOS (si vous selectionnez une telle partition, il affichera
-	la liste des partitions logique qu'elle contient)
+	MBRLoader 0.3 supporte les partitions logiques presentes dans les
+	partitions etendues DOS (lorsque, dans le menu d'ajout d'une fonction,
+	vous selectionnez une partition etendue DOS, il affiche ses partitions
+	logiques).
 
-	MBRLoader 0.2-i386 a lance sans probleme DOS/Win, BeOS, Linux,
+	MBRLoader 0.3-i386 a lance sans probleme DOS/Win, BeOS, Linux,
 	FreeBSD et AtheOS.
 	Il devrait normalement pouvoir lancer tous les systemes. (Pour Linux,
 	il faut quand meme installez LILO sur la partition, ainsi, MBRLoader
-	0.1-i386 lancera LILO, qui lancera Linux.)
+	0.3-i386 lancera LILO, qui lancera Linux.)
 
 COMPILATION
-        Avant la compilation, vous pouvez configurer, par make config, quelques
-        options :
-		Faut-il afficher les parametres de la partition a lancer ?
-                Faut-il demander a chaque demarrage ?
-                Si non, quelle partition demarrer par defaut ?
-
-        En effet, vous pouvez configurer MBRLoader 0.1-i386 pour qu'il ne vous
-        propose de choisir que si vous pressez la touche <CTRL> au demarrage.
-
-	Dans ce cas, vous devez indiquez les parametres de la partition a
-	lancer par defaut. (Vous pouvez les connaitre en repondant oui a
-	la 1e question et en installant (voyez la suite de ce texte pour cela)
-	puis lancant une 1e fois MBRLoader. Il vous affichera alors les
-	parametres de la partition que vous lancerez. Il vous faudra alors
-	recompiler MBRLoader en indiquant ces parametres tels qu'il vous
-	ont ete fourni par le programme, puis le reinstaller. La procedure
-	n'est pas tres simple mais il n'est utile de la faire qu'une seule
-	fois.)
-
-	Ensuite, la compilation se realise par make ou make all. L'installation
-	du programme dans l'arborescence se fait par make install :
-
-	/ ---+--- boot ---+--- mbrloader0.2-i386.step1
-	     |            +--- mbrloader0.2-i386.step2
-             |
-	     +--- usr --- local ---+--- bin ---+--- mbrloader
-	                           |           +--- mbrloader0.21-i386
-	                           |
-	                           +--- doc --- mbrloader0.1-i386
+	La compilation se realise par make ou make all depuis le repertoire
+	de MBRLoader.
+	Vous pouvez ensuite effacer les fichiers temporaires par make clean.
 
 INSTALLATION
-	Pour installer ensuite MBRLoader 0.2-i386 sur le MBR, lancez le
-	programme /usr/local/bin/mbrloader0.2-i386 en super-utilisateur.
+	L'installation du programme compile et de la documentation dans
+	l'arborescence se fait par make install :
+
+	/ ---+--- boot ---+--- mbrloader0.3-i386.step1
+	     |            +--- mbrloader0.3-i386.step2
+             |
+	     +--- usr --- local ---+--- bin ---+--- mbrloader
+	                           |           +--- mbrloader0.3-i386
+	                           |
+	                           +--- doc --- mbrloader0.3-i386
+
+NETTOYAGE
+	make distclean effacera, a l'instar de make clean, les fichiers
+	temporaires crees pendant la compilation mais aussi les binaires.
+
+INSTALLATION SUR LE MBR
+	Pour installer ensuite MBRLoader 0.3-i386 sur le MBR, lancez le
+	programme /usr/local/bin/mbrloader0.3-i386 en super-utilisateur.
 	Le fichier mbrloader est un lien vers ce programme cree a
 	l'installation de l'executable dans l'arborescence.
 
@@ -74,7 +69,7 @@ BOGUES
 	Si vous en trouvez, n'hesitez pas a m'en avertir.
 
 LICENCE
-	MBRLoader 0.2-i386 n'est soumis a aucune licence.
+	MBRLoader 0.3-i386 n'est soumis a aucune licence.
 	L'auteur ne peut etre tenu pour responsable si un probleme survient
 	suite a l'utilisation du logiciel.
 

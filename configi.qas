@@ -1,0 +1,406 @@
+;;;             +------------- MBRLoader 0.3-i386 -----------------+
+;;;             | ArnaK, Inc.                                      |
+;;;             |                                                  |
+;;;             | configi.qas                                      |
+;;;             +--------------------------------------------------+
+
+;;; +-------------------------------------------------------------------------+
+;;; | Interface de configuration                                              |
+;;; +-------------------------------------------------------------------------+
+
+init_config_interf:
+	;; effectue une copie du secteur de configuration pour les
+	;; modifications temporaires
+	push es
+	mov ax, 0x1000
+	mov es, ax
+	mov si, 0
+	mov di, 0
+	mov cx, 512
+	rep movsb
+	pop es
+
+config_interf:
+
+	;; afficher l'interface de configuration
+	call $init_interf
+	call $disp_main_win
+
+	mov byte [$current_menu], 2
+	mov si, $additem_str
+	call $add_item
+	mov si, $delitem_str
+	call $add_item
+	mov si, $autostart_str
+	call $add_item
+	mov si, $savequit
+	call $add_item
+	mov si, $quit
+	call $add_item
+
+	mov al, 1
+	call $select_item
+	mov [$selected_item], al
+
+	jmp $main_loop
+
+;;; +-------------------------------------------------------------------------+
+;;; | configi_savequit                                                        |
+;;; +-------------------------------------------------------------------------+
+configi_savequit:
+	;; remplacer en memoire le secteur de configuration
+	;; par sa copie
+	push ds
+	mov ax, 0x1000
+	mov ds, ax
+	mov si, 0
+	mov di, 0
+	mov cx, 512
+	rep movsb
+	pop ds
+
+	;; ecrire le secteur sur le disque
+	mov dl, 0x80
+	mov dh, 0
+	mov cx, 2
+	mov al, 1
+	mov bx, 0
+	mov ah, 3
+	int 0x13
+
+configi_quit:
+	jmp $ask
+
+;;; +-------------------------------------------------------------------------+
+;;; | configi_autostart                                                       |
+;;; +-------------------------------------------------------------------------+
+configi_autostart:
+	call $init_interf
+	call $disp_main_win
+	mov byte [$current_menu], 5
+
+	mov si, $autostart_oui
+	call $add_item
+	mov si, $autostart_non
+	call $add_item
+
+	push es
+	mov ax, 0x1000
+	mov es, ax
+	mov al, [es:$prompt]
+	pop es
+	inc al
+	call $select_item
+	mov [$selected_item], al
+
+	jmp $main_loop
+
+configi_autostart_selected:
+	mov bl, [$selected_item]
+	dec bl
+	push es
+	mov ax, 0x1000
+	mov es, ax
+	mov [es:$prompt], bl
+	pop es
+
+	cmp bl, 0
+	jz $configi_autostart_default
+	jmp $config_interf
+
+configi_autostart_default:
+	;; afficher la liste des OS actuels
+	call $init_interf
+	call $disp_main_win
+	mov byte [$current_menu], 6
+
+	;; l'interface aura besoin d'acceder a des donnees dans le segment
+	;; du programme mais aura aussi besoin des chaines dans le segment
+	;; utilise pour la sauvegarde temporaire par l'interface de config
+	;; donc on sauve la config actuelle ailleurs et on place la config
+	;; temp a la place. on remettra tout plus tard
+	push es
+	mov ax, 0x1000
+	mov es, ax
+	mov di, 0x200
+	mov si, 0
+	mov cx, 512
+	rep movsb
+	pop es
+	push ds
+	mov ax, 0x1000
+	mov ds, ax
+	mov si, 0
+	mov di, 0
+	mov cx, 512
+	rep movsb
+	pop ds
+
+	cmp byte [$nb_os], 0
+	jz $autostart_loop_end
+
+	mov cx, 0
+	mov cl, [$nb_os]
+	mov si, $listos
+autostart_loop:
+	call $add_item
+	add si, 25
+	loop $autostart_loop
+autostart_loop_end:
+	mov si, $annuler
+	call $add_item
+
+	mov al, [$default]
+	call $select_item
+	mov [$selected_item], al
+	jmp $main_loop
+
+configi_default_selected:
+	mov bl, [$selected_item]
+	push es
+	mov ax, 0x1000
+	mov es, ax
+	mov [es:$default], bl
+	pop es
+
+	jmp $config_interf
+	
+;;; +-------------------------------------------------------------------------+
+;;; | configi_delos                                                           |
+;;; +-------------------------------------------------------------------------+
+configi_delos:
+	;; afficher la liste des OS actuels
+	call $init_interf
+	call $disp_main_win
+	mov byte [$current_menu], 4
+
+	;; l'interface aura besoin d'acceder a des donnees dans le segment
+	;; du programme mais aura aussi besoin des chaines dans le segment
+	;; utilise pour la sauvegarde temporaire par l'interface de config
+	;; donc on sauve la config actuelle ailleurs et on place la config
+	;; temp a la place. on remettra tout plus tard
+	push es
+	mov ax, 0x1000
+	mov es, ax
+	mov di, 0x200
+	mov si, 0
+	mov cx, 512
+	rep movsb
+	pop es
+	push ds
+	mov ax, 0x1000
+	mov ds, ax
+	mov si, 0
+	mov di, 0
+	mov cx, 512
+	rep movsb
+	pop ds
+
+	cmp byte [$nb_os], 0
+	jz $delos_loop_end
+
+	mov cx, 0
+	mov cl, [$nb_os]
+	mov si, $listos
+delos_loop:
+	call $add_item
+	add si, 25
+	loop $delos_loop
+delos_loop_end:
+	mov si, $annuler
+	call $add_item
+
+	mov al, 1
+	call $select_item
+	mov [$selected_item], al
+	jmp $main_loop
+
+configi_delos_selected:
+	;; effacer le systeme et decaler les suivants
+
+	;; faire pointer es:di vers l'entree du systeme selectionne
+	mov al, [$selected_item]
+	dec al
+	mov bl, 25
+	mul bl
+	mov di, $listos
+	add di, ax
+	;; faire pointer ds:si vers l'entree du systeme suivant
+	mov si, di
+	add si, 25
+
+	;; deplacer 25 * (nb_os - selected_item)
+	mov cl, [$selected_item]
+
+	;; placer les segments vers la copie du secteur de config.
+	push ds
+	push es
+	mov ax, 0x1000
+	mov es, ax
+	mov ds, ax
+
+	mov al, [$nb_os]
+	sub al, cl
+	mov bl, 25
+	mul bl
+	mov cx, ax
+
+	rep movsb
+
+	dec [$nb_os]
+
+	;; restaurer les segments
+	pop es
+	pop ds
+
+	;; retour
+	jmp $config_interf
+	
+;;; +-------------------------------------------------------------------------+
+;;; | configi_addos - Interface d'ajout d'un systeme                          |
+;;; +-------------------------------------------------------------------------+
+configi_addos:
+	push es
+	mov ax, 0x1000
+	mov es, ax
+	cmp byte [es:$nb_os], 20
+	jnz $addos_ok
+	pop es
+
+	mov si, $liste_pleine
+	call $dialog
+	mov ah, 0
+	int 0x16
+
+	jmp $config_interf
+
+addos_ok:
+	pop es
+	mov byte [$nb_parts], 0
+
+	;; Trouver les partitions sur les disques BIOS 0x80, 0x81, 0x82 et 0x83
+	mov dl, 0x80
+	mov dh, 0
+	mov cx, 1
+	call $find_parts
+	inc dl
+	call $find_parts
+	inc dl
+	call $find_parts
+	inc dl
+	call $find_parts
+
+configi_addos_launch_interf:
+	mov byte [$current_menu], 3
+	call $init_interf
+	call $disp_main_win
+
+	mov cx, 0
+	mov cl, [$nb_parts]
+	mov di, $list
+	add di, 4
+launch_interf_additem:
+	mov al, [di]
+	call $findos
+	call $add_item
+	add di, 5
+	loop $launch_interf_additem
+
+	mov si, $annuler
+	call $add_item
+
+	mov al,1
+	call $select_item
+	mov [$selected_item], al
+
+	jmp $main_loop
+
+configi_addos_selected:
+	;; trouver la derniere entree de la liste
+	push es
+	mov ax, 0x1000
+	mov es, ax
+	mov al, [es:$nb_os]
+	mov bl, 25
+	mul bl
+	mov di, $listos
+	add di, ax
+	mov si, $label
+	mov cx, 20
+	call $inputbox
+	cmp byte [es:di], 0
+	jnz $input_ok
+
+	pop es
+	mov si, $empty_str
+	call $dialog
+	mov ah, 0
+	int 0x16
+	jmp $configi_addos_launch_interf
+	push es
+	mov ax, 0x1000
+	mov es, ax
+
+input_ok:
+	inc [es:$nb_os]
+
+	;; obtenir et enregistrer les infos sur cette partition
+	mov si, $list
+	mov al, [$selected_item]
+	dec al
+	mov bl, 5
+	mul bl
+	add si, ax
+
+	mov dl, [si]
+	mov dh, [si+1]
+	mov cx, [si+2]
+
+	add di, 21
+	mov [es:di], dl
+	mov [es:di+1], dh
+	mov [es:di+2], cx
+
+	pop es
+
+	jmp $config_interf
+
+;;; +-------------------------------------------------------------------------+
+;;; | Donnees                                                                 |
+;;; +-------------------------------------------------------------------------+
+
+additem_str:
+	.strz "Ajouter un syst\212me \205 la liste"
+delitem_str:
+	.strz "Supprimer un syst\212me de la liste"
+autostart_str:
+	.strz "Configurer l'option de lancement automatique"
+savequit:
+	.strz "Enregistrer et quitter"
+quit:
+	.strz "Quitter sans enregistrer"
+annuler:
+	.strz "Annuler"
+label:
+	.strz "Entrez un nom pour ce syst\212me"
+liste_pleine:
+	.strz "Maximum de 20 syst\212mes atteint"
+empty_str:
+	.strz "Ajout annul\202 : nom vide"
+
+autostart_oui:
+	.strz "Lancer automatiquement sauf pression de la touche CTRL"
+autostart_non:
+	.strz "Toujours demander \205 l'utilisateur avant de lancer un syst\212me"
+
+;;; buffer pour les partitions trouvees
+;;; 	16 * (disque
+;;;          +tete
+;;;          +cyl/sect
+;;;          +type)
+;;;     = 16 * 5
+;;;     = 80
+nb_parts:
+	.byte 0
+list:
+	.buffer 80

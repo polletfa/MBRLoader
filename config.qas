@@ -1,0 +1,48 @@
+;;;             +------------- MBRLoader 0.3-i386 -----------------+
+;;;             | ArnaK, Inc.                                      |
+;;;             |                                                  |
+;;;             | config.qas                                       |
+;;;             +--------------------------------------------------+
+
+;;; Secteur de configuration
+
+;;; [prompt]
+;;; Demander a l'utilisateur ...
+;;; 	1 = toujours
+;;; 	0 = si CTRL est pressee
+prompt:
+	.byte 1
+
+;;; [default]
+;;; Systeme a lancer par defaut ...
+;;; 	numero correspondant a un numero de la liste
+default:
+	.byte 1
+
+;;; [nb_os]
+;;; Nombre d'OS configures (20 max)
+nb_os:
+	.byte 0
+
+;;; [listos]
+;;; Liste des systemes a proposer :
+;;; 	Format d'une entree :
+;;; 		Nom		21 octets
+;;;		Disque		1 octet
+;;;		Tete		1 octet
+;;;		Cyl. et sect.	2 octets
+;;;			Total	25 octets
+;;;	20 entrees max => 500
+listos:
+	.buffer 500
+
+;;; Reste du secteur
+;;; 512
+;;;	- 3	(jmp $main)
+;;;	- 1	(prompt)
+;;;	- 1	(defaut)
+;;;	- 1	(nb_os)
+;;;	- 500	(listos)
+;;; = 6
+
+.buffer 6
