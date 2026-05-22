@@ -1,0 +1,182 @@
+;;; +-  Programme  -----------------------------------------------------------+
+;;; | MBRToolBox 0.1-i386                                                     |
+;;; | Boîte à outils pour MBRToolBox 2.0-i386 et versions ultérieures         |
+;;; |                                                                         |
+;;; | MBRLoader 2.0-i386                                                      |
+;;; | Gestionnnaire de démarrage "multi-boot"                                 |
+;;; |                                                                         |
+;;; | Voyez la documentation ci-jointe                                        |
+;;; |                                                                         |
+;;; +-  Contacts  ------------------------------------------------------------+
+;;; | http://mbrloader.arnak.cjb.net                                          |
+;;; | mailto:mbrloader@arnak.cjb.net                                          |
+;;; | mailto:mbrtoolbox@arnak.cjb.net                                         |
+;;; |                                                                         |
+;;; +-  Auteur  --------------------------------------------------------------+
+;;; | ArnaK, SARL / Rip-off, Inc. / Kompanio Fraudo / Schwindel, GmbH         |
+;;; | Fabien Pollet                                                           |
+;;; | http://www.arnak.cjb.net                                                |
+;;; | mailto:arnak@arnak.cjb.net                                              |
+;;; |                                                                         |
+;;; +-  Fichier  -------------------------------------------------------------+
+;;; | donnees.qas                                                             |
+;;; | Données en langue française                                             |
+;;; +-------------------------------------------------------------------------+
+
+mbrtp_err_misplaced_fr:
+	.chaine "Espace utilis\202."
+	.octet 10
+	.octet 13
+	.octet 0
+	
+mbrtp_err_occup_fr:
+	.chaine "Partition occup\202e."
+	.octet 10
+	.octet 13
+	.octet 0
+
+systeme_inconnu_fr:
+	.chainez "Syst\212me inconnu"
+
+mbrtoolpart_str_fr:
+	.chainez "Partitionnement"
+
+reboot_str_fr:
+	.chainez "Red\202marrer l'ordinateur"
+
+quit_str_fr:
+	.chainez "Quitter et retourner \205 MBRLoader"
+
+mbrtoolpart_prompt_fr:
+	.chainez "MBRTool - Partitionnement > "
+
+mbrtp_comm_quit_fr:
+	.chainez "quitter"
+
+commande_inconnue_a_fr:
+	.chainez "La commande '"
+
+commande_inconnue_b_fr:
+	.chainez "' est inconnue."
+
+mbrtp_err_syntquit_fr:
+	.chainez "Syntaxe : quitter"
+
+mbrtp_err_synttable_fr:
+	.chainez "Syntaxe : table"
+
+mbrtp_bienvenue_fr:
+	.chaine "Bienvenue dans l'outil de partitionnement de MBRToolBox 0.1-i386."
+	.octet 10
+	.octet 13
+	.octet 10
+	.octet 13
+	.octet 0
+
+mbrtp_comm_aide_fr:
+	.chainez "aide"
+
+mbrtp_err_syntaide_fr:
+	.chainez "Syntaxe : aide"
+
+mbrtp_msg_aide_fr:
+	.chaine "Commandes :"
+	.octet 10
+	.octet 13
+	.chaine "activer #N                 Activer une partition"
+	.octet 10
+	.octet 13
+	.chaine "aide                       Liste des commandes"
+	.octet 10
+	.octet 13
+	.chaine "depl #source #destination  D\202placer une partition"
+	.octet 10
+	.octet 13
+	.chaine "disque [num\202ro de disque]  Choisir un disque"
+	.octet 10
+	.octet 13
+	.chaine "nouv #N C_deb C_fin type   Nouvelle partition"
+	.octet 10
+	.octet 13
+	.chaine "quitter                    Quitter sans sauvegarder"
+	.octet 10
+	.octet 13
+	.chaine "sauver                     Sauvergarder les modifications"
+	.octet 10
+	.octet 13
+	.chaine "suppr #N                   Supprimer une partition"
+	.octet 10
+	.octet 13
+	.chaine "table                      Table des partitions"
+	.octet 10
+	.octet 13
+	.chaine "type #N type               Changer le type d'une partition"
+	.octet 10
+	.octet 13
+	.chaine "types                      Liste des types de partitions"
+	.octet 10
+	.octet 13
+	.octet 0
+
+mbrtp_comm_sauv_fr:
+	.chainez "sauver"
+
+mbrtp_comm_disq_fr:
+	.chainez "disque"
+
+mbrtp_comm_table_fr:
+	.chainez "table"
+	
+mbrtp_err_syntdisq_fr:
+	.chainez "Syntaxe : disque [num\202ro de disque]"
+
+mbrtp_comm_activ_fr:
+	.chainez "activer"
+	
+mbrtp_err_syntactiv_fr:
+	.chainez "Syntaxe : activer #N"
+
+mbrtp_comm_nouv_fr:
+	.chainez "nouv"
+	
+mbrtp_err_syntnouv_fr:
+	.chainez "Syntaxe : nouv #N C_deb C_fin type"
+
+mbrtp_comm_types_fr:
+	.chainez "types"
+	
+mbrtp_err_synttypes_fr:
+	.chainez "Syntaxe : types"
+
+mbrtp_comm_type_fr:
+	.chainez "type"
+	
+mbrtp_err_synttype_fr:
+	.chainez "Syntaxe : type #N type"
+
+mbrtp_comm_suppr_fr:
+	.chainez "suppr"
+	
+mbrtp_err_syntsuppr_fr:
+	.chainez "Syntaxe : suppr #N"
+
+mbrtp_comm_depl_fr:
+	.chainez "depl"
+	
+mbrtp_err_syntdepl_fr:
+	.chainez "Syntaxe : depl #source #destination"
+
+mbrtp_err_syntsauv_fr:
+	.chainez "Syntaxe : sauver"
+
+mbrtp_msg_cdq_fr:
+	.chainez "Disque s\202lectionn\202 : "
+	
+mbrtp_msg_nocdq_fr:
+	.chaine "Aucun disque s\202lectionn\202."
+	.octet 10
+	.octet 13
+	.octet 0
+
+mbrtp_msg_dsqs_fr:
+	.chainez "Disques : "

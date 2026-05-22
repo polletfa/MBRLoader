@@ -1,0 +1,218 @@
+;;; +-  Programme  -----------------------------------------------------------+
+;;; | MBRToolBox 0.1-i386                                                     |
+;;; | Boîte à outils pour MBRToolBox 2.0-i386 et versions ultérieures         |
+;;; |                                                                         |
+;;; | MBRLoader 2.0-i386                                                      |
+;;; | Gestionnnaire de démarrage "multi-boot"                                 |
+;;; |                                                                         |
+;;; | Voyez la documentation ci-jointe                                        |
+;;; |                                                                         |
+;;; +-  Contacts  ------------------------------------------------------------+
+;;; | http://mbrloader.arnak.cjb.net                                          |
+;;; | mailto:mbrloader@arnak.cjb.net                                          |
+;;; | mailto:mbrtoolbox@arnak.cjb.net                                         |
+;;; |                                                                         |
+;;; +-  Auteur  --------------------------------------------------------------+
+;;; | ArnaK, SARL / Rip-off, Inc. / Kompanio Fraudo / Schwindel, GmbH         |
+;;; | Fabien Pollet                                                           |
+;;; | http://www.arnak.cjb.net                                                |
+;;; | mailto:arnak@arnak.cjb.net                                              |
+;;; |                                                                         |
+;;; +-  Fichier  -------------------------------------------------------------+
+;;; | string.qas                                                              |
+;;; | Fonctions de gestion des chaînes de caractères                          |
+;;; +-------------------------------------------------------------------------+
+
+;;; +-------------------------------------------------------------------------+
+;;; | strlen                                                                  |
+;;; | entree : ds:si = chaine                                                 |
+;;; | sortie cx = longueur                                                    |
+;;; +-------------------------------------------------------------------------+
+strlen:
+	push ax
+	push si
+
+	mov cx, 0
+strlen1:
+	mov al, [si]
+	cmp al, 0
+	jz $strlen2
+	inc si
+	inc cx
+	jmp $strlen1
+strlen2:
+	pop si
+	pop ax
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | strcpy                                                                  |
+;;; | entree : ds:si = chaine1                                                |
+;;; |          es:di = chaine2                                                |
+;;; | sortie : es:di = chaine1                                                |
+;;; +-------------------------------------------------------------------------+
+strcpy:
+	push ax
+	push si
+	push di
+
+strcpy1:
+	mov al, [ds:si]
+	mov [es:di], al
+	cmp al, 0
+	jz $strcpy2
+	inc si
+	inc di
+	jmp $strcpy1
+strcpy2:
+	pop di
+	pop si
+	pop ax
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | strncpy                                                                 |
+;;; | entree : ds:si = chaine1                                                |
+;;; |          es:di = chaine2                                                |
+;;; |          cx = taille max                                                |
+;;; | sortie : es:di = cx caract max de chaine1                               |
+;;; +-------------------------------------------------------------------------+
+strncpy:
+	push ax
+	push cx
+	push si
+	push di
+
+strncpy1:
+	mov al, [ds:si]
+	cmp al, 0
+	jz $strncpy2
+	mov [es:di], al
+	inc si
+	inc di
+	loop $strncpy1
+strncpy2:
+	mov byte [es:di], 0
+	pop di
+	pop si
+	pop cx
+	pop ax
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | strcmp                                                                  |
+;;; | entree : ds:si = chaine1                                                |
+;;; |          ds:di = chaine2                                                |
+;;; | sortie : ax = 0 (chaines correspondent) ou 1                            |
+;;; +-------------------------------------------------------------------------+
+strcmp:
+	push si
+	push di
+
+strcmp1:
+	mov al, [ds:si]
+	mov ah, [ds:di]
+	cmp al, ah
+	jnz $strcmp_no
+	cmp al, 0
+	jz $strcmp_yes
+	inc si
+	inc di
+	jmp $strcmp1
+strcmp_no:
+	mov ax, 1
+	jmp $strcmp2
+strcmp_yes:
+	mov ax, 0
+	jmp $strcmp2
+strcmp2:
+	pop di
+	pop si
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | make_str_blank                                                          |
+;;; | entree : es:di : chaine, cx = taille                                    |
+;;; | sortie : es:di : cx caracteres espaces                                  |
+;;; +-------------------------------------------------------------------------+
+make_str_blank:
+	push cx
+	push di
+
+make_str_blank_loop:
+	mov [es:di], byte 0x20
+	inc di
+	loop $make_str_blank_loop
+
+	pop di
+	pop cx
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | get_n_word                                                              |
+;;; | entree : ds:si : chaine, cx                                             |
+;;; |          es:di : tampon                                                 |
+;;; | sortie : es:di : cx-ième mot de la chaine                               |
+;;; +-------------------------------------------------------------------------+
+get_n_word:
+	push ax
+	push bx
+	push cx
+	push bp
+	push si
+	
+	mov bx, 0
+	mov bp, 0
+	
+	;; Passons les espaces de départ s'il y en a
+get_n_word_loop1:
+	mov al, [ds:si+bx]
+	cmp al, 0
+	jz $get_n_word_fin
+	cmp al, 32
+	jnz $get_n_word_loop1_fin
+	inc bx
+	jmp $get_n_word_loop1
+get_n_word_loop1_fin:
+	
+	;; Si n=0 => on enregistre le mot
+	;; Sinon => appel récursif
+	cmp cx, 0
+	jz $get_n_word_loop2
+	jmp $get_n_word_loop3
+
+get_n_word_loop2:
+	mov al, [ds:si+bx]
+	mov [es:di+bp], al
+	cmp al, 0
+	jz $get_n_word_fin
+	cmp al, 32
+	jz $get_n_word_fin
+	inc bx
+	inc bp
+	jmp $get_n_word_loop2
+
+get_n_word_loop3:
+	mov al, [ds:si+bx]
+	cmp al, 0
+	jz $get_n_word_fin
+	cmp al, 32
+	jz $get_n_word_rec
+	inc bx
+	jmp $get_n_word_loop3
+get_n_word_rec:	
+	add si, bx
+	dec cx
+	call $get_n_word
+	jmp $get_n_word_ffin
+
+get_n_word_fin:
+	mov byte [es:di+bp], 0
+get_n_word_ffin:
+	pop si
+	pop bp
+	pop cx
+	pop bx
+	pop ax
+	ret
+

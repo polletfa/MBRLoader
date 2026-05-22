@@ -1,0 +1,320 @@
+;;; +-  Programme  -----------------------------------------------------------+
+;;; | MBRToolBox 0.1-i386                                                     |
+;;; | Boîte à outils pour MBRToolBox 2.0-i386 et versions ultérieures         |
+;;; |                                                                         |
+;;; | MBRLoader 2.0-i386                                                      |
+;;; | Gestionnnaire de démarrage "multi-boot"                                 |
+;;; |                                                                         |
+;;; | Voyez la documentation ci-jointe                                        |
+;;; |                                                                         |
+;;; +-  Contacts  ------------------------------------------------------------+
+;;; | http://mbrloader.arnak.cjb.net                                          |
+;;; | mailto:mbrloader@arnak.cjb.net                                          |
+;;; | mailto:mbrtoolbox@arnak.cjb.net                                         |
+;;; |                                                                         |
+;;; +-  Auteur  --------------------------------------------------------------+
+;;; | ArnaK, SARL / Rip-off, Inc. / Kompanio Fraudo / Schwindel, GmbH         |
+;;; | Fabien Pollet                                                           |
+;;; | http://www.arnak.cjb.net                                                |
+;;; | mailto:arnak@arnak.cjb.net                                              |
+;;; |                                                                         |
+;;; +-  Fichier  -------------------------------------------------------------+
+;;; | multil.qas                                                              |
+;;; | Gestion des données multilingues                                        |
+;;; +-------------------------------------------------------------------------+
+
+;;; +-------------------------------------------------------------------------+
+;;; | set_lang                                                                |
+;;; | al=langue (1=fr, 2=eo, 3=en, 4=de)                                      |
+;;; +-------------------------------------------------------------------------+
+set_lang:
+	cmp al, 1
+	jz $set_lang_fr
+	cmp al, 2
+	jz $set_lang_eo
+	cmp al, 3
+	jz $set_lang_en
+	cmp al, 4
+	jz $set_lang_de
+	ret
+
+set_lang_fr:
+	push ax
+	mov [$mbrtoolpart_str], $mbrtoolpart_str_fr
+	mov [$reboot_str], $reboot_str_fr
+	mov [$quit_str], $quit_str_fr
+	mov [$mbrtoolpart_prompt], $mbrtoolpart_prompt_fr
+	mov [$mbrtp_comm_quit], $mbrtp_comm_quit_fr
+	mov [$commande_inconnue_a], $commande_inconnue_a_fr
+	mov [$commande_inconnue_b], $commande_inconnue_b_fr
+	mov [$mbrtp_err_syntquit], $mbrtp_err_syntquit_fr
+	mov [$mbrtp_bienvenue], $mbrtp_bienvenue_fr
+	mov [$mbrtp_comm_aide], $mbrtp_comm_aide_fr
+	mov [$mbrtp_err_syntaide], $mbrtp_err_syntaide_fr
+	mov [$mbrtp_msg_aide], $mbrtp_msg_aide_fr
+	mov [$mbrtp_comm_disq], $mbrtp_comm_disq_fr
+	mov [$mbrtp_comm_table], $mbrtp_comm_table_fr
+	mov [$mbrtp_err_syntdisq], $mbrtp_err_syntdisq_fr
+	mov [$mbrtp_err_synttable], $mbrtp_err_synttable_fr
+	mov [$mbrtp_comm_sauv], $mbrtp_comm_sauv_fr
+	mov [$mbrtp_err_syntsauv], $mbrtp_err_syntsauv_fr
+	mov [$mbrtp_comm_depl], $mbrtp_comm_depl_fr
+	mov [$mbrtp_err_syntdepl], $mbrtp_err_syntdepl_fr
+	mov [$mbrtp_comm_suppr], $mbrtp_comm_suppr_fr
+	mov [$mbrtp_err_syntsuppr], $mbrtp_err_syntsuppr_fr
+	mov [$mbrtp_comm_types], $mbrtp_comm_types_fr
+	mov [$mbrtp_err_synttypes], $mbrtp_err_synttypes_fr
+	mov [$mbrtp_comm_type], $mbrtp_comm_type_fr
+	mov [$mbrtp_err_synttype], $mbrtp_err_synttype_fr
+	mov [$mbrtp_comm_nouv], $mbrtp_comm_nouv_fr
+	mov [$mbrtp_err_syntnouv], $mbrtp_err_syntnouv_fr
+	mov [$mbrtp_comm_activ], $mbrtp_comm_activ_fr
+	mov [$mbrtp_err_syntactiv], $mbrtp_err_syntactiv_fr
+	mov [$mbrtp_err_misplaced], $mbrtp_err_misplaced_fr
+	mov [$mbrtp_msg_cdq], $mbrtp_msg_cdq_fr
+	mov [$mbrtp_msg_nocdq], $mbrtp_msg_nocdq_fr
+	mov [$mbrtp_msg_dsqs], $mbrtp_msg_dsqs_fr
+	mov [$systeme_inconnu], $systeme_inconnu_fr
+	mov [$mbrtp_err_occup], $mbrtp_err_occup_fr
+	pop ax
+	ret
+
+set_lang_eo:
+	push ax
+	mov [$mbrtoolpart_str], $mbrtoolpart_str_eo
+	mov [$reboot_str], $reboot_str_eo
+	mov [$quit_str], $quit_str_eo
+	mov [$mbrtoolpart_prompt], $mbrtoolpart_prompt_eo
+	mov [$mbrtp_comm_quit], $mbrtp_comm_quit_eo
+	mov [$commande_inconnue_a], $commande_inconnue_a_eo
+	mov [$commande_inconnue_b], $commande_inconnue_b_eo
+	mov [$mbrtp_err_syntquit], $mbrtp_err_syntquit_eo
+	mov [$mbrtp_bienvenue], $mbrtp_bienvenue_eo
+	mov [$mbrtp_comm_aide], $mbrtp_comm_aide_eo
+	mov [$mbrtp_err_syntaide], $mbrtp_err_syntaide_eo
+	mov [$mbrtp_msg_aide], $mbrtp_msg_aide_eo
+	mov [$mbrtp_comm_disq], $mbrtp_comm_disq_eo
+	mov [$mbrtp_comm_table], $mbrtp_comm_table_eo
+	mov [$mbrtp_err_syntdisq], $mbrtp_err_syntdisq_eo
+	mov [$mbrtp_err_synttable], $mbrtp_err_synttable_eo
+	mov [$mbrtp_comm_sauv], $mbrtp_comm_sauv_eo
+	mov [$mbrtp_err_syntsauv], $mbrtp_err_syntsauv_eo
+	mov [$mbrtp_comm_depl], $mbrtp_comm_depl_eo
+	mov [$mbrtp_err_syntdepl], $mbrtp_err_syntdepl_eo
+	mov [$mbrtp_comm_suppr], $mbrtp_comm_suppr_eo
+	mov [$mbrtp_err_syntsuppr], $mbrtp_err_syntsuppr_eo
+	mov [$mbrtp_comm_types], $mbrtp_comm_types_eo
+	mov [$mbrtp_err_synttypes], $mbrtp_err_synttypes_eo
+	mov [$mbrtp_comm_type], $mbrtp_comm_type_eo
+	mov [$mbrtp_err_synttype], $mbrtp_err_synttype_eo
+	mov [$mbrtp_comm_nouv], $mbrtp_comm_nouv_eo
+	mov [$mbrtp_err_syntnouv], $mbrtp_err_syntnouv_eo
+	mov [$mbrtp_comm_activ], $mbrtp_comm_activ_eo
+	mov [$mbrtp_err_syntactiv], $mbrtp_err_syntactiv_eo
+	mov [$mbrtp_err_misplaced], $mbrtp_err_misplaced_eo
+	mov [$mbrtp_msg_cdq], $mbrtp_msg_cdq_eo
+	mov [$mbrtp_msg_nocdq], $mbrtp_msg_nocdq_eo
+	mov [$mbrtp_msg_dsqs], $mbrtp_msg_dsqs_eo
+	mov [$systeme_inconnu], $systeme_inconnu_eo
+	mov [$mbrtp_err_occup], $mbrtp_err_occup_eo
+	pop ax
+	ret
+
+set_lang_en:
+	push ax
+	mov [$mbrtoolpart_str], $mbrtoolpart_str_en
+	mov [$reboot_str], $reboot_str_en
+	mov [$quit_str], $quit_str_en
+	mov [$mbrtoolpart_prompt], $mbrtoolpart_prompt_en
+	mov [$mbrtp_comm_quit], $mbrtp_comm_quit_en
+	mov [$commande_inconnue_a], $commande_inconnue_a_en
+	mov [$commande_inconnue_b], $commande_inconnue_b_en
+	mov [$mbrtp_err_syntquit], $mbrtp_err_syntquit_en
+	mov [$mbrtp_bienvenue], $mbrtp_bienvenue_en
+	mov [$mbrtp_comm_aide], $mbrtp_comm_aide_en
+	mov [$mbrtp_err_syntaide], $mbrtp_err_syntaide_en
+	mov [$mbrtp_msg_aide], $mbrtp_msg_aide_en
+	mov [$mbrtp_comm_disq], $mbrtp_comm_disq_en
+	mov [$mbrtp_comm_table], $mbrtp_comm_table_en
+	mov [$mbrtp_err_syntdisq], $mbrtp_err_syntdisq_en
+	mov [$mbrtp_err_synttable], $mbrtp_err_synttable_en
+	mov [$mbrtp_comm_sauv], $mbrtp_comm_sauv_en
+	mov [$mbrtp_err_syntsauv], $mbrtp_err_syntsauv_en
+	mov [$mbrtp_comm_depl], $mbrtp_comm_depl_en
+	mov [$mbrtp_err_syntdepl], $mbrtp_err_syntdepl_en
+	mov [$mbrtp_comm_suppr], $mbrtp_comm_suppr_en
+	mov [$mbrtp_err_syntsuppr], $mbrtp_err_syntsuppr_en
+	mov [$mbrtp_comm_types], $mbrtp_comm_types_en
+	mov [$mbrtp_err_synttypes], $mbrtp_err_synttypes_en
+	mov [$mbrtp_comm_type], $mbrtp_comm_type_en
+	mov [$mbrtp_err_synttype], $mbrtp_err_synttype_en
+	mov [$mbrtp_comm_nouv], $mbrtp_comm_nouv_en
+	mov [$mbrtp_err_syntnouv], $mbrtp_err_syntnouv_en
+	mov [$mbrtp_comm_activ], $mbrtp_comm_activ_en
+	mov [$mbrtp_err_syntactiv], $mbrtp_err_syntactiv_en
+	mov [$mbrtp_err_misplaced], $mbrtp_err_misplaced_en
+	mov [$mbrtp_msg_cdq], $mbrtp_msg_cdq_en
+	mov [$mbrtp_msg_nocdq], $mbrtp_msg_nocdq_en
+	mov [$mbrtp_msg_dsqs], $mbrtp_msg_dsqs_en
+	mov [$systeme_inconnu], $systeme_inconnu_en
+	mov [$mbrtp_err_occup], $mbrtp_err_occup_en
+	pop ax
+	ret
+
+set_lang_de:
+	push ax
+	mov [$mbrtoolpart_str], $mbrtoolpart_str_de
+	mov [$reboot_str], $reboot_str_de
+	mov [$quit_str], $quit_str_de
+	mov [$mbrtoolpart_prompt], $mbrtoolpart_prompt_de
+	mov [$mbrtp_comm_quit], $mbrtp_comm_quit_de
+	mov [$commande_inconnue_a], $commande_inconnue_a_de
+	mov [$commande_inconnue_b], $commande_inconnue_b_de
+	mov [$mbrtp_err_syntquit], $mbrtp_err_syntquit_de
+	mov [$mbrtp_bienvenue], $mbrtp_bienvenue_de
+	mov [$mbrtp_comm_aide], $mbrtp_comm_aide_de
+	mov [$mbrtp_err_syntaide], $mbrtp_err_syntaide_de
+	mov [$mbrtp_msg_aide], $mbrtp_msg_aide_de
+	mov [$mbrtp_comm_disq], $mbrtp_comm_disq_de
+	mov [$mbrtp_comm_table], $mbrtp_comm_table_de
+	mov [$mbrtp_err_syntdisq], $mbrtp_err_syntdisq_de
+	mov [$mbrtp_err_synttable], $mbrtp_err_synttable_de
+	mov [$mbrtp_comm_sauv], $mbrtp_comm_sauv_de
+	mov [$mbrtp_err_syntsauv], $mbrtp_err_syntsauv_de
+	mov [$mbrtp_comm_depl], $mbrtp_comm_depl_de
+	mov [$mbrtp_err_syntdepl], $mbrtp_err_syntdepl_de
+	mov [$mbrtp_comm_suppr], $mbrtp_comm_suppr_de
+	mov [$mbrtp_err_syntsuppr], $mbrtp_err_syntsuppr_de
+	mov [$mbrtp_comm_types], $mbrtp_comm_types_de
+	mov [$mbrtp_err_synttypes], $mbrtp_err_synttypes_de
+	mov [$mbrtp_comm_type], $mbrtp_comm_type_de
+	mov [$mbrtp_err_synttype], $mbrtp_err_synttype_de
+	mov [$mbrtp_comm_nouv], $mbrtp_comm_nouv_de
+	mov [$mbrtp_err_syntnouv], $mbrtp_err_syntnouv_de
+	mov [$mbrtp_comm_activ], $mbrtp_comm_activ_de
+	mov [$mbrtp_err_syntactiv], $mbrtp_err_syntactiv_de
+	mov [$mbrtp_err_misplaced], $mbrtp_err_misplaced_de
+	mov [$mbrtp_msg_cdq], $mbrtp_msg_cdq_de
+	mov [$mbrtp_msg_nocdq], $mbrtp_msg_nocdq_de
+	mov [$mbrtp_msg_dsqs], $mbrtp_msg_dsqs_de
+	mov [$systeme_inconnu], $systeme_inconnu_de
+	mov [$mbrtp_err_occup], $mbrtp_err_occup_de
+	pop ax
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | Pointeurs                                                               |
+;;; +-------------------------------------------------------------------------+
+
+mbrtp_err_misplaced:
+	.mot 0
+	
+mbrtp_err_occup:
+	.mot 0
+	
+mbrtoolpart_str:
+	.mot 0
+
+reboot_str:
+	.mot 0
+
+quit_str:
+	.mot 0
+
+mbrtoolpart_prompt:	
+	.mot 0
+
+mbrtp_comm_quit:
+	.mot 0
+
+mbrtp_comm_aide:
+	.mot 0
+
+mbrtp_comm_sauv:
+	.mot 0
+
+mbrtp_comm_suppr:	
+	.mot 0
+			
+commande_inconnue_a:
+	.mot 0
+	
+commande_inconnue_b:
+	.mot 0
+
+mbrtp_err_syntquit:
+	.mot 0
+
+mbrtp_err_syntsuppr:
+	.mot 0
+	
+mbrtp_err_syntsauv:	
+	.mot 0
+
+mbrtp_err_syntaide:
+	.mot 0
+
+mbrtp_bienvenue:	
+	.mot 0
+
+mbrtp_msg_aide:
+	.mot 0
+
+mbrtp_comm_disq:
+	.mot 0
+
+mbrtp_comm_table:
+	.mot 0
+
+mbrtp_err_syntdisq:
+	.mot 0
+
+mbrtp_comm_activ:
+	.mot 0
+
+mbrtp_err_syntactiv:
+	.mot 0
+
+mbrtp_comm_nouv:
+	.mot 0
+
+mbrtp_err_syntnouv:
+	.mot 0
+
+mbrtp_comm_depl:
+	.mot 0
+
+mbrtp_err_syntdepl:	
+	.mot 0
+
+mbrtp_comm_types:
+	.mot 0
+
+mbrtp_err_synttypes:
+	.mot 0
+
+mbrtp_comm_type:
+	.mot 0
+
+mbrtp_err_synttype:
+	.mot 0
+
+mbrtp_err_synttable:
+	.mot 0
+	
+mbrtp_msg_cdq:
+	.mot 0
+	
+mbrtp_msg_nocdq:
+	.mot 0
+
+mbrtp_msg_dsqs:	
+	.mot 0
+
+systeme_inconnu:	
+	.mot 0
+	
+.inclure "donnees.qas"
+.inclure "datumoj.qas"
+.inclure "data.qas"
+.include "daten.qas"

@@ -1,0 +1,41 @@
++-  Programme  -----------------------------------------------------------+
+| MBRToolBox 0.1-i386                                                     |
+| Boîte à outils pour MBRToolBox 2.0-i386 et versions ultérieures         |
+|                                                                         |
+| MBRLoader 2.0-i386                                                      |
+| Gestionnnaire de démarrage "multi-boot"                                 |
+|                                                                         |
+| Voyez la documentation ci-jointe                                        |
+|                                                                         |
++-  Contacts  ------------------------------------------------------------+
+| http://mbrloader.arnak.cjb.net                                          |
+| mailto:mbrloader@arnak.cjb.net                                          |
+| mailto:mbrtoolbox@arnak.cjb.net                                         |
+|                                                                         |
++-  Auteur  --------------------------------------------------------------+
+| ArnaK, SARL / Rip-off, Inc. / Kompanio Fraudo / Schwindel, GmbH         |
+| Fabien Pollet                                                           |
+| http://www.arnak.cjb.net                                                |
+| mailto:arnak@arnak.cjb.net                                              |
+|                                                                         |
++-  Fichier  -------------------------------------------------------------+
+| FORMAT                                                                  |
+| Informations concernant le format de cette boîte à outils               |
++-------------------------------------------------------------------------+
+
+MBRToolBox 0.1-i386 est la première boîte à outils. Elle est conçue pour
+MBRLoader 2.0-i386.
+Les boîtes à outils utilisant le même format sont caractérisées par les
+informations suivantes :
+
+- ToolBoxes pour MBRLoader 2.0-i386
+  La ToolBox se trouve obligatoirement sur une disquette disposant de 2 faces
+  et 18 secteurs par piste (c'est le cas de toutes les disquettes standard)
+  Elle occupe les secteurs 19 à 54 (C/H/S = 0/1/* et C/H/S = 1/0/*)
+  Les deux premiers octets sont respectivement 'T' et 'B'.
+  Le code de la ToolBox commence au 3ème octet.
+  La langue sélectionnée est passée en argument par al : 0=fr, 1=eo, 2=en,
+  3=de.
+  L'espace mémoire utilisable par la boîte à outils est l'espace alloué pour
+  les 36 secteurs. Aucun espace supplémentaire ne doit être utilisé par les
+  boîtes à outils suivant ce format.

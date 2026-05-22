@@ -1,0 +1,183 @@
+;;; +-  Programme  -----------------------------------------------------------+
+;;; | MBRToolBox 0.1-i386                                                     |
+;;; | Boîte à outils pour MBRToolBox 2.0-i386 et versions ultérieures         |
+;;; |                                                                         |
+;;; | MBRLoader 2.0-i386                                                      |
+;;; | Gestionnnaire de démarrage "multi-boot"                                 |
+;;; |                                                                         |
+;;; | Voyez la documentation ci-jointe                                        |
+;;; |                                                                         |
+;;; +-  Contacts  ------------------------------------------------------------+
+;;; | http://mbrloader.arnak.cjb.net                                          |
+;;; | mailto:mbrloader@arnak.cjb.net                                          |
+;;; | mailto:mbrtoolbox@arnak.cjb.net                                         |
+;;; |                                                                         |
+;;; +-  Auteur  --------------------------------------------------------------+
+;;; | ArnaK, SARL / Rip-off, Inc. / Kompanio Fraudo / Schwindel, GmbH         |
+;;; | Fabien Pollet                                                           |
+;;; | http://www.arnak.cjb.net                                                |
+;;; | mailto:arnak@arnak.cjb.net                                              |
+;;; |                                                                         |
+;;; +-  Fichier  -------------------------------------------------------------+
+;;; | daten.qasrt.qas                                                         |
+;;; | Données en langue allemande / Daten auf Deutsch                         |
+;;; +-------------------------------------------------------------------------+
+
+mbrtp_err_misplaced_de:	
+	.chaine "Besetzter Speicherplatz."
+	.octet 10
+	.octet 13
+	.octet 0
+
+mbrtp_err_occup_de:
+	.chaine "Dieses Partition ist besetzt."
+	.octet 10
+	.octet 13
+	.octet 0
+
+systeme_inconnu_de:
+	.chainez "Unbekannter Betriebssystem"
+	
+mbrtoolpart_str_de:
+	.chainez "Partitionierung"
+
+reboot_str_de:
+	.chainez "Das Computer noch ein mal starten"
+
+quit_str_de:
+	.chainez "Beenden und in MBRLoader zur\201ckgehen"
+
+mbrtoolpart_prompt_de:
+	.chainez "MBRTool - Partitionierung > "
+
+mbrtp_comm_quit_de:
+	.chainez "beenden"
+
+commande_inconnue_a_de:
+	.chainez "Das Kommando '"
+
+commande_inconnue_b_de:
+	.chainez "' ist unbekannt."
+
+mbrtp_err_syntquit_de:
+	.chainez "Syntax : beenden"
+
+mbrtp_err_synttable_de:
+	.chainez "Syntax : liste"
+
+mbrtp_bienvenue_de:
+	.chaine "Willkommen in das Partitionsprogramm von MBRToolBox 0.1-i386."
+	.octet 10
+	.octet 13
+	.octet 10
+	.octet 13
+	.octet 0
+
+
+mbrtp_comm_aide_de:
+	.chainez "hilfe"
+
+mbrtp_err_syntaide_de:
+	.chainez "Syntax : hilfe"
+
+mbrtp_msg_aide_de:
+	.chaine "Kommandos :"
+	.octet 10
+	.octet 13
+	.chaine "aktivieren                  Ein Partition aktivieren"
+	.octet 10
+	.octet 13
+	.chaine "beenden                     Beenden, ohne zu registrieren"
+	.octet 10
+	.octet 13
+	.chaine "hilfe                       Liste des Kommandos"
+	.octet 10
+	.octet 13
+	.chaine "liste                       Partitionsliste"
+	.octet 10
+	.octet 13
+	.chaine "loeschen #N                 Ein Partition aus der Liste l\224schen"
+	.octet 10
+	.octet 13
+	.chaine "neu #N C_Beg C_Ende Type    Neues Partition"
+	.octet 10
+	.octet 13
+	.chaine "platte [Nummer der Platte]  Eine Platte festlegen"
+	.octet 10
+	.octet 13
+	.chaine "registr                     Registrieren"
+	.octet 10
+	.octet 13
+	.chaine "versetzen #aux #nach        Ein Partition versetzen"
+	.octet 10
+	.octet 13
+	.chaine "type #N Type                Das Type eines Partition modifizieren"
+	.octet 10
+	.octet 13
+	.chaine "typen                       Liste der Partitionstypen"
+	.octet 10
+	.octet 13
+	.octet 0
+
+mbrtp_comm_disq_de:
+	.chainez "platte"
+
+mbrtp_comm_table_de:
+	.chainez "liste"
+
+mbrtp_err_syntdisq_de:
+	.chainez "Syntax : platte [Nummer der Platte]"
+
+mbrtp_comm_activ_de:
+	.chainez "aktivieren"
+
+mbrtp_err_syntactiv_de:
+	.chainez "Syntax : aktivieren #N"
+
+mbrtp_comm_nouv_de:
+	.chainez "neu"
+
+mbrtp_err_syntnouv_de:
+	.chainez "Syntax : neu #N C_Beg C_Ende Type"
+
+mbrtp_comm_types_de:
+	.chainez "typen"
+
+mbrtp_err_synttypes_de:
+	.chainez "Syntax : typen"
+
+mbrtp_comm_type_de:
+	.chainez "type"
+
+mbrtp_err_synttype_de:
+	.chainez "Syntax : type #N Type"
+
+mbrtp_comm_suppr_de:
+	.chainez "loeschen"
+
+mbrtp_err_syntsuppr_de:
+	.chainez "Syntax : loeschen #N"
+
+mbrtp_comm_depl_de:
+	.chainez "versetzen"
+
+mbrtp_err_syntdepl_de:
+	.chainez "Syntax : versetzen #aus #nach"
+
+mbrtp_comm_sauv_de:
+	.chainez "registr"
+
+mbrtp_err_syntsauv_de:
+	.chainez "Syntax : registr"
+
+mbrtp_msg_cdq_de:
+	.chainez "Festlegende Platte : "
+	
+mbrtp_msg_nocdq_de:
+	.chaine "Keine festlegende Platte."
+	.octet 10
+	.octet 13
+	.octet 0
+
+mbrtp_msg_dsqs_de:
+	.chainez "Platten : "

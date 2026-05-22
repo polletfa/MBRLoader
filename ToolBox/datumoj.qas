@@ -1,0 +1,183 @@
+;;; +-  Programme  -----------------------------------------------------------+
+;;; | MBRToolBox 0.1-i386                                                     |
+;;; | Boîte à outils pour MBRToolBox 2.0-i386 et versions ultérieures         |
+;;; |                                                                         |
+;;; | MBRLoader 2.0-i386                                                      |
+;;; | Gestionnnaire de démarrage "multi-boot"                                 |
+;;; |                                                                         |
+;;; | Voyez la documentation ci-jointe                                        |
+;;; |                                                                         |
+;;; +-  Contacts  ------------------------------------------------------------+
+;;; | http://mbrloader.arnak.cjb.net                                          |
+;;; | mailto:mbrloader@arnak.cjb.net                                          |
+;;; | mailto:mbrtoolbox@arnak.cjb.net                                         |
+;;; |                                                                         |
+;;; +-  Auteur  --------------------------------------------------------------+
+;;; | ArnaK, SARL / Rip-off, Inc. / Kompanio Fraudo / Schwindel, GmbH         |
+;;; | Fabien Pollet                                                           |
+;;; | http://www.arnak.cjb.net                                                |
+;;; | mailto:arnak@arnak.cjb.net                                              |
+;;; |                                                                         |
+;;; +-  Fichier  -------------------------------------------------------------+
+;;; | datumoj.qas                                                             |
+;;; | Données en espéranto / Datumoj en Esperanto                             |
+;;; +-------------------------------------------------------------------------+
+
+mbrtp_err_misplaced_eo:	
+	.chaine "Uzata spaco."
+	.octet 10
+	.octet 13
+	.octet 0
+
+mbrtp_err_occup_eo:
+	.chaine "Uzata subdisko."
+	.octet 10
+	.octet 13
+	.octet 0
+
+systeme_inconnu_eo:
+	.chainez "Nekonata sistemo"
+	
+mbrtoolpart_str_eo:
+	.chainez "Dispartigado"
+
+reboot_str_eo:
+	.chainez "Restartigu la komputilo"
+
+quit_str_eo:
+	.chainez "Forlasu kaj reiru al MBRLoader"
+
+mbrtoolpart_prompt_eo:
+	.chainez "MBRTool - Dispartigado > "
+
+mbrtp_comm_quit_eo:
+	.chainez "forlasu"
+
+commande_inconnue_a_eo:
+	.chainez "La komando '"
+
+commande_inconnue_b_eo:
+	.chainez "' estas nekonata."
+
+mbrtp_err_syntquit_eo:
+	.chainez "Sintakso : forlasu"
+
+mbrtp_err_synttable_eo:
+	.chainez "Sintakso : listo"
+
+mbrtp_bienvenue_eo:
+	.chaine "Bonvenon en la dispartigadprogramo de MBRToolBox 0.1-i386."
+	.octet 10
+	.octet 13
+	.octet 10
+	.octet 13
+	.octet 0
+
+
+mbrtp_comm_aide_eo:
+	.chainez "helpon"
+
+mbrtp_err_syntaide_eo:
+	.chainez "Sintakso : helpon"
+
+mbrtp_msg_aide_eo:
+	.chaine "Komandoj :"
+	.octet 10
+	.octet 13
+	.chaine "aktivigi                   Aktivigi subdiskon"
+	.octet 10
+	.octet 13
+	.chaine "disko [disknumero]         Elekti diskon"
+	.octet 10
+	.octet 13
+	.chaine "eksigu #N                  Eksigu subdiskon el la listo"
+	.octet 10
+	.octet 13
+	.chaine "forlasu                    Forlasu sen konservi"
+	.octet 10
+	.octet 13
+	.chaine "helpon                     Komandoj-listo"
+	.octet 10
+	.octet 13
+	.chaine "konservu                   Konservu la modifajhojn"
+	.octet 10
+	.octet 13
+	.chaine "listo                      Subdiskoj-listo"
+	.octet 10
+	.octet 13
+	.chaine "movigu #fonto #valorizato  Movigu subdiskon"
+	.octet 10
+	.octet 13
+	.chaine "nova #N C_eko C_fino tipo  Nova subdisko"
+	.octet 10
+	.octet 13
+	.chaine "tipo #N tipo               Modifu la tipon de subdisko"
+	.octet 10
+	.octet 13
+	.chaine "tipoj                      Subdisktipoj-listo"
+	.octet 10
+	.octet 13
+	.octet 0
+
+mbrtp_comm_disq_eo:
+	.chainez "disko"
+
+mbrtp_comm_table_eo:
+	.chainez "listo"
+
+mbrtp_err_syntdisq_eo:
+	.chainez "Sintakso : disko [disknumero]"
+
+mbrtp_comm_activ_eo:
+	.chainez "aktivigi"
+
+mbrtp_err_syntactiv_eo:
+	.chainez "Sintakso : aktivigi #N"
+
+mbrtp_comm_nouv_eo:
+	.chainez "nova"
+
+mbrtp_err_syntnouv_eo:
+	.chainez "Sintakso : nova #N C_eko C_fino tipo"
+
+mbrtp_comm_types_eo:
+	.chainez "tipoj"
+
+mbrtp_err_synttypes_eo:
+	.chainez "Sintakso : tipoj"
+
+mbrtp_comm_type_eo:
+	.chainez "tipo"
+
+mbrtp_err_synttype_eo:
+	.chainez "Sintakso : tipo #N tipo"
+
+mbrtp_comm_suppr_eo:
+	.chainez "eksigu"
+
+mbrtp_err_syntsuppr_eo:
+	.chainez "Sintakso : eksigu #N"
+
+mbrtp_comm_depl_eo:
+	.chainez "movigu"
+
+mbrtp_err_syntdepl_eo:
+	.chainez "Sintakso : movigu #fonto #valorizato"
+
+mbrtp_comm_sauv_eo:
+	.chainez "konservu"
+
+mbrtp_err_syntsauv_eo:
+	.chainez "Sintakso : konservu"
+
+mbrtp_msg_cdq_eo:
+	.chainez "Elektita disko : "
+	
+mbrtp_msg_nocdq_eo:
+	.chaine "Neniu elektita disko."
+	.octet 10
+	.octet 13
+	.octet 0
+	
+mbrtp_msg_dsqs_eo:
+	.chainez "Diskoj : "

@@ -1,0 +1,202 @@
+
+
+
+                           MBRToolBox 0.1-i386
+
+NOM
+	MBRToolBox 0.1-i386 - Boîte à outils pour MBRLoader 2.0
+
+DESCRIPTION
+	MBRLoader est un chargeur dit 'multi-boot'. Cela signifie qu'il
+	permet de choisir le système à charger.
+
+	Depuis la version 2.0-i386, MBRLoader supporte les "boîtes à outils".
+	Il s'agit de programme séparés de MBRLoader mais destinés à être lancés
+	par lui par le biais d'une entrée dans le menu de configuration.
+	MBRToolBox s'installe sur une disquette qui peut contenir également
+	MBRLoader mais ce n'est pas nécessaire.
+
+	MBRToolBox propose différents outils qui évolueront au cours des
+	versions.
+
+	MBRToolBox 0.1-i386 propose deux outils :
+	- Un outil de partitionnement
+	- Une option de redémarrage
+
+	L'option de redémarrage relance l'ordinateur. Les modifications
+	éventuellement apportées à la configuration de MBRLoader sont annulées
+	mais les modifications apportées par les outils de MBRToolBox sont
+	sauvées lors de la sortie de ces outils.
+
+	L'outil de partitionnement fonctionne en mode console.
+	Il permet de choisir un disque, d'afficher les partitions, d'en
+	supprimer, d'en créer, ...
+	Cet outil ne gère que le système C/H/S et ne peut donc pas créer une
+	partition au-delà du 1024e cylindre (mais les paramètres LBA
+	nécessaires à la validité de la partition sont tout de même calculées
+	et enregistrées). Il gère les mêmes disques que MBRLoader.
+	Les partitions logiques ne sont pas gérées
+
+	Les commandes de cet outil sont les suivantes :
+	* activer
+	  Cette commande note comme active une partition. L'indication "active"
+	  permet de repérer la partition à lancer par défaut. Cette indication
+	  n'est pas utilisée par MBRLoader mais peut l'être par d'autres
+	  lanceurs comme, par exemple, le lanceur installé automatiquement
+	  sur le MBR par DOS.
+	  Syntaxe : activer #N où #N est la partition à activer.
+	  Si cette partition n'existe pas (type 0), rien ne se passe, sinon
+	  elle est activée après désactivation éventuelle des autres
+	  partitions.
+	* aide
+	  Cette commande affiche la liste des commandes avec leur syntaxe.
+	* depl
+	  Cette commande déplace la ligne décrivant une partition d'un
+	  emplacement à un autre dans la liste, en écrasant éventuellement
+	  la ligne cible, même si celle-ci décrit une partition.
+	  Elle est donc à utiliser avec prudence, d'autant que le déplacement
+	  des descriptions n'est pas une nécessité. La partition elle-même
+	  n'est pas déplacée.
+	  Syntaxe : depl #source #cible
+	* disque
+	  Cette commande permet de sélectionner un disque ou d'afficher le
+	  disque sélectionné. Il affiche également la géométrie de ce disque.
+	  Si celui-ci est plus grand que ne le supporte le BIOS et MBRToolBox,
+	  la géométrie maximale supportées est affichée : 1024/255/63,
+	  c'est-à-dire 1024 cylindres (0 à 1023), 255 têtes (0 à 254) et 63
+	  secteurs (1 à 63).
+	  Syntaxe : disque - Afficher le disque sélectionné
+	            disque 0x8? - Sélectionner le disque 0x8?
+	  La sélection d'un disque alors qu'un disque est déjà sélectionné
+	  entraîne l'abandon des modifications non sauvegardées réalisées sur
+	  ce disque. Sélectionner le disque en cours est donc une méthode
+	  d'annulation des modifications.
+	* nouv
+	  Cette commande permet la création d'une nouvelle partition si
+	  l'emplacement (dans la liste) choisi est libre et si l'espace
+	  indiqué n'appartient pas déjà à une autre partition.
+	  Syntaxe : nouv #N C_deb C_fin type
+	  0 <= C_deb <= C_deb < C indiqué dans la géométrie du disque
+	  0 <= type <= 0xff
+	  Exemple : nouv #2 594 600 0x83
+	* quitter
+	  Cette commande permet de quitter. Elle provoque l'abandon des
+	  modifications
+	* sauver
+	  Cette commande permet d'enregistrer les modifications.
+	  Elle doit toujours être utilisée avant la commande quitter pour ne
+	  pas perdre les modifications. Une fois cet enregistrement effectué,
+	  il n'existe pas de commande d'annulation.
+	* suppr
+	  Cette commande supprime la description d'une partition.
+	  La partition elle-même n'est pas modifiée et peut donc être récupérée
+	  en réécrivant la description.
+	  Syntaxe : suppr #N
+	* table
+	  Cette commande affiche les 4 partitions primaires présentes sur le
+	  disque sélectionné. Elle affiche pour chacune les informations
+	  suivantes :
+	  - numéro de la partition (#1, #2, #3 ou #4)
+	  - * si la partition est active, rien sinon
+	  - type de la partition
+	  - C/H/S de départ
+	  - C/H/S de fin
+	  - Taille en Mo (calculée à partir des données LBA et non C/H/S ; si
+	    la partition a été créée par un outil gérant le LBA, ces données
+	    peuvent ne pas correspondre)
+	  - Description du type de la partition
+	  Exemple :
+	  #1 * 0x83 0/1/1 -> 593/254/63  2059 Mo Linux
+	  #2   0x0 0/0/0 -> 0/0/0  0 Mo Système inconnu
+	  #3   0x0 0/0/0 -> 0/0/0  0 Mo Système inconnu
+	  #4   0x0 0/0/0 -> 0/0/0  0 Mo Système inconnu
+	* type
+	  Cette commande permet de changer le type d'une partition.
+	  Syntaxe : type #N type où type est compris entre 0 et 0xff
+	* types
+	  Cette commande affiche la liste des types de partitions possibles
+	  avec leur description si celle-ci est connue.
+
+	Correspondance des noms de commandes selon la langue choisie :
+	Français	English		Esperanto	Deutsch
+	----------------------------------------------------------
+	activer		activate	aktivigi	aktivieren
+	aide		help		helpon		hilfe
+	depl		move		movigu		versetzen
+	disque		disk		disko		platte
+	nouv		new		nova		neu
+	quitter		quit		forlasu		beenden
+	sauver		save		konservu	registr
+	suppr		del		eksigu		loeschen
+	table		table		listo		liste
+	type		type		tipo		type
+	types		types		tipoj		typen
+
+	Les paramètres numériques peuvent être indiqués en décimal, hexadécimal
+	(0x??) ou octal (0??).
+
+COMPILATION
+	Le fichier DEVICEFILES explique les modifications à apporter selon
+	le système utilisé. Une fois le fichier Makefile.devicefiles configuré
+	comme indiqué dans ce fichier, vous pouvez réaliser la compilation.
+	Celle-ci se realise par make ou make all depuis le répertoire de
+	MBRToolBox.
+
+INSTALLATION
+	L'installation du programme compilé et de la documentation dans
+	l'arborescence se fait par make install (utilisateur root) :
+
+	/ --- usr --- local -+- bin  -+- mbrtoolbox
+	                     |        +- mbrtoolbox0.1-i386
+	                     |
+	                     +- doc  --- mbrtoolbox0.1-i386 -+- LISEZMOI
+                             |                               +- DEVICEFILES
+                             |                               +- FORMAT
+                             |
+                             +- boot --- mbrtoolbox0.1-i386
+
+	En modifiant la variable DESTDIR dans Makefile, vous pouvez définir
+	un autre emplacement que /usr/local/
+
+NETTOYAGE
+	Vous pouvez ensuite effacer les fichiers temporaires par make clean.
+	make distclean effacera, à l'instar de make clean, les fichiers
+	temporaires créés pendant la compilation mais aussi les binaires.
+
+INSTALLATION SUR UNE DISQUETTE
+	MBRToolBox ne peut être installé que sur une disquette.
+	Il suffit pour cela de taper mbrtoolbox sous root après avoir
+	installé comme décrit ci-avant les programmes.
+
+INSTALLATION - AUTRE EMPLACEMENT
+	Vous pouvez choisir un emplacement avec l'option --device emplacement.
+	(exemple : --device /dev/fd0)
+	Cette emplacement doit désigner une disquette sinon MBRLoader ne
+	pourra pas lancer MBRToolBox.
+
+LANGUES
+	MBRToolBox 0.1-i386 supporte quatres langues : français, espéranto,
+	anglais et allemand.
+	La documentation et le programme d'installation ne sont	disponibles
+	qu'en français.
+	La sélection de la langue se fait dans l'interface de configuration de
+	MBRLoader.
+
+BOGUES
+	Si vous en trouvez, n'hésitez pas à m'en avertir.
+
+LICENCE
+	MBRToolBox 0.1-i386 n'est soumis à aucune licence.
+	L'auteur ne peut être tenu pour responsable si un problème survient
+	suite à l'utilisation du logiciel.
+
+AUTEUR
+	ArnaK, SARL / Rip-off, Inc. / Kompanio Fraudo / Schwindel, GmbH
+	Pollet Fabien
+        arnak@arnak.cjb.net
+	http://www.arnak.cjb.net
+
+CONTACT
+	MBRToolBox
+	mbrtoolbox@arnak.cjb.net
+	http://mbrloader.arnak.cjb.net

@@ -1,0 +1,248 @@
+;;; +-  Programme  -----------------------------------------------------------+
+;;; | MBRToolBox 0.1-i386                                                     |
+;;; | Boîte à outils pour MBRToolBox 2.0-i386 et versions ultérieures         |
+;;; |                                                                         |
+;;; | MBRLoader 2.0-i386                                                      |
+;;; | Gestionnnaire de démarrage "multi-boot"                                 |
+;;; |                                                                         |
+;;; | Voyez la documentation ci-jointe                                        |
+;;; |                                                                         |
+;;; +-  Contacts  ------------------------------------------------------------+
+;;; | http://mbrloader.arnak.cjb.net                                          |
+;;; | mailto:mbrloader@arnak.cjb.net                                          |
+;;; | mailto:mbrtoolbox@arnak.cjb.net                                         |
+;;; |                                                                         |
+;;; +-  Auteur  --------------------------------------------------------------+
+;;; | ArnaK, SARL / Rip-off, Inc. / Kompanio Fraudo / Schwindel, GmbH         |
+;;; | Fabien Pollet                                                           |
+;;; | http://www.arnak.cjb.net                                                |
+;;; | mailto:arnak@arnak.cjb.net                                              |
+;;; |                                                                         |
+;;; +-  Fichier  -------------------------------------------------------------+
+;;; | io.qas                                                                  |
+;;; | Fonctions de gestion de l'entrée/sortie (E/S ou I/O)                    |
+;;; +-------------------------------------------------------------------------+
+
+;;; +-------------------------------------------------------------------------+
+;;; | print_str                                                               |
+;;; | entree : ds:si = chaine                                                 |
+;;; +-------------------------------------------------------------------------+
+print_str:
+	push	ax
+	push	bx
+
+	mov	ah,0xe		; affichage en mode teletype
+	mov	bx,si		; [ds:si] = message a afficher
+print_str1:
+	mov	al,[bx]
+	cmp	al,0		; si caractere de fin de chaine
+	jz	$print_str2	; ->fin
+	;; sinon
+	inc	bx		; adresse du caractere suivant
+	push	bx
+	mov	bl,7		; couleur de texte
+	int	0x10		; afficher le caractere
+	pop	bx
+	jmp	$print_str1	; boucle
+print_str2:
+	pop	bx
+	pop	ax
+	
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | read_str                                                                |
+;;; | entree : es:di = tampon                                                 |
+;;; |          cx = nombre max.                                               |
+;;; | sortie : es:di = chaine                                                 |
+;;; +-------------------------------------------------------------------------+
+read_str:
+	push ax
+	push bx
+	push cx
+	
+	mov bx, 0
+read_str_input:	
+	mov ah, 0
+	int 0x16
+	cmp ah, 0xe
+	jz $read_str_back
+	cmp al, 13
+	jz $read_str_enter
+	cmp cx, 0
+	jz $read_str_input
+	cmp al, 32
+	jnc $read_str_char
+	jmp $read_str_input
+read_str_char:
+	mov [es:di+bx], al
+	mov ah, 0xe
+	int 0x10
+	dec cx
+	inc bx
+	jmp $read_str_input
+read_str_back:
+	cmp bx, 0
+	jz $read_str_input
+	mov ah, 0xe
+	mov al, 8
+	int 0x10
+	mov al, 32
+	int 0x10
+	mov al, 8
+	int 0x10
+	inc cx
+	dec bx
+	jmp $read_str_input
+read_str_enter:
+	mov byte [es:di+bx], 0
+	mov ah, 0xe
+	mov al, 10
+	int 0x10
+	mov al, 13
+	int 0x10
+
+	pop cx
+	pop bx
+	pop ax
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | print_hex                                                               |
+;;; | entrée : ax = nombre                                                    |
+;;; +-------------------------------------------------------------------------+
+print_hex:
+	push ax
+	push bx
+	push cx
+
+	push ax
+	mov ah, 0xe
+	mov al, 48
+	int 0x10
+	mov al, 0x78
+	int 0x10
+	pop ax
+	
+	mov cx, 0
+	mov bx, ax
+	shr bx, 12
+	and bx, 0xf
+	call $print_hex_char
+
+	mov bl, ah
+	and bx, 0xf
+	call $print_hex_char
+
+	mov bx, ax
+	shr bx, 4
+	and bx, 0xf
+	call $print_hex_char
+
+	mov cx, 1
+	mov bx, ax
+	and bx, 0xf
+	call $print_hex_char
+	
+	pop cx
+	pop bx
+	pop ax
+	ret
+
+;;; print_hex_char (sous-routine de print_hex)
+;;; entrée : bx = nombre entre 0 et 0xf
+;;; cx == 0 => ne pas afficher si bx=0
+;;; cx == 1 => afficher qqsoit bx
+;;; sortie : cx = 1 si bx != 0 ou cx (entrée) == 1
+print_hex_char:
+	push ax
+	push bx
+
+	;; bx == 0 ?
+	cmp bx, 0
+	jz $print_hex_char0
+
+	;; bx >=1 && bx <=9
+	cmp bx, 9
+	jbe $print_hex_char19
+
+	;; bx >= a && bx <= f
+	jmp $print_hex_charAF
+
+print_hex_char0:
+	;; cx == 0 ?
+	cmp cx, 0
+	jz $print_hex_char_end
+	;; non -> on continue vers print_hex_char19
+print_hex_char19:
+	mov ah, 0xe
+	mov al, bl
+	add al, 48
+	int 0x10
+	mov cx, 1
+	jmp $print_hex_char_end
+print_hex_charAF:	
+	mov ah, 0xe
+	mov al, bl
+	add al, 55
+	int 0x10
+	mov cx, 1
+print_hex_char_end:
+	pop bx
+	pop ax
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | print_dec                                                               |
+;;; | entrée : ax = nombre                                                    |
+;;; +-------------------------------------------------------------------------+
+print_dec:
+	push ax
+	push bx
+	push cx
+	push dx
+
+	mov cx, 0
+	mov bx, 10000
+print_dec_loop:
+	mov dx, 0
+	div bx
+	cmp al, 0
+	je $print_dec_0
+	mov ah, 0xe
+	add al, 48
+	int 0x10
+	mov cx, 1
+	jmp $print_dec_suite
+print_dec_0:
+	cmp cx, 0
+	je $print_dec_suite
+	mov ah, 0xe
+	mov al, 48
+	int 0x10	
+print_dec_suite:	
+	mov ax, dx
+	push dx
+	push ax
+	mov ax, bx
+	mov dx, 0
+	mov bx, 10
+	div bx
+	mov bx, ax
+	pop ax
+	pop dx
+	cmp bx, 0
+	jne $print_dec_loop
+
+	cmp cx, 0
+	jne $print_dec_fin
+
+	mov ah, 0xe
+	mov al, 48
+	int 0x10
+print_dec_fin:
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+	ret

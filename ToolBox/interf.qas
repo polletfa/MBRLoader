@@ -1,0 +1,374 @@
+;;; +-  Programme  -----------------------------------------------------------+
+;;; | MBRToolBox 0.1-i386                                                     |
+;;; | Boîte à outils pour MBRToolBox 2.0-i386 et versions ultérieures         |
+;;; |                                                                         |
+;;; | MBRLoader 2.0-i386                                                      |
+;;; | Gestionnnaire de démarrage "multi-boot"                                 |
+;;; |                                                                         |
+;;; | Voyez la documentation ci-jointe                                        |
+;;; |                                                                         |
+;;; +-  Contacts  ------------------------------------------------------------+
+;;; | http://mbrloader.arnak.cjb.net                                          |
+;;; | mailto:mbrloader@arnak.cjb.net                                          |
+;;; | mailto:mbrtoolbox@arnak.cjb.net                                         |
+;;; |                                                                         |
+;;; +-  Auteur  --------------------------------------------------------------+
+;;; | ArnaK, SARL / Rip-off, Inc. / Kompanio Fraudo / Schwindel, GmbH         |
+;;; | Fabien Pollet                                                           |
+;;; | http://www.arnak.cjb.net                                                |
+;;; | mailto:arnak@arnak.cjb.net                                              |
+;;; |                                                                         |
+;;; +-  Fichier  -------------------------------------------------------------+
+;;; | interf.qas                                                              |
+;;; | Fonctions de gestion de l'interface semi-graphique                      |
+;;; +-------------------------------------------------------------------------+
+
+;;; +------------------------------------------------------------------------+
+;;; | disp_main_win                                                          |
+;;; +------------------------------------------------------------------------+
+disp_main_win:
+	push ax
+	push bx
+	push cx
+	push dx
+	push bp
+
+	;; ecrire le titre
+	mov ax, 0x1301
+	mov bh, 0
+	mov bl, 0x1f
+	mov cx, 80
+	mov dh, 0
+	mov dl, 0
+	mov bp, $main_win_title
+	int 0x10
+
+        ;; dessiner le haut du cadre
+	mov bl, 7
+        mov bp, $main_win_up
+	inc dh
+	int 0x10
+
+	;; dessiner les 21 lignes interieures
+	mov cx, 21
+	mov bp, $main_win_middle
+main_win_disp_middle:
+	push cx
+	mov cx, 80
+	inc dh
+	int 0x10
+	pop cx
+	loop $main_win_disp_middle
+
+	;; dessiner le bas du cadre
+	mov cx, 80
+	mov bp, $main_win_down
+	inc dh
+	int 0x10
+
+	pop bp
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | Add_item                                                                |
+;;; | entree:                                                                 |
+;;; |    ES:SI = chaine                                                       |
+;;; +-------------------------------------------------------------------------+
+add_item:
+	push ax
+	push bx
+	push cx
+	push dx
+	push bp
+	push di
+	push ds
+
+	;; aucune verification du numero de l'item mais il doit etre compris
+        ;; entre 1 et 21
+	;; de meme pour la taille de la chaine qui doit etre comprise entre
+	;; 1 et 76
+
+	call $strlen
+
+	mov ax, cs
+	mov ds, ax
+	
+	inc byte [$nb_items]
+	mov dh, [$nb_items]
+	inc dh
+        mov ax, 0x1301
+	mov bh, 0
+	mov bl, 7
+	mov dl, 2
+	mov bp, si
+	int 0x10
+
+	;; placer l'adresse de la chaine dans la liste
+	mov di, $items
+	mov ax, 0
+	mov al, [$nb_items]
+	dec al
+	shl ax, 1 ; ax * 2
+	add di, ax
+	mov [di], bp
+
+	pop ds
+	pop di
+	pop bp
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | unselect_item                                                           |
+;;; | entree : al = numero de l'item                                          |
+;;; +-------------------------------------------------------------------------+
+unselect_item:
+	push ax
+	push bx
+	push cx
+	push dx
+	push bp
+	push di
+	push si
+	
+	push ax
+	mov di, $items
+	mov ah, 0
+	dec al
+	shl ax, 1
+	add di, ax
+	mov bp, [di]
+	mov si, bp
+	pop ax
+
+	mov dh, al
+	inc dh
+        mov ax, 0x1301
+	mov bh, 0
+	mov bl, 7
+	call $strlen
+	mov dl, 2
+	int 0x10
+	
+	pop si
+	pop di
+	pop bp
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | select_item                                                             |
+;;; | entree : al = numero de l'item                                          |
+;;; | sortie : al = item selectionnee                                         |
+;;; +-------------------------------------------------------------------------+
+select_item:
+	push bx
+	push cx
+	push dx
+	push bp
+	push di
+	push si
+	push ax
+
+	cmp [$nb_items], al
+	jc $select_over
+	cmp al, 0
+	jz $select_under
+	jmp $select_ok
+select_over:
+	mov al, [$nb_items]
+	jmp $select_ok
+select_under:
+	mov al, 1
+select_ok:
+	push ax
+	mov di, $items
+	mov ah, 0
+	dec al
+	shl ax, 1
+	add di, ax
+	mov bp, [di]
+	mov si, bp
+	pop ax
+
+	mov dh, al
+	inc dh
+        mov ax, 0x1301
+	mov bh, 0
+	mov bl, 0x1f
+	call $strlen
+	mov dl, 2
+	int 0x10
+
+	pop ax
+	mov al, dh
+	dec al
+
+	pop si
+	pop di
+	pop bp
+	pop dx
+	pop cx
+	pop bx
+	ret
+
+;;; +-------------------------------------------------------------------------+
+;;; | main_loop                                                               |
+;;; +-------------------------------------------------------------------------+
+main_loop:
+	mov ah, 0
+	int 0x16
+
+	cmp ah, 0x50
+	jz $event_down
+	cmp ah, 0x48
+	jz $event_up
+	cmp ah, 0x4f
+	jz $event_end
+	cmp ah, 0x47
+	jz $event_origin
+	cmp al, 13
+	jz $event_select
+
+	jmp $main_loop
+
+event_down:
+	mov al, [$selected_item]
+	call $unselect_item
+	inc al
+	call $select_item
+	mov [$selected_item], al
+	jmp $main_loop
+
+event_up:
+	mov al, [$selected_item]
+	call $unselect_item
+	dec al
+	call $select_item
+	mov [$selected_item], al
+	jmp $main_loop
+
+event_end:
+	mov al, [$selected_item]
+	call $unselect_item
+	mov al, [$nb_items]
+	call $select_item
+	mov [$selected_item], al
+	jmp $main_loop
+
+event_origin:
+	mov al, [$selected_item]
+	call $unselect_item
+	mov al, 1
+	call $select_item
+	mov [$selected_item], al
+	jmp $main_loop
+
+event_select:
+	jmp $selected
+
+;;; +-------------------------------------------------------------------------+
+;;; | init_interf                                                             |
+;;; +-------------------------------------------------------------------------+
+init_interf:
+	push ax
+	push cx
+
+	;; effacer le curseur
+	mov ah, 1
+	mov cx, 0x100
+	int 0x10
+
+	mov byte [$nb_items], 0
+
+	pop cx
+	pop ax
+	ret
+
+;;; +------------------------------------------------------------------------+
+;;; | disp_cursor                                                            |
+;;; +------------------------------------------------------------------------+
+disp_cursor:
+	push ax
+	push cx
+	
+	mov ah, 1
+	mov cx, 0x607
+	int 0x10
+
+	pop cx
+	pop ax
+	ret
+
+;;; +------------------------------------------------------------------------+
+;;; | clear_screen                                                           |
+;;; +------------------------------------------------------------------------+
+clear_screen:
+	push ax
+	push bx
+	push cx
+	push dx
+	
+	mov ah, 0x6
+	mov al, 0
+	mov bh, 7
+	mov cx, 0
+	mov dh, 24
+	mov dl, 79
+	int 0x10
+
+	mov ah, 2
+	mov bh, 0
+	mov dx, 0
+	int 0x10
+
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+	ret
+	
+;;; +-------------------------------------------------------------------------+
+;;; | Donnees                                                                 |
+;;; +-------------------------------------------------------------------------+
+
+main_win_title:
+	.chaine "  MBRToolBox v0.1-i386 - mbrtoolbox@arnak.cjb.net, mbrloader.arnak.cjb.net      "
+main_win_up:
+	.chaine "ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿"
+main_win_middle:
+	.chaine "³                                                                              ³"
+main_win_down:
+	.chaine "ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ"
+
+dialog_title:
+	.chaine "  MBRToolBox v0.1-i386                  "
+dialog_up:
+	.chaine "ÚÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ¿"
+dialog_middle:
+	.chaine "³                                      ³"
+dialog_down:
+	.chaine "ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÙ"
+textarea:
+	.chaine "________________________________________"
+
+;;; Gestion des items
+selected_item:
+	.octet 0
+nb_items:
+	.octet 0
+items:
+	;; 2 octets par items, avec les adresses (offsets uniquement)
+	;; max de 21 items
+	;; soit 52 octets au total
+	.tampon 52

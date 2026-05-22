@@ -1,0 +1,40 @@
++-  Programme  -----------------------------------------------------------+
+| MBRToolBox 0.1-i386                                                     |
+| Boîte à outils pour MBRToolBox 2.0-i386 et versions ultérieures         |
+|                                                                         |
+| MBRLoader 2.0-i386                                                      |
+| Gestionnnaire de démarrage "multi-boot"                                 |
+|                                                                         |
+| Voyez la documentation ci-jointe                                        |
+|                                                                         |
++-  Contacts  ------------------------------------------------------------+
+| http://mbrloader.arnak.cjb.net                                          |
+| mailto:mbrloader@arnak.cjb.net                                          |
+| mailto:mbrtoolbox@arnak.cjb.net                                         |
+|                                                                         |
++-  Auteur  --------------------------------------------------------------+
+| ArnaK, SARL / Rip-off, Inc. / Kompanio Fraudo / Schwindel, GmbH         |
+| Fabien Pollet                                                           |
+| http://www.arnak.cjb.net                                                |
+| mailto:arnak@arnak.cjb.net                                              |
+|                                                                         |
++-  Fichier  -------------------------------------------------------------+
+| DEVICEFILES                                                             |
+| Informations concernant les fichiers de périphériques                   |
++-------------------------------------------------------------------------+
+
+Le programme d'installation utilise les fichiers de périphériques pour l'accès
+aux disques. Des fichiers spécifiques peuvent être indiqués en ligne de
+commandes (--device).
+Par défaut, les fichiers de périphériques utilisés dépendent des options de
+compilations. Ces options peuvent être modifiées dans le fichier
+Makefile.devicefiles (paquetage source uniquement).
+
+Voici des exemples qui peuvent varier selon les versions des systèmes ou les
+disques utilisés :
+
+Linux 2.2.13 - 1er lecteur de disquettes
+FLOPPYDISK=\"/dev/fd0\"
+
+OpenBSD 2.9 - 1er lecteur de disquettes
+FLOPPYDISK=\"/dev/fd0a\"

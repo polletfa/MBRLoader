@@ -1,0 +1,109 @@
+;;; +-  Programme  -----------------------------------------------------------+
+;;; | MBRToolBox 0.1-i386                                                     |
+;;; | Boîte à outils pour MBRToolBox 2.0-i386 et versions ultérieures         |
+;;; |                                                                         |
+;;; | MBRLoader 2.0-i386                                                      |
+;;; | Gestionnnaire de démarrage "multi-boot"                                 |
+;;; |                                                                         |
+;;; | Voyez la documentation ci-jointe                                        |
+;;; |                                                                         |
+;;; +-  Contacts  ------------------------------------------------------------+
+;;; | http://mbrloader.arnak.cjb.net                                          |
+;;; | mailto:mbrloader@arnak.cjb.net                                          |
+;;; | mailto:mbrtoolbox@arnak.cjb.net                                         |
+;;; |                                                                         |
+;;; +-  Auteur  --------------------------------------------------------------+
+;;; | ArnaK, SARL / Rip-off, Inc. / Kompanio Fraudo / Schwindel, GmbH         |
+;;; | Fabien Pollet                                                           |
+;;; | http://www.arnak.cjb.net                                                |
+;;; | mailto:arnak@arnak.cjb.net                                              |
+;;; |                                                                         |
+;;; +-  Fichier  -------------------------------------------------------------+
+;;; | main.qas                                                                |
+;;; | Fichier principal                                                       |
+;;; +-------------------------------------------------------------------------+
+	
+;;; +-------------------------------------------------------------------------+
+;;; | Mot magique                                                             |
+;;; +-------------------------------------------------------------------------+
+.chaine "TB"
+
+;;; +-------------------------------------------------------------------------+
+;;; | Fonction principale                                                     |
+;;; +-------------------------------------------------------------------------+
+main:
+	;; Langue
+ 	call $set_lang
+
+toolbox_interf:	
+	;; lancer l'interface
+	call $init_interf
+	call $disp_main_win
+	mov byte [$current_menu], 1
+
+	;; Choix 1 : Partitionnement
+	mov si, [$mbrtoolpart_str]
+	call $add_item
+
+	;; Choix 2 : Redémarrer
+	mov si, [$reboot_str]
+	call $add_item
+
+	;; Choix 3 : Quitter
+	mov si, [$quit_str]
+	call $add_item
+	
+	mov al,1
+	call $select_item
+	mov [$selected_item], al
+
+	jmp $main_loop
+
+;;; +-------------------------------------------------------------------------+
+;;; | Redémarrer                                                              |
+;;; +-------------------------------------------------------------------------+
+reboot:
+	mov ax, 0x40
+	mov es, ax
+	mov [es:0x72], 0x1234
+	jmpf 0xffff0000
+	cli			; ne devrait pas être
+	hlt			; exécuté
+	
+;;; +-------------------------------------------------------------------------+
+;;; | Quitter                                                                 |
+;;; +-------------------------------------------------------------------------+
+quit:
+	retf
+	
+;;; +-------------------------------------------------------------------------+
+;;; | Fonction appelee par jump lorsqu'une entree d'un menu est selectionnee  |
+;;; +-------------------------------------------------------------------------+
+selected:
+	;; Determiner le menu appelant
+	cmp byte [$current_menu], 1    ; Menu principal
+	jz $selected_1		
+
+;;; Menu principal
+selected_1:	
+	cmp byte [$selected_item], 1   ; MBRTool : partitionnement
+ 	jz $mbrtoolpart
+	cmp byte [$selected_item], 2   ; Redémarrer
+	jz $reboot
+	cmp byte [$selected_item], 3   ; Quitter
+	jz $quit
+	
+;;; +-------------------------------------------------------------------------+
+;;; | Inclusions                                                              |
+;;; +-------------------------------------------------------------------------+
+
+.inclure "interf.qas"
+.inclure "string.qas"
+.inclure "multil.qas"
+.inclure "io.qas"
+.inclure "disk.qas"
+.inclure "convert.qas"
+.inclure "mbrtoolpart.qas"
+
+current_menu:
+	.octet 0

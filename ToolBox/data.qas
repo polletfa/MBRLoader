@@ -1,0 +1,184 @@
+;;; +-  Programme  -----------------------------------------------------------+
+;;; | MBRToolBox 0.1-i386                                                     |
+;;; | Boîte à outils pour MBRToolBox 2.0-i386 et versions ultérieures         |
+;;; |                                                                         |
+;;; | MBRLoader 2.0-i386                                                      |
+;;; | Gestionnnaire de démarrage "multi-boot"                                 |
+;;; |                                                                         |
+;;; | Voyez la documentation ci-jointe                                        |
+;;; |                                                                         |
+;;; +-  Contacts  ------------------------------------------------------------+
+;;; | http://mbrloader.arnak.cjb.net                                          |
+;;; | mailto:mbrloader@arnak.cjb.net                                          |
+;;; | mailto:mbrtoolbox@arnak.cjb.net                                         |
+;;; |                                                                         |
+;;; +-  Auteur  --------------------------------------------------------------+
+;;; | ArnaK, SARL / Rip-off, Inc. / Kompanio Fraudo / Schwindel, GmbH         |
+;;; | Fabien Pollet                                                           |
+;;; | http://www.arnak.cjb.net                                                |
+;;; | mailto:arnak@arnak.cjb.net                                              |
+;;; |                                                                         |
+;;; +-  Fichier  -------------------------------------------------------------+
+;;; | data.qas                                                                |
+;;; | Données en langue anglaise / Data in english                            |
+;;; +-------------------------------------------------------------------------+
+
+mbrtp_err_misplaced_en:	
+	.chaine "Space already in use."
+	.octet 10
+	.octet 13
+	.octet 0
+	
+mbrtp_err_occup_en:	
+	.chaine "Partition already used."
+	.octet 10
+	.octet 13
+	.octet 0
+
+systeme_inconnu_en:
+	.chainez "Unknown system"
+
+mbrtoolpart_str_en:
+	.chainez "Partition maintenance"
+
+reboot_str_en:
+	.chainez "Reboot the computer"
+
+quit_str_en:
+	.chainez "Quit and return to MBRLoader"
+
+mbrtoolpart_prompt_en:	
+	.chainez "MBRTool - Partition maintenance > "
+
+mbrtp_comm_quit_en:
+	.chainez "quit"
+
+commande_inconnue_a_en:
+	.chainez "The command '"
+
+commande_inconnue_b_en:
+	.chainez "' is unknown."
+
+mbrtp_err_syntquit_en:
+	.chainez "Syntax : quit"
+
+mbrtp_err_synttable_en:
+	.chainez "Syntax : table"
+
+mbrtp_bienvenue_en:
+	.chaine "Welcome in the partition maintenance program of MBRToolBox 0.1-i386."
+	.octet 10
+	.octet 13
+	.octet 10
+	.octet 13
+	.octet 0
+
+
+mbrtp_comm_aide_en:
+	.chainez "help"
+
+mbrtp_err_syntaide_en:
+	.chainez "Syntax : help"
+
+mbrtp_msg_aide_en:
+	.chaine "Commands :"
+	.octet 10
+	.octet 13
+	.chaine "activate                   Mark a partition as active"
+	.octet 10
+	.octet 13
+	.chaine "del #N                     Delete a partition"
+	.octet 10
+	.octet 13
+	.chaine "disk [disk number]         Select a disk"
+	.octet 10
+	.octet 13
+	.chaine "help                       List of commands"
+	.octet 10
+	.octet 13
+	.chaine "move #source #destination  Move a partition"
+	.octet 10
+	.octet 13
+	.chaine "new #N C_beg C_end type    New partition"
+	.octet 10
+	.octet 13
+	.chaine "quit                       Quit without saving"
+	.octet 10
+	.octet 13
+	.chaine "save                       Save changes"
+	.octet 10
+	.octet 13
+	.chaine "table                      Partitions table"
+	.octet 10
+	.octet 13
+	.chaine "type #N type               Modify the type of a partition"
+	.octet 10
+	.octet 13
+	.chaine "types                      List of the partition types"
+	.octet 10
+	.octet 13
+	.octet 0
+	
+mbrtp_comm_disq_en:
+	.chainez "disk"
+
+mbrtp_comm_table_en:
+	.chainez "table"
+	
+mbrtp_comm_sauv_en:
+	.chainez "save"
+	
+mbrtp_err_syntdisq_en:
+	.chainez "Syntax : disk [disk number]"
+
+mbrtp_comm_activ_en:
+	.chainez "activate"
+	
+mbrtp_err_syntactiv_en:
+	.chainez "Syntax : activate #N"
+
+mbrtp_comm_nouv_en:
+	.chainez "new"
+	
+mbrtp_err_syntnouv_en:
+	.chainez "Syntax : new #N C_beg C_end type"
+
+mbrtp_comm_types_en:
+	.chainez "types"
+	
+mbrtp_err_synttypes_en:
+	.chainez "Syntax : types"
+
+mbrtp_comm_type_en:
+	.chainez "type"
+	
+mbrtp_err_synttype_en:
+	.chainez "Syntax : type #N type"
+
+mbrtp_comm_suppr_en:
+	.chainez "del"
+	
+mbrtp_err_syntsuppr_en:
+	.chainez "Syntax : del #N"
+
+mbrtp_comm_depl_en:
+	.chainez "move"
+	
+mbrtp_err_syntdepl_en:
+	.chainez "Syntax : move #source #destination"
+
+mbrtp_err_syntsauv_en:
+	.chainez "Syntax : save"
+
+mbrtp_msg_cdq_en:
+	.chainez "Selected disk : "
+	
+mbrtp_msg_nocdq_en:
+	.chaine "No disk selected."
+	.octet 10
+	.octet 13
+	.octet 0
+
+mbrtp_msg_dsqs_en:
+	.chainez "Disks : "
+
