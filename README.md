@@ -1,6 +1,6 @@
-# Vintage x86 Multiboot Bootloader & Partition Tool
+# Vintage x86 Multiboot Boot manager & Partition Tool
 
-MBRLoader is a custom MBR bootloader featuring a built-in multilingual interface and a text-mode partition manager
+MBRLoader is a custom MBR boot manager/chainloader featuring a built-in multilingual interface and a text-mode partition manager
 provided as an external component that can be loaded from a floppy disk (`MBRToolBox`).
 
 I wrote this program in 2001 when I was 16 years old and used my own assembler to build it ([QuickASM](https://github.com/polletfa/QuickASM)).
